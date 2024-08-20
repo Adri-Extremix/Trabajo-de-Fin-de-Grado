@@ -1,0 +1,43 @@
+# Ignorar todos los archivos de salida de compilación de LaTeX excepto el .tex
+
+# Archivos auxiliares comunes de LaTeX
+*.aux
+*.bbl
+*.blg
+*.brf
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.out
+*.toc
+
+# Archivos generados para presentaciones Beamer
+*.nav
+*.snm
+*.vrb
+
+# Archivos generados por synctex
+*.synctex.gz
+
+# Archivos intermedios de compilación
+*.dvi
+*.pdf
+*.ps
+*.xdv
+
+# Archivos generados por latexmk
+*.fdb_latexmk
+*.fls
+
+# Archivos temporales de TeX Live
+*.tmp
+*.bak
+*.sav
+
+# Archivos específicos de TeX Live
+*.run.xml
+*.bcf
+*.xmpi
