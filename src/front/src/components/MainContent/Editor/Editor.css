@@ -2,9 +2,11 @@
 
 .Editor {
     background-color: var(--background-color-focus);
-    margin: 1%;
+    margin-top: 1%;
+    margin-bottom: 1%;
+    margin-left: 1.25%;
     padding: 1%;
     min-height: 60vmin;
-    min-width: 80vw;
+    min-width: 80%;
     text-align: left;
 }

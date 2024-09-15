@@ -10,3 +10,16 @@
     align-items: flex-start;
     flex-grow: 1;
 }
+.Code {
+    max-width: 100%; /* Asegura que el ancho máximo sea 100% */
+    display: grid;
+    width: 100%;
+    grid-template-columns: 4fr 1fr;
+    box-sizing: border-box;
+}
+.Buttons {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 5%;
+}
