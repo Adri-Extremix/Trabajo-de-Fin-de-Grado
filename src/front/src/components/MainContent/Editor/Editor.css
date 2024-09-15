@@ -1,0 +1,10 @@
+@import "../../../variables.css";
+
+.Editor {
+    background-color: var(--background-color-focus);
+    margin: 1%;
+    padding: 1%;
+    min-height: 60vmin;
+    min-width: 80vw;
+    text-align: left;
+}

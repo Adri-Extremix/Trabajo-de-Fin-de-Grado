@@ -1,0 +1,12 @@
+@import "../../../variables.css";
+
+.Terminal {
+    background-color: var(--background-color-focus);
+    margin-bottom: 1%;
+    margin-left: 1%;
+    padding: 1%;
+    min-height: 20vmin;
+    box-sizing: border-box; /* Incluye padding y borde en el ancho y alto */
+    width: calc(100% - 2%);
+    text-align: left;
+}

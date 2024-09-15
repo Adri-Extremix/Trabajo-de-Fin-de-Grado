@@ -1,0 +1,12 @@
+@import "../../variables.css";
+
+.MainContent {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    min-height: 90vmin;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex-grow: 1;
+}
