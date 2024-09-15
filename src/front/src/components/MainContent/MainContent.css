@@ -3,17 +3,18 @@
 .MainContent {
     background-color: var(--background-color);
     color: var(--text-color);
-    min-height: 90vmin;
-    height: auto;
+    /* min-height: 90vmin; */
+    height: 90%;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     flex-grow: 1;
 }
 .Code {
-    max-width: 100%; /* Asegura que el ancho máximo sea 100% */
+    max-width: 100%;
     display: grid;
     width: 100%;
+    height: 100%;
     grid-template-columns: 4fr 1fr;
     box-sizing: border-box;
 }
