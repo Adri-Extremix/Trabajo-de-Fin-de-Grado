@@ -3,6 +3,8 @@ import "./MainContent.css";
 import Editor from "./Editor/Editor";
 import Terminal from "./Terminal/Terminal";
 import Button from "./Button/Button";
+import axios from "axios";
+
 function MainContent() {
     const [code, setCode] = React.useState(`//Este es un Código de Ejemplo
 
@@ -25,11 +27,33 @@ int main()
     return 0;
 }`);
 
-    const Compilar = () => {
+    const [outTerminal, setOutTerminal] = React.useState("");
+    const [isCompiled, setIsCompiled] = useState(false);
+
+    const Compilar = async () => {
+        try {
+            const response = await axios.post("http://localhost:5000/CC/compile", {
+                code,
+            });
+            setOutTerminal(response.data.output);
+            setIsCompiled(true);
+        } catch (error) {
+            console.error("Error al compilar:", error);
+            setIsCompiled(false);
+        }
         console.log("Compilando");
     };
 
-    const Ejecutar = () => {
+    const Ejecutar = async () => {
+        if (!isCompiled) return;
+        try {
+            const response = await axios.post("http://localhost:5000/CC/run", {
+                code,
+            });
+            setOutTerminal(response.data.output);
+        } catch (error) {
+            console.error("Error al ejecutar:", error);
+        }
         console.log("Ejecutando");
     };
 
@@ -42,7 +66,7 @@ int main()
                     <Button text="Ejecutar" onClick={Ejecutar} />
                 </div>
             </div>
-            <Terminal />
+            <Terminal value={outTerminal} />
         </div>
     );
 }

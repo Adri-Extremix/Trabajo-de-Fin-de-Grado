@@ -1,8 +1,8 @@
 import React from "react";
 import "./Terminal.css";
 
-function Terminal() {
-    return <div className="Terminal">Terminal</div>;
+function Terminal({ output }) {
+    return <div className="Terminal">{output}</div>;
 }
 
 export default Terminal;
