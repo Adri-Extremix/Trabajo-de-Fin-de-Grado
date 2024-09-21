@@ -6,8 +6,7 @@ import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { tokyoNight } from "@uiw/codemirror-theme-tokyo-night";
 import "./Editor.css";
 
-function Editor() {
-    const [value, setValue] = React.useState("//Escribe aquí su código");
+function Editor({ value, setValue }) {
     const onChange = React.useCallback((val, viewUpdate) => {
         console.log("val:", val);
         setValue(val);
