@@ -28,7 +28,7 @@ int main()
 }`);
 
     const [outTerminal, setOutTerminal] = React.useState("");
-    const [isCompiled, setIsCompiled] = useState(false);
+    const [isCompiled, setIsCompiled] = React.useState(false);
 
     const Compilar = async () => {
         try {
