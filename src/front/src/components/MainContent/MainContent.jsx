@@ -32,22 +32,23 @@ int main()
 
     const Compilar = async () => {
         try {
-            const response = await axios.post("http://localhost:5000/CC/compile", {
+            const response = await axios.post("http://localhost:8080/CC/compile", {
                 code,
             });
             setOutTerminal(response.data.output);
+            console.log("Esto es la respuesta:", response.data.output);
+            console.log("Esto es la variable:", outTerminal);
             setIsCompiled(true);
         } catch (error) {
             console.error("Error al compilar:", error);
             setIsCompiled(false);
         }
-        console.log("Compilando");
     };
 
     const Ejecutar = async () => {
         if (!isCompiled) return;
         try {
-            const response = await axios.post("http://localhost:5000/CC/run", {
+            const response = await axios.post("http://localhost:8080/CC/run", {
                 code,
             });
             setOutTerminal(response.data.output);
@@ -66,7 +67,7 @@ int main()
                     <Button text="Ejecutar" onClick={Ejecutar} />
                 </div>
             </div>
-            <Terminal value={outTerminal} />
+            <Terminal output={outTerminal} />
         </div>
     );
 }
