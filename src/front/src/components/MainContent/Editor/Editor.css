@@ -9,6 +9,7 @@
     height: 90%;
     width: 96.5%;
     text-align: left;
+    max-height: 62vh;
 }
 .cm-editor {
     font-size: 0.9rem;

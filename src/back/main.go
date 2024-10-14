@@ -19,6 +19,8 @@ type ResponseBody struct {
 	Error  string `json:"error,omitempty"`
 }
 
+var exeFilePath string
+
 // Middleware para manejar CORS
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +38,7 @@ func corsMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func handleCode(res http.ResponseWriter, req *http.Request, processFunc func(string) (string, error)) {
+func compileHandler(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		http.Error(res, "Esté método no está soportado", http.StatusMethodNotAllowed)
 		return
@@ -47,33 +49,55 @@ func handleCode(res http.ResponseWriter, req *http.Request, processFunc func(str
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	output, err := processFunc(reqBody.Code)
+	exePath, output, err := compiler.CompileC(reqBody.Code)
 
 	var resBody ResponseBody
+	if err != nil {
+		resBody.Error = err.Error()
+	} else {
+		resBody.Output = output
+		exeFilePath = exePath // Almacenar el nombre del archivo ejecutable temporal
+	}
 
+	resBody.Output = output
+
+	res.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(res).Encode(resBody)
+}
+
+func runHandler(res http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
+		http.Error(res, "Esté método no está soportado", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if exeFilePath == "" {
+		fmt.Print("No hay ejecutable")
+		http.Error(res, "No hay archivo ejecutable disponible. Compila el código primero.", http.StatusBadRequest)
+		return
+	}
+	var reqBody RequestBody
+	err := json.NewDecoder(req.Body).Decode(&reqBody)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	output, err := compiler.RunC(exeFilePath)
+	var resBody ResponseBody
 	if err != nil {
 		resBody.Error = err.Error()
 	} else {
 		resBody.Output = output
 	}
-
 	res.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(res).Encode(resBody)
-
 }
-
-func compileHandler(res http.ResponseWriter, req *http.Request) {
-	handleCode(res, req, compiler.CompileC)
-}
-
-/* func runHandler(res http.ResponseWriter, req *http.Request){
-	handleCode(res,req,compiler.RunC)
-} */
 
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/CC/compile", compileHandler)
-	//mux.HandleFunc("/CC/run", runHandler)
+	mux.HandleFunc("/CC/run", runHandler)
 
 	// Aplicar el middleware CORS
 	handler := corsMiddleware(mux)

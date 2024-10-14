@@ -4,36 +4,50 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
-func CompileC(code string) (output string, err error) {
+const exeFileName = "exe-*.o"
+
+func CompileC(code string) (exePath string, output string, err error) {
 
 	tmpFile, err := os.CreateTemp("/tmp", "code-*.c")
 	if err != nil {
-		return "Error: Ha ocurrido un error en el backend", fmt.Errorf("no se pudo crear el archivo temporal: %v", err)
+		return "", "Error: Ha ocurrido un error en el backend", fmt.Errorf("no se pudo crear el archivo temporal: %v", err)
 	}
-	defer os.Remove(tmpFile.Name()) // Eliminar el archivo temporal al final
+	defer os.Remove(tmpFile.Name())
 
 	if _, err := tmpFile.Write([]byte(code)); err != nil {
-		return "Error: Ha ocurrido un error en el backend", fmt.Errorf("no se pudo escribir en el archivo temporal: %v", err)
+		return "", "Error: Ha ocurrido un error en el backend", fmt.Errorf("no se pudo escribir en el archivo temporal: %v", err)
 	}
 
 	if err := tmpFile.Close(); err != nil {
-		return "Error: Ha ocurrido un error en el backend", fmt.Errorf("no se pudo cerrar el fichero temporal: %v", err)
+		return "", "Error: Ha ocurrido un error en el backend", fmt.Errorf("no se pudo cerrar el fichero temporal: %v", err)
 	}
 
-	exeFile, err := os.CreateTemp("/tmp", "exe.o")
+	exeFile, err := os.CreateTemp("/tmp", exeFileName)
 	if err != nil {
-		return "Error: Ha ocurrido un error en el backend", fmt.Errorf("no se pudo crear el archivo temporal: %v", err)
+		return "", "Error: Ha ocurrido un error en el backend", fmt.Errorf("no se pudo crear el archivo temporal: %v", err)
 	}
 	exeFile.Close()
 
 	exe := exec.Command("gcc", tmpFile.Name(), "-o", exeFile.Name())
 	outputBytes, err := exe.CombinedOutput()
-	fmt.Println(string(outputBytes))
-	if err != nil {
-		return string(outputBytes), fmt.Errorf("error al compilar: %v", err)
-	}
+	outputStr := string(outputBytes)
+	outputStr = strings.ReplaceAll(outputStr, tmpFile.Name(), "code.c")
+	return exeFile.Name(), "Compilación terminada con éxito \n" + outputStr, nil
+}
 
-	return "Compilación terminada \n" + string(outputBytes), nil
+func RunC(exePath string) (output string, err error) {
+
+	exe := exec.Command(exePath)
+	fmt.Print(exePath)
+	outputBytes, err := exe.CombinedOutput()
+	outputStr := string(outputBytes)
+	fmt.Print(outputStr)
+	if err != nil {
+		return outputStr, fmt.Errorf("error al ejecutar: %v", err)
+	}
+	fmt.Print(outputStr)
+	return outputStr, err
 }

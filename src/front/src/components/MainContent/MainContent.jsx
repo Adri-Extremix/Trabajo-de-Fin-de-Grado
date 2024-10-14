@@ -36,8 +36,6 @@ int main()
                 code,
             });
             setOutTerminal(response.data.output);
-            console.log("Esto es la respuesta:", response.data.output);
-            console.log("Esto es la variable:", outTerminal);
             setIsCompiled(true);
         } catch (error) {
             console.error("Error al compilar:", error);
