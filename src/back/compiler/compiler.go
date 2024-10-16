@@ -44,10 +44,8 @@ func RunC(exePath string) (output string, err error) {
 	fmt.Print(exePath)
 	outputBytes, err := exe.CombinedOutput()
 	outputStr := string(outputBytes)
-	fmt.Print(outputStr)
 	if err != nil {
 		return outputStr, fmt.Errorf("error al ejecutar: %v", err)
 	}
-	fmt.Print(outputStr)
 	return outputStr, err
 }

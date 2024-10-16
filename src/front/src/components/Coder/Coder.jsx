@@ -1,11 +1,11 @@
 import React from "react";
-import "./MainContent.css";
+import "./Coder.css";
 import Editor from "./Editor/Editor";
 import Terminal from "./Terminal/Terminal";
 import Button from "./Button/Button";
 import axios from "axios";
 
-function MainContent() {
+function Coder() {
     const [code, setCode] = React.useState(`//Este es un Código de Ejemplo
 
 #include <stdio.h>
@@ -57,7 +57,7 @@ int main()
     };
 
     return (
-        <div className="MainContent">
+        <div className="Coder">
             <div className="Code">
                 <Editor value={code} setValue={setCode} />
                 <div className="Buttons">
@@ -70,4 +70,4 @@ int main()
     );
 }
 
-export default MainContent;
+export default Coder;
