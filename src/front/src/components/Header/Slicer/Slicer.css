@@ -1,0 +1,41 @@
+.Slicer {
+    display: flex;
+    align-items: center;
+}
+
+.Slicer-toggle {
+    appearance: none;
+    width: 50px;
+    height: 25px;
+    background-color: var(--secondary-color-coder);
+    border-radius: 25px;
+    position: relative;
+    outline: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.Slicer-toggle:checked {
+    background-color: var(--secondary-color-debugger);
+}
+
+.Slicer-toggle::before {
+    content: "";
+    position: absolute;
+    width: 23px;
+    height: 23px;
+    background-color: white;
+    border-radius: 50%;
+    top: 1px;
+    left: 1px;
+    transition: transform 0.3s;
+}
+
+.Slicer-toggle:checked::before {
+    transform: translateX(25px);
+}
+
+.Slicer-label {
+    font-size: 1rem;
+    margin-left: 10px;
+}

@@ -11,5 +11,8 @@
 }
 .large-letter {
     font-size: calc(10px + 4vmin);
-    color: var(--primary-color);
+    color: var(--primary-color-coder);
+}
+.Screen {
+    height: 100vh;
 }

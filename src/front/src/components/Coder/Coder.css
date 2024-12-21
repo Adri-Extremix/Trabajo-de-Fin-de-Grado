@@ -1,6 +1,6 @@
 @import "../../variables.css";
 
-.MainContent {
+.Coder {
     background-color: var(--background-color);
     color: var(--text-color);
     /* min-height: 90vmin; */
