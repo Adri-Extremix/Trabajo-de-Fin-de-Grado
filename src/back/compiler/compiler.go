@@ -31,10 +31,13 @@ func CompileC(code string) (exePath string, output string, err error) {
 	}
 	exeFile.Close()
 
-	exe := exec.Command("gcc", tmpFile.Name(), "-o", exeFile.Name())
+	exe := exec.Command("gcc", tmpFile.Name(), "-o", exeFile.Name(), "-pthread")
 	outputBytes, err := exe.CombinedOutput()
 	outputStr := string(outputBytes)
 	outputStr = strings.ReplaceAll(outputStr, tmpFile.Name(), "code.c")
+	if err != nil {
+		return "", "Error: La compilación ha fallado \n" + outputStr, err
+	}
 	return exeFile.Name(), "Compilación terminada con éxito \n" + outputStr, nil
 }
 
