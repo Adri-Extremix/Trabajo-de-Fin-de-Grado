@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Construye la imagen Docker
 docker build -t backend-image .
 
