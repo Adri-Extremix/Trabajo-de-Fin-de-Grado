@@ -50,6 +50,29 @@ Permite visualizar en líneas temporales qué ha hecho cada hilo en su propia me
 
 Esta planificación permite a través de la ejecución paso a paso decidir qué hilo avanza, es decir tener una previsualización de cuál será la siguiente sentencia a ejecutar y decidir qué hilo será el que se ejecute.
 
+##### Secuencialización del código
+
+Sustituir el uso de hilos por llamadas secuenciales, por ejemplo el siguiente código:
+
+```C
+for (int i = 0; i < M; i++) {
+    row_indices[i] = i; // Asignar el índice de la fila
+    if (pthread_create(&threads[i], NULL, print_row, &row_indices[i]) != 0) {
+        perror("Error creando hilo");
+        return 1;
+    }
+}
+```
+
+Al siguiente:
+
+```C
+for (int i = 0; i < M; i++) {
+    row_indices[i] = i; // Asignar el índice de la fila
+    print_row(&row_indices[i]); // Llamar directamente a la función
+}
+```
+
 ## Análisis de Condiciones de Carrera y Secciones Críticas
 
 > Faltan cosas en este apartado y el código ensamblador no me convence
