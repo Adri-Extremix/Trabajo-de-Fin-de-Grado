@@ -6,6 +6,7 @@ cleanup() {
     echo "Deteniendo backend y frontend..."
     docker stop $CONTAINER_ID > /dev/null
     docker wait $CONTAINER_ID > /dev/null
+    docker rm $CONTAINER_ID
     echo ""
     echo "Contenedor Docker detenido."
 }
