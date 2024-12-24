@@ -8,10 +8,6 @@ import axios from "axios";
 function Coder() {
     const [code, setCode] = React.useState(`//Este es un Código de Ejemplo
 
-//Este es un Código de Ejemplo
-
-//Este es un Código de Ejemplo
-
 #include <stdio.h>
 #include <pthread.h>
 
