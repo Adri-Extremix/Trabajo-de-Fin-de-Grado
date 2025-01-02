@@ -31,7 +31,7 @@ func CompileC(code string) (exePath string, output string, err error) {
 	}
 	exeFile.Close()
 
-	exe := exec.Command("gcc", tmpFile.Name(), "-o", exeFile.Name(), "-pthread")
+	exe := exec.Command("gcc", tmpFile.Name(), "./c_code/store_state.c", "-o", exeFile.Name(), "-pthread", "-lcjson")
 	outputBytes, err := exe.CombinedOutput()
 	outputStr := string(outputBytes)
 	outputStr = strings.ReplaceAll(outputStr, tmpFile.Name(), "code.c")
