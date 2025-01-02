@@ -4,12 +4,22 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
 const exeFileName = "exe-*.o"
 
 func CompileC(code string) (exePath string, output string, err error) {
+
+	projDir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Error obteniendo el directorio del proyecto:", err)
+		return
+	}
+
+	// Construir la ruta relativa a los archivos de encabezado
+	headersDir := filepath.Join(projDir, "c_code")
 
 	tmpFile, err := os.CreateTemp("/tmp", "code-*.c")
 	if err != nil {
@@ -31,7 +41,7 @@ func CompileC(code string) (exePath string, output string, err error) {
 	}
 	exeFile.Close()
 
-	exe := exec.Command("gcc", tmpFile.Name(), "./c_code/store_state.c", "-o", exeFile.Name(), "-pthread", "-lcjson")
+	exe := exec.Command("gcc", "-I", headersDir, tmpFile.Name(), "./c_code/store_state.c", "-o", exeFile.Name(), "-pthread", "-lcjson")
 	outputBytes, err := exe.CombinedOutput()
 	outputStr := string(outputBytes)
 	outputStr = strings.ReplaceAll(outputStr, tmpFile.Name(), "code.c")

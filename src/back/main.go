@@ -49,7 +49,9 @@ func compileHandler(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	exePath, output, err := compiler.CompileC(reqBody.Code)
+
+	inyectedCode := compiler.InyectCode(reqBody.Code)
+	exePath, output, err := compiler.CompileC(inyectedCode)
 
 	var resBody ResponseBody
 	if err != nil {
