@@ -1,3 +1,6 @@
+.vscode
+
+
 # Ignorar todos los archivos de salida de compilación de LaTeX excepto el .tex
 
 # Archivos auxiliares comunes de LaTeX
