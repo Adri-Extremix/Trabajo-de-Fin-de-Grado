@@ -24,6 +24,9 @@ typedef enum {
 
 // Función para agregar una variable al JSON
 void addVariableToJson(cJSON* root, const char* varName, void* value, VariableType type, size_t arraySize);
+
+#define ADD_VARIABLE_TO_JSON(root, varName, value, type) addVariableToJson(root, varName, &value, type, 0)
+
 void writeJsonToFile(const char* filename, cJSON* root);
 
 #endif
