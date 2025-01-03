@@ -69,16 +69,26 @@ int main() {
             const response = await axios.post("http://localhost:8080/CC/compile", {
                 code,
             });
+            console.log(response.data);
             setOutTerminal(response.data.output);
             setIsCompiled(true);
         } catch (error) {
             console.error("Error al compilar:", error);
+            if (error.response && error.response.data) {
+                setOutTerminal(error.response.data.error || "Error desconocido");
+            } else {
+                setOutTerminal("Error de red o servidor no disponible");
+            }
             setIsCompiled(false);
         }
     };
 
     const Ejecutar = async () => {
-        if (!isCompiled) return;
+        if (!isCompiled) {
+            setOutTerminal("No se ha compilado previamente");
+            return;
+        }
+
         try {
             const response = await axios.post("http://localhost:8080/CC/run", {
                 code,

@@ -1,26 +1,2 @@
-# Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-*.o
-
-# Test binary, build output
-*.test
-*.out
-
-# Output of the go coverage tool, specifically when used with LiteIDE
-*.coverprofile
-
-# Output of the go build tool
-_build/
-
-# Dependency directories (remove the comment below if you use Go modules)
-# /vendor/
-
-# Go workspace file
-go.work
-
-# Go module files
-go.sum
+venv/
+__pycache__
