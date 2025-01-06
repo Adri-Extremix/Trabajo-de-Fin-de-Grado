@@ -69,7 +69,6 @@ int main() {
             const response = await axios.post("http://localhost:8080/CC/compile", {
                 code,
             });
-            console.log(response.data);
             setOutTerminal(response.data.output);
             setIsCompiled(true);
         } catch (error) {
@@ -97,7 +96,6 @@ int main() {
         } catch (error) {
             console.error("Error al ejecutar:", error);
         }
-        console.log("Ejecutando");
     };
 
     return (
