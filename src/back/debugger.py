@@ -1,13 +1,16 @@
 from pygdbmi.gdbcontroller import GdbController
 from pprint import pprint
+import re
 
 #TODO: Devolver solo lo necesario en los métodos
 class Debugger:
     def __init__(self, code_path, compiled_path):
-        self.code_path = code_path
         self.compiled_path = compiled_path
         self.gdb = GdbController()
         self.gdb.write(f"file {compiled_path}")
+        with open(code_path, "r") as file:
+            self.code = file.read()
+        self.functions = self.parse_code()
 
     def run(self):
         pprint(self.gdb.write("-exec-run"))
@@ -52,13 +55,54 @@ class Debugger:
     def get_thread_info(self):
         pprint(self.gdb.write("-thread-info"))
     
-    def get_actual_code(self):
-        #TODO: Función que parsea el fichero de código y devuelva el fragmento de código que se está ejecutando
-        pass
+    def get_code_function(self, function):
+        start_line, end_line = self.functions[function]
+        lines = self.code.split('\n')
+        code = lines[start_line - 1:end_line]
+        code = '\n'.join(code)
 
-debugger = Debugger("./codigo")
-debugger.set_breakpoint("16")
+        return code
+        
+
+    def parse_code(self):
+        function_pattern = re.compile(r'^\s*(?:int|void|float|double|char|int\*|void\*|float\*|double\*|char\*)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\([^)]*\)\s*\{')
+        functions = {}
+        lines = self.code.split('\n')
+        current_function = None
+        start_line = None
+        brace_count = 0
+
+        for i, line in enumerate(lines):
+            match = function_pattern.match(line)
+            if match:
+                current_function = match.group(1)
+                start_line = i + 1
+            
+            if current_function:
+                brace_count += len(re.findall(r'\{', line))
+                brace_count -= len(re.findall(r'\}', line))
+                if brace_count == 0:
+                    functions[current_function] = (start_line, i + 1)
+                    current_function = None
+                
+        return functions
+        
+            
+
+debugger = Debugger("codigo.c","./codigo")
+print("Colocando breakpoint en línea 11")
+debugger.set_breakpoint("11")
+print("Ejecutando hasta el breakpoint")
 debugger.run()
-pprint("Continue ")
-print("")
-print("")
+print("Funcion actual")
+debugger.get_code_function("main")
+""" print("Ejecutando la siguiente línea")
+debugger.step_into()
+print("Ejecutando la siguiente línea")
+debugger.step_into()
+print("Ejecutando la siguiente línea")
+debugger.step_into()
+print("Ejecutando la siguiente línea")
+debugger.step_into()
+print("Ejecutando la siguiente línea")
+debugger.step_into() """
