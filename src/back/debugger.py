@@ -14,7 +14,8 @@ class Debugger:
         print(self.functions)
 
     def parse_code(self):
-        function_pattern = re.compile(r'^\s*(?:int|void|float|double|char|int\*|void\*|float\*|double\*|char\*)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\([^)]*\)\s*\{')
+        function_pattern = re.compile(r'^\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\*?\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\([^)]*\)\s*\{')
+        #function_pattern = re.compile(r'^\s*(?:int|void|float|double|char|int\*|void\*|float\*|double\*|char\*)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\([^)]*\)\s*\{')
         functions = {}
         lines = self.code.split('\n')
         current_function = None
@@ -52,6 +53,9 @@ class Debugger:
     def step_out(self):
         pprint(self.gdb.write("-exec-finish"))
     
+    def set_breakpoint(self, line):
+        pprint(self.gdb.write(f"-break-insert {line}"))
+
     def select_thread(self, thread_id):
         pprint(self.gdb.write(f"-thread-select {thread_id}"))
 
@@ -108,10 +112,6 @@ class Debugger:
 
         return all_variables
             
-
-    def set_breakpoint(self, line):
-        pprint(self.gdb.write(f"-break-insert {line}"))
-    
     def get_code_function(self, function):
         start_line, end_line = self.functions[function]
         lines = self.code.split('\n')
