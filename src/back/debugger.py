@@ -15,7 +15,7 @@ class Debugger:
 
     def parse_code(self):
         function_pattern = re.compile(r'^\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\*?\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\([^)]*\)\s*\{')
-        #function_pattern = re.compile(r'^\s*(?:int|void|float|double|char|int\*|void\*|float\*|double\*|char\*)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\([^)]*\)\s*\{')
+
         functions = {}
         lines = self.code.split('\n')
         current_function = None
@@ -70,11 +70,13 @@ class Debugger:
     
     def get_all_thread_variables(self):
 
-        system_prefixes = {
-        "sc_", "unwind_buf", "not_first_call", "save_errno", "ret", 
-        "r", "pd", "clock_id", "ts"
+        exclude_vars = {
+            "sc_cancel_oldtype", "sc_ret", "unwind_buf", "not_first_call", 
+            "save_errno", "ret", "r", "pd", "clock_id", "clock_id@entry", 
+            "flags", "flags@entry", "rem", "rem@entry", "req", "req@entry", 
+            "ts"
         }
-
+        
         threads_info = self.get_thread_info()
         if not threads_info or "threads" not in threads_info[0]["payload"]:
             print("No se encontraron threads.")
@@ -105,7 +107,7 @@ class Debugger:
                     for var in variables:
                         name = var.get('name')
                         value = var.get('value')
-                        if not any(name.startswith(prefix) for prefix in system_prefixes):
+                        if name not in exclude_vars:
                             thread_variables[name] = value
 
             all_variables[thread_id] = thread_variables
