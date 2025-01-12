@@ -1,37 +1,74 @@
 #include <stdio.h>
-
+#include <pthread.h>
+#include <unistd.h>
 // Function prototypes
-void greet();
-int add(int a, int b);
-void printArray(int arr[], int size);
+void* greet(void* arg);
+void* add(void* arg);
+void* printArray(void* arg);
+
+typedef struct {
+    int a;
+    int b;
+    int result;
+} AddArgs;
+
+typedef struct {
+    int* arr;
+    int size;
+} PrintArrayArgs;
 
 int main() {
-    greet();
+    pthread_t thread1, thread2, thread3;
 
-    int sum = add(5, 3);
-    printf("Sum: %d\n", sum);
+    // Create thread for greet function
+    pthread_create(&thread1, NULL, greet, NULL);
 
+    // Create thread for add function
+    AddArgs addArgs = { 5, 3, 0 };
+    pthread_create(&thread2, NULL, add, &addArgs);
+
+    // Create thread for printArray function
     int arr[] = { 1, 2, 3, 4, 5 };
-    printArray(arr, 5);
+    PrintArrayArgs printArrayArgs = { arr, 5 };
+    pthread_create(&thread3, NULL, printArray, &printArrayArgs);
+
+    // Wait for threads to finish
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+    pthread_join(thread3, NULL);
+
+    // Print the result of add function
+    printf("Sum: %d\n", addArgs.result);
+
+    int result = 0;
 
     return 0;
 }
 
 // Function to print a greeting message
-void greet() {
+void* greet(void* arg) {
     printf("Hello, welcome to the program!\n");
+    sleep(3);
+    return NULL;
 }
 
-// Function to add two integers
-int add(int a, int b) {
-    return a + b;
+// Function to add two numbers
+void* add(void* arg) {
+    float flags = 3.14;
+    AddArgs* args = (AddArgs*)arg;
+    args->result = args->a + args->b;
+    sleep(3);
+    return NULL;
 }
 
-// Function to print the elements of an array
-void printArray(int arr[], int size) {
-    printf("Array elements: ");
-    for (int i = 0; i < size; i++) {
-        printf("%d ", arr[i]);
+// Function to print an array
+void* printArray(void* arg) {
+    int a = 3;
+    PrintArrayArgs* args = (PrintArrayArgs*)arg;
+    for (int i = 0; i < args->size; i++) {
+        printf("%d ", args->arr[i]);
     }
     printf("\n");
+    sleep(3);
+    return NULL;
 }
