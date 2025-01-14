@@ -37,10 +37,68 @@ class Debugger:
                 
         return functions
 
+    def get_stack_depth(self):
+        # Obtener la profundidad del stack del hilo actual
+        response = self.gdb.write("-stack-info-depth")
+        if response and response[0].get("message") == "done":
+            return int(response[0]["payload"]["depth"])
+        return 0
+
+
+
 #TODO: Devolver solo lo necesario en los métodos
     def run(self):
-        pprint(self.gdb.write("-exec-run"))
+        #TODO: Tal vez la lista de threads y el diccionario se solapan
+        run = self.gdb.write("-exec-run")
+        threads = []
+        functions_threads = {}
+        found = False
+        for response in run:
+            if response.get("message") == "thread-created":
+                threads.append(response["payload"]["id"])
+            if response.get("message") == "breakpoint-modified" and not found:
+                found = True
+                info_threads = self.get_thread_info()[0]
 
+                # To recover the current thread                
+                selected_thread = info_threads["payload"]["current-thread-id"]
+
+                
+                for thread in info_threads["payload"]["threads"]:
+                    thread_id = thread["id"]
+                    thread_function = thread["frame"]["func"]
+                    thread_line = thread["frame"]["line"]
+
+                    
+                    #Para verificar si el thread está en el archivo compilado
+                    thread_file = thread["frame"]["file"] 
+                    if thread_file != self.compiled_path:
+                        print(f"Thread {thread_id} is not in the compiled file")
+
+                        self.select_thread(thread_id)
+                        depth = self.get_stack_depth()
+
+                        current_frame = 0
+                        while True:
+                            self.gdb.write(f"-stack-select-frame {current_frame}")
+                            frame_info = self.gdb.write("-stack-info-frame")[0]["payload"]
+
+                            if frame_info["frame"]["file"] == "codigo.c":
+                                functions_threads[thread_id] = (frame_info['frame']['func'],frame_info['frame']['line'])
+                                break
+                            
+                            current_frame += 1
+                            
+                            if current_frame >= depth:
+                                print(f"Thread {thread_id} origin not found in compiled file")
+                                break
+                    else:
+                        functions_threads[thread_id] = (thread_function, thread_line)
+                
+                self.select_thread(selected_thread)
+            
+        return threads, functions_threads
+                
     def continue_execution(self):
         pprint(self.gdb.write("-exec-continue"))
 
@@ -48,16 +106,17 @@ class Debugger:
         pprint(self.gdb.write("-exec-next"))
 
     def step_into(self):
+        #TODO: Si se está en una función que no esté en el código fuente, se realizará un step out para salir de la función
         pprint(self.gdb.write("-exec-step"))
     
     def step_out(self):
         pprint(self.gdb.write("-exec-finish"))
     
     def set_breakpoint(self, line):
-        pprint(self.gdb.write(f"-break-insert {line}"))
+        self.gdb.write(f"-break-insert {line}")
 
     def select_thread(self, thread_id):
-        pprint(self.gdb.write(f"-thread-select {thread_id}"))
+        self.gdb.write(f"-thread-select {thread_id}")
 
     def get_thread_info(self):
         info = self.gdb.write("-thread-info")
@@ -76,7 +135,7 @@ class Debugger:
             "flags", "flags@entry", "rem", "rem@entry", "req", "req@entry", 
             "ts"
         }
-        
+
         threads_info = self.get_thread_info()
         if not threads_info or "threads" not in threads_info[0]["payload"]:
             print("No se encontraron threads.")
@@ -127,12 +186,10 @@ class Debugger:
             
 
 debugger = Debugger("codigo.c","./codigo")
-print("Colocando breakpoint en línea 11")
-debugger.set_breakpoint("34")
-print("Ejecutando hasta el breakpoint")
-debugger.run()
-print("Obteniendo variables")
-pprint(debugger.get_all_thread_variables())
+print("Colocando breakpoint")
+debugger.set_breakpoint(50)
+print("Ejecutando el programa")
+print(debugger.run())
 """ print("Ejecutando la siguiente línea")
 debugger.step_into()
 print("Ejecutando la siguiente línea")
