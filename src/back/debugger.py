@@ -57,42 +57,42 @@ class Debugger:
                 functions_threads[response["payload"]["id"]] = None
 
         if len(self.breakpoints) > 0:
-            info_threads = self.get_thread_info()[0]
+                info_threads = self.get_thread_info()[0]
+                print("Thread info:")
+                # To recover the current thread                
+                selected_thread = info_threads["payload"]["current-thread-id"]
 
-            # To recover the current thread                
-            selected_thread = info_threads["payload"]["current-thread-id"]
+                for thread in info_threads["payload"]["threads"]:
+                    thread_id = thread["id"]
+                    thread_function = thread["frame"]["func"]
+                    thread_line = thread["frame"]["line"]
 
-            for thread in info_threads["payload"]["threads"]:
-                thread_id = thread["id"]
-                thread_function = thread["frame"]["func"]
-                thread_line = thread["frame"]["line"]
+                    #Para verificar si el thread está en el archivo compilado
+                    thread_file = thread["frame"]["file"] 
+                    if thread_file != self.compiled_path:
+                        print(f"Thread {thread_id} is not in the compiled file")
 
-                #Para verificar si el thread está en el archivo compilado
-                thread_file = thread["frame"]["file"] 
-                if thread_file != self.compiled_path:
-                    print(f"Thread {thread_id} is not in the compiled file")
+                        self.select_thread(thread_id)
+                        depth = self.get_stack_depth()
 
-                    self.select_thread(thread_id)
-                    depth = self.get_stack_depth()
+                        current_frame = 0
+                        while True:
+                            self.select_frame(current_frame)
+                            frame_info = self.gdb.write("-stack-info-frame")[0]["payload"]
 
-                    current_frame = 0
-                    while True:
-                        self.select_frame(current_frame)
-                        frame_info = self.gdb.write("-stack-info-frame")[0]["payload"]
-
-                        if frame_info["frame"]["file"] == "codigo.c":
-                            functions_threads[thread_id] = (frame_info['frame']['func'],frame_info['frame']['line'])
-                            break
-                        
-                        current_frame += 1
-                        
-                        if current_frame >= depth:
-                            print(f"Thread {thread_id} origin not found in compiled file")
-                            break
-                else:
-                    functions_threads[thread_id] = (thread_function, thread_line)
-            
-            self.select_thread(selected_thread)
+                            if frame_info["frame"]["file"] == "codigo.c":
+                                functions_threads[thread_id] = (frame_info['frame']['func'],frame_info['frame']['line'])
+                                break
+                            
+                            current_frame += 1
+                            
+                            if current_frame >= depth:
+                                print(f"Thread {thread_id} origin not found in compiled file")
+                                break
+                    else:
+                        functions_threads[thread_id] = (thread_function, thread_line)
+                
+                self.select_thread(selected_thread)
             
         return functions_threads
                 
@@ -110,6 +110,7 @@ class Debugger:
         pprint(self.gdb.write("-exec-finish"))
     
     def set_breakpoint(self, line):
+        self.gdb.write(f"-break-insert {line}")
         self.breakpoints.append(line)
 
     def select_thread(self, thread_id):
