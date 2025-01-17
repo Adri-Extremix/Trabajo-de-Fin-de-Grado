@@ -48,7 +48,6 @@ int main() {
 // Function to print a greeting message
 void* greet(void* arg) {
     printf("Hello, welcome to the program!\n");
-    sleep(3);
     return NULL;
 }
 
@@ -57,7 +56,6 @@ void* add(void* arg) {
     float flags = 3.14;
     AddArgs* args = (AddArgs*)arg;
     args->result = args->a + args->b;
-    sleep(3);
     return NULL;
 }
 
@@ -69,6 +67,5 @@ void* printArray(void* arg) {
         printf("%d ", args->arr[i]);
     }
     printf("\n");
-    sleep(3);
     return NULL;
 }
