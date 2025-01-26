@@ -3,20 +3,29 @@ from pygdbmi.gdbcontroller import GdbController
 import pygdbmi
 from pprint import pprint
 import re
+import subprocess
 
 
 class Debugger:
-    def __init__(self, code_path, compiled_path):
+    def __init__(self, code_path, compiled_path, rr: bool = False):
         self.compiled_path = compiled_path
-        self.gdb = GdbController()
+        self.enable_rr = rr
+        if rr:
+            subprocess.run(["rr", "record", compiled_path])
+            self.gdb = GdbController(command=["rr", "replay", "--interpreter=mi3"])
+        else:
+            self.gdb = GdbController(command=["gdb", "--interpreter=mi3"])
+
         self.gdb.write(f"file {compiled_path}")
         with open(code_path, "r") as file:
             self.code = file.read()
         self.functions = self.parse_code()
         print(self.functions)
         self.functions_threads = {}
+        self.gdb.write("set scheduler-locking off")  # Permitir planificación normal de hilos
 
     def parse_code(self):
+        """Method to parse the code and get the functions and their lines"""
         function_pattern = re.compile(r'^\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\*?\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\([^)]*\)\s*\{')
 
         functions = {}
@@ -37,39 +46,31 @@ class Debugger:
                 if brace_count == 0:
                     functions[current_function] = (start_line, i + 1)
                     current_function = None
-                
+
+
         return functions
 
+    def get_code_function(self, function):
+        """Method to get the code of a function"""
+        start_line, end_line = self.functions[function]
+        lines = self.code.split('\n')
+        code = lines[start_line - 1:end_line]
+        code = '\n'.join(code)
+
+        return code
+
     def get_stack_depth(self):
-        # Obtener la profundidad del stack del hilo actual
+        """Method to get the stack depth"""
         response = self.gdb.write("-stack-info-depth")
         if response and response[0].get("message") == "done":
             return int(response[0]["payload"]["depth"])
         return 0
 
-    def _search_original_function(self, thread_id):
-        self.select_thread(thread_id)
-        depth = self.get_stack_depth()
-        current_frame = 0
-
-        while current_frame < depth:
-            self.select_frame(current_frame)
-            frame_info = self.gdb.write("-stack-info-frame")[0]["payload"]
-
-            if frame_info["frame"]["file"] == "codigo.c":
-                self.functions_threads[thread_id] = (
-                    frame_info["frame"]["func"], frame_info["frame"]["line"]
-                )
-                break
-
-            current_frame += 1
-
-        if current_frame >= depth:
-            print(f"Thread {thread_id} origin not found in compiled file")
 
     def _update_thread_functions(self):
+        """Method to update the functions of the threads"""
         try:
-            info_threads = self.get_thread_info()[0]
+            info_threads = self.get_thread_info()[-1]
             # To recover the current thread                
             if info_threads.get("payload").get("current-thread-id"):      
                 selected_thread = info_threads["payload"]["current-thread-id"]
@@ -78,7 +79,7 @@ class Debugger:
                 thread_id = thread["id"]
 
                 # To know the threads that are not in the compiled file
-                thread_file = thread["frame"]["file"] 
+                thread_file = thread["frame"].get("file") 
                 if thread_file != self.compiled_path:
                     print(f"Thread {thread_id} is not in the compiled file")
 
@@ -93,27 +94,58 @@ class Debugger:
 
         return self.functions_threads
 
-#TODO: Devolver solo lo necesario en los métodos
+    def _search_original_function(self, thread_id):
+        """Method to search the function in the original code if the thread is not in a function of the compiled file"""
+        self.select_thread(thread_id)
+        depth = self.get_stack_depth()
+        current_frame = 0
+
+        while current_frame < depth:
+            self.select_frame(current_frame)
+            frame_info = self.gdb.write("-stack-info-frame")[0]["payload"]
+            pprint(self.gdb.write("-stack-info-frame"))
+            if frame_info["frame"].get("file") == "codigo.c":
+                self.functions_threads[thread_id] = (
+                    frame_info["frame"]["func"], frame_info["frame"]["line"]
+                )
+                break
+
+            current_frame += 1
+
+        if current_frame >= depth:
+            print(f"Thread {thread_id} origin not found in compiled file")
+            if thread_id in self.functions_threads.keys():
+                self.functions_threads.pop(thread_id, None)
+
     def run(self):
+        """Method to run the program"""
+
         exec_run = self.gdb.write("-exec-run")
+        
         for response in exec_run:
-            if response.get("message") == "thread-created":
-                self.functions_threads[response["payload"]["id"]] = None
-            elif response.get("message") == "thread-exited":
-                self.functions_threads.pop(response["payload"]["id"], None)
-        return self._update_thread_functions()
-                
-    def continue_execution(self):
-        exec_continue = self.gdb.write("-exec-continue")
-        pprint(exec_continue)
-        for response in exec_continue:
-            if response.get("message") == "thread-created":
-                self.functions_threads[response["payload"]["id"]] = None
-            elif response.get("message") == "thread-exited":
+            
+            if response.get("message") == "thread-exited":
                 self.functions_threads.pop(response["payload"]["id"], None)
 
         return self._update_thread_functions()
+                    
+    def continue_execution(self):
+        """Method to continue the execution of the program"""
+        
+        exec_continue = self.gdb.write("-exec-continue")
+        for response in exec_continue:
+            
+            if response.get("message") == "thread-exited":
+                self.functions_threads.pop(response["payload"]["id"], None)
+        return self._update_thread_functions()
     
+    def reverse_continue(self):
+        """Method to reverse continue the execution of the program"""
+        #TODO: Los identificadores de los hilos cambian, tratar de mantenerlos anteriores
+        self.gdb.write("reverse-continue")
+        return self._update_thread_functions()
+
+#TODO: Devolver solo lo necesario en los métodos
     def step_over(self):
         pprint(self.gdb.write("-exec-next"))
 
@@ -189,27 +221,24 @@ class Debugger:
 
         return all_variables
             
-    def get_code_function(self, function):
-        start_line, end_line = self.functions[function]
-        lines = self.code.split('\n')
-        code = lines[start_line - 1:end_line]
-        code = '\n'.join(code)
-
-        return code
         
 
         
             
 
-debugger = Debugger("codigo.c","./codigo")
+debugger = Debugger("codigo.c","./codigo", rr=True)
 print("Colocando breakpoint")
 debugger.set_breakpoint(50)
-print("Ejecutando el programa")
-debugger.set_breakpoint(76)
+print("Colocando breakkpoint")
+debugger.set_breakpoint(70)
 print("Ejecutando el programa")
 print(debugger.run())
 print("Continuando la ejecución")
 print(debugger.continue_execution())
+print("Continuando la ejecución")
+print(debugger.continue_execution())
+print("Volviendo al anterior breakpoint")
+pprint(debugger.reverse_continue())
 """ print("Ejecutando la siguiente línea")
 debugger.step_into()
 print("Ejecutando la siguiente línea")
