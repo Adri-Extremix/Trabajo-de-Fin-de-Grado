@@ -21,8 +21,11 @@ class Debugger:
             self.code = file.read()
         self.functions = self.parse_code()
         print(self.functions)
-        self.functions_threads = {}
+        self.threads = {}
+        self.correspondence = {}
         self.gdb.write("set scheduler-locking off")  # Permitir planificación normal de hilos
+
+        self.position_pc_counter = None # In order to know the position of the pc counter in the arquitecure
 
     def parse_code(self):
         """Method to parse the code and get the functions and their lines"""
@@ -65,8 +68,7 @@ class Debugger:
         if response and response[0].get("message") == "done":
             return int(response[0]["payload"]["depth"])
         return 0
-
-
+    
     def _update_thread_functions(self):
         """Method to update the functions of the threads"""
         try:
@@ -77,24 +79,34 @@ class Debugger:
 
             for thread in info_threads["payload"]["threads"]:
                 thread_id = thread["id"]
+                thread_name = thread["target-id"]
 
                 # To know the threads that are not in the compiled file
                 thread_file = thread["frame"].get("file") 
                 if thread_file != self.compiled_path:
                     print(f"Thread {thread_id} is not in the compiled file")
-
-                    self._search_original_function(thread_id)
+                    # TODO: Siempre se podría usar esta función
+                    self._search_original_function(thread_name,thread_id)
                 else:
-                    self.functions_threads[thread_id] = (thread["frame"]["func"],thread["frame"]["line"])
+                    #pprint(pc_counter)
+                    print(self.threads)
+                    if not self.correspondence.get(thread_name):
+                        self.correspondence[thread_name] = thread_id
+                    else:
+                        self.threads[self.correspondence[thread_name]] = {
+                            "function": thread["frame"]["func"],
+                            "line": thread["frame"]["line"]
+                        }
             if info_threads.get("payload").get("current-thread-id"):
                 self.select_thread(selected_thread)
         except pygdbmi.constants.GdbTimeoutError:
             print("Timeout")
-            self.functions_threads = {}
+            self.threads = {}
 
-        return self.functions_threads
+        return self.threads
 
-    def _search_original_function(self, thread_id):
+    def _search_original_function(self, thread_name, thread_id):
+        #TODO: Cambiar para que use thread_name
         """Method to search the function in the original code if the thread is not in a function of the compiled file"""
         self.select_thread(thread_id)
         depth = self.get_stack_depth()
@@ -103,29 +115,39 @@ class Debugger:
         while current_frame < depth:
             self.select_frame(current_frame)
             frame_info = self.gdb.write("-stack-info-frame")[0]["payload"]
-            pprint(self.gdb.write("-stack-info-frame"))
+            #pprint(self.gdb.write("-stack-info-frame"))
             if frame_info["frame"].get("file") == "codigo.c":
-                self.functions_threads[thread_id] = (
-                    frame_info["frame"]["func"], frame_info["frame"]["line"]
-                )
+
+                if not self.correspondence.get(thread_name):
+                        self.correspondence[thread_name] = thread_id
+                else:
+                    self.threads[self.correspondence[thread_name]] = {
+                        "function": frame_info["frame"]["func"],
+                        "line": frame_info["frame"]["line"]
+                    }
+                 
                 break
 
             current_frame += 1
 
         if current_frame >= depth:
             print(f"Thread {thread_id} origin not found in compiled file")
-            if thread_id in self.functions_threads.keys():
-                self.functions_threads.pop(thread_id, None)
+            if thread_id in self.threads.keys():
+                self.threads.pop(thread_id, None)
 
     def run(self):
         """Method to run the program"""
-
         exec_run = self.gdb.write("-exec-run")
+        
         
         for response in exec_run:
             
             if response.get("message") == "thread-exited":
-                self.functions_threads.pop(response["payload"]["id"], None)
+                self.threads.pop(response["payload"]["id"], None)
+
+        if self.enable_rr:
+            # Run with rr doesn't arrive to a breakpoint, so we need to continue the execution
+            return self.continue_execution()
 
         return self._update_thread_functions()
                     
@@ -133,16 +155,24 @@ class Debugger:
         """Method to continue the execution of the program"""
         
         exec_continue = self.gdb.write("-exec-continue")
+        
+        pprint(exec_continue)
         for response in exec_continue:
             
             if response.get("message") == "thread-exited":
-                self.functions_threads.pop(response["payload"]["id"], None)
+                self.threads.pop(response["payload"]["id"], None)
+                
         return self._update_thread_functions()
     
     def reverse_continue(self):
         """Method to reverse continue the execution of the program"""
-        #TODO: Los identificadores de los hilos cambian, tratar de mantenerlos anteriores
-        self.gdb.write("reverse-continue")
+
+        if self.enable_rr:
+
+            self.gdb.write("reverse-continue")
+            
+
+
         return self._update_thread_functions()
 
 #TODO: Devolver solo lo necesario en los métodos
@@ -164,7 +194,6 @@ class Debugger:
 
     def get_thread_info(self):
         info = self.gdb.write("-thread-info")
-        print("Thread info:")
         pprint(info)
         return info
 
@@ -232,11 +261,9 @@ debugger.set_breakpoint(50)
 print("Colocando breakkpoint")
 debugger.set_breakpoint(70)
 print("Ejecutando el programa")
-print(debugger.run())
+pprint(debugger.run())
 print("Continuando la ejecución")
-print(debugger.continue_execution())
-print("Continuando la ejecución")
-print(debugger.continue_execution())
+pprint(debugger.continue_execution())
 print("Volviendo al anterior breakpoint")
 pprint(debugger.reverse_continue())
 """ print("Ejecutando la siguiente línea")
