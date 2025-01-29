@@ -83,11 +83,11 @@ class Debugger:
 
                 # To know the threads that are not in the compiled file
                 thread_file = thread["frame"].get("file") 
-                if thread_file != self.compiled_path:
+                """ if thread_file != self.compiled_path:
                     print(f"Thread {thread_id} is not in the compiled file")
-                    # TODO: Siempre se podría usar esta función
-                    self._search_original_function(thread_name,thread_id)
-                else:
+                    # TODO: Siempre se podría usar esta función """
+                self._search_original_function(thread_name,thread_id)
+                """ else:
                     #pprint(pc_counter)
                     print(self.threads)
                     if not self.correspondence.get(thread_name):
@@ -96,7 +96,7 @@ class Debugger:
                         self.threads[self.correspondence[thread_name]] = {
                             "function": thread["frame"]["func"],
                             "line": thread["frame"]["line"]
-                        }
+                        } """
             if info_threads.get("payload").get("current-thread-id"):
                 self.select_thread(selected_thread)
         except pygdbmi.constants.GdbTimeoutError:
@@ -118,13 +118,17 @@ class Debugger:
             #pprint(self.gdb.write("-stack-info-frame"))
             if frame_info["frame"].get("file") == "codigo.c":
 
-                if not self.correspondence.get(thread_name):
-                        self.correspondence[thread_name] = thread_id
+
+                if thread_name in self.correspondence:
+                    thread_key = self.correspondence[thread_name]
                 else:
-                    self.threads[self.correspondence[thread_name]] = {
-                        "function": frame_info["frame"]["func"],
-                        "line": frame_info["frame"]["line"]
-                    }
+                    self.correspondence[thread_name] = thread_id
+                    thread_key = thread_id
+
+                self.threads[thread_key] = {
+                    "function": frame_info["frame"]["func"],
+                    "line": frame_info["frame"]["line"]
+                }   
                  
                 break
 
@@ -156,7 +160,6 @@ class Debugger:
         
         exec_continue = self.gdb.write("-exec-continue")
         
-        pprint(exec_continue)
         for response in exec_continue:
             
             if response.get("message") == "thread-exited":
@@ -194,7 +197,7 @@ class Debugger:
 
     def get_thread_info(self):
         info = self.gdb.write("-thread-info")
-        pprint(info)
+        #pprint(info)
         return info
 
     def get_frames(self):
