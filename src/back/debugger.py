@@ -4,6 +4,7 @@ import pygdbmi
 from pprint import pprint
 import re
 import subprocess
+import time
 
 
 class Debugger:
@@ -68,63 +69,62 @@ class Debugger:
         return 0
     
     def _update_thread_functions(self):
-        """Method to update the functions of the threads"""
+        """Actualiza la información de hilos optimizando consultas a GDB"""
         try:
-            info_threads = self.get_thread_info()[-1]
-            # To recover the current thread                
-            if info_threads.get("payload").get("current-thread-id"):      
-                selected_thread = info_threads["payload"]["current-thread-id"]
-
-            for thread in info_threads["payload"]["threads"]:
-                thread_id = thread["id"]
-                thread_name = thread["target-id"]
-                
-                self._search_original_function(thread_name,thread_id)
-                
-            if info_threads.get("payload").get("current-thread-id"):
-                self.select_thread(selected_thread)
+            self.threads.clear()  # Limpieza más eficiente
+            
+            # Obtenemos toda la información necesaria en una sola consulta
+            threads_info = self.get_thread_info()[-1]["payload"]
+            current_thread_id = threads_info.get("current-thread-id")
+            
+            # Procesamiento por lotes de los hilos
+            threads_batch = []
+            for thread in threads_info["threads"]:
+                thread_id = str(thread["id"])
+                threads_batch.append((thread_id, thread["target-id"]))
+            
+            # Procesamiento paralelizable (usando ThreadPool si es posible)
+            for thread_id, thread_name in threads_batch:
+                if self._process_thread(thread_id, thread_name) is None:
+                    continue
+            
+            
+            self.select_thread(current_thread_id)
             
             self.get_all_thread_variables()
+        
         except pygdbmi.constants.GdbTimeoutError:
-            print("Timeout")
+            print("Error: Timeout en la obtención de información de hilos")
             self.threads = {}
-
+        
         return self.threads
 
-    def _search_original_function(self, thread_name, thread_id):
-        """Method to search the function in the original code if the thread is not in a function of the compiled file"""
+    def _process_thread(self, thread_id, thread_name):
+        """Procesa un hilo optimizando el acceso a frames"""
         self.select_thread(thread_id)
-        depth = self.get_stack_depth()
-        current_frame = 0
+        
+        # Obtenemos todos los frames en una sola consulta
+        frames_response = self.gdb.write("-stack-list-frames 0 %d" % (self.get_stack_depth() - 1))
+        frames = frames_response[0]["payload"].get("stack", []) if frames_response else []
+        
+        for frame in frames:
+            
+            if frame.get("file") == "codigo.c":
+                self._update_thread_data(thread_id, thread_name, frame)
+                return frame
+        
+        print(f"Thread {thread_id} no encontrado en código compilado")
+        return None
 
-        while current_frame < depth:
-            self.select_frame(current_frame)
-            frame_info = self.gdb.write("-stack-info-frame")[0]["payload"]
-            #pprint(self.gdb.write("-stack-info-frame"))
-            if frame_info["frame"].get("file") == "codigo.c":
-
-
-                if thread_name in self.correspondence:
-                    thread_key = self.correspondence[thread_name]
-                else:
-                    self.correspondence[thread_name] = thread_id
-                    thread_key = thread_id
-
-                self.threads[thread_key] = {
-                    "function": frame_info["frame"]["func"],
-                    "line": frame_info["frame"]["line"],
-                    "code": self.get_code_function(frame_info["frame"]["func"])
-                }   
-                 
-                break
-
-            current_frame += 1
-
-        if current_frame >= depth:
-            print(f"Thread {thread_id} origin not found in compiled file")
-            if thread_id in self.threads.keys():
-                self.threads.pop(thread_id, None)
-
+    def _update_thread_data(self, thread_id, thread_name, frame_info):
+        """Actualiza los datos del hilo de forma eficiente"""
+        thread_key = self.correspondence.setdefault(thread_name, thread_id)
+        
+        self.threads[thread_key] = {
+            "function": frame_info["func"],
+            "line": frame_info["line"],
+            "code": self.get_code_function(frame_info["func"])
+        }
     def run(self):
         """Method to run the program"""
         exec_run = self.gdb.write("-exec-run")
@@ -193,7 +193,6 @@ class Debugger:
         self.gdb.write(f"-stack-select-frame {frame}")
     
     def get_all_thread_variables(self):
-        #TODO: No se excluyen las variables de la lista exclude_vars
         """Method to get all the variables of all the threads except the ones in the exclude_vars list"""
         """ exclude_vars = {
             "sc_cancel_oldtype", "sc_ret", "unwind_buf", "not_first_call", 
@@ -251,6 +250,9 @@ class Debugger:
             self.threads[thread_id]["variables"] = thread_variables
 
             
+start_time = time.time()
+
+# Aquí pones el código cuya ejecución quieres medir
 
 debugger = Debugger("codigo.c","./codigo", rr=True)
 print("Colocando breakpoint")
@@ -266,6 +268,12 @@ print("Continuando la ejecución")
 pprint(debugger.continue_execution())
 print("Volviendo al anterior breakpoint")
 pprint(debugger.reverse_continue())
+
+
+elapsed_time = time.time() - start_time
+print(f"La ejecución tardó {elapsed_time:.4f} segundos")
+
+
 """ print("Ejecutando la siguiente línea")
 debugger.step_into()
 print("Ejecutando la siguiente línea")
