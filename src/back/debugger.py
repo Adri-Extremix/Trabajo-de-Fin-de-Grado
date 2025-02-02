@@ -25,8 +25,6 @@ class Debugger:
         self.correspondence = {}
         self.gdb.write("set scheduler-locking off")  # Permitir planificación normal de hilos
 
-        self.position_pc_counter = None # In order to know the position of the pc counter in the arquitecure
-
     def parse_code(self):
         """Method to parse the code and get the functions and their lines"""
         function_pattern = re.compile(r'^\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\*?\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\([^)]*\)\s*\{')
@@ -80,25 +78,13 @@ class Debugger:
             for thread in info_threads["payload"]["threads"]:
                 thread_id = thread["id"]
                 thread_name = thread["target-id"]
-
-                # To know the threads that are not in the compiled file
-                thread_file = thread["frame"].get("file") 
-                """ if thread_file != self.compiled_path:
-                    print(f"Thread {thread_id} is not in the compiled file")
-                    # TODO: Siempre se podría usar esta función """
+                
                 self._search_original_function(thread_name,thread_id)
-                """ else:
-                    #pprint(pc_counter)
-                    print(self.threads)
-                    if not self.correspondence.get(thread_name):
-                        self.correspondence[thread_name] = thread_id
-                    else:
-                        self.threads[self.correspondence[thread_name]] = {
-                            "function": thread["frame"]["func"],
-                            "line": thread["frame"]["line"]
-                        } """
+                
             if info_threads.get("payload").get("current-thread-id"):
                 self.select_thread(selected_thread)
+            
+            self.get_all_thread_variables()
         except pygdbmi.constants.GdbTimeoutError:
             print("Timeout")
             self.threads = {}
@@ -106,7 +92,6 @@ class Debugger:
         return self.threads
 
     def _search_original_function(self, thread_name, thread_id):
-        #TODO: Cambiar para que use thread_name
         """Method to search the function in the original code if the thread is not in a function of the compiled file"""
         self.select_thread(thread_id)
         depth = self.get_stack_depth()
@@ -127,7 +112,8 @@ class Debugger:
 
                 self.threads[thread_key] = {
                     "function": frame_info["frame"]["func"],
-                    "line": frame_info["frame"]["line"]
+                    "line": frame_info["frame"]["line"],
+                    "code": self.get_code_function(frame_info["frame"]["func"])
                 }   
                  
                 break
@@ -207,25 +193,37 @@ class Debugger:
         self.gdb.write(f"-stack-select-frame {frame}")
     
     def get_all_thread_variables(self):
+        #TODO: No se excluyen las variables de la lista exclude_vars
         """Method to get all the variables of all the threads except the ones in the exclude_vars list"""
-
-        exclude_vars = {
+        """ exclude_vars = {
             "sc_cancel_oldtype", "sc_ret", "unwind_buf", "not_first_call", 
             "save_errno", "ret", "r", "pd", "clock_id", "clock_id@entry", 
             "flags", "flags@entry", "rem", "rem@entry", "req", "req@entry", 
             "ts"
+        } """
+
+        exclude_vars = {
+            "abstime", "abstime@entry", "arg", "arg@entry", "attr", "attr@entry", 
+            "block", "call", "call@entry", "cancel", "clockbit", "clockid", 
+            "clockid@entry", "c11", "cl_args", "cl_args@entry", "clone3_supported", 
+            "clone_flags", "default_attr", "destroy_default_attr", "err", "expected", 
+            "flags", "futex_word", "futex_word@entry", "func", "func@entry", "iattr", 
+            "need_setaffinity", "newthread", "not_first_call", "op", "original_sigmask", 
+            "pd", "pd@entry", "pd_result", "private", "private@entry", "ptr", 
+            "resultvar", "ret", "retval", "saved_errno", "saved_uaddr", "saved_uaddr2", 
+            "sc_cancel_oldtype", "sc_ret", "self", "stackaddr", "stackaddr@entry", 
+            "stacksize", "start_routine", "stopped_start", "stopped_start@entry", 
+            "syscallno", "thread_ran", "thread_ran@entry", "thread_return", "threadid", 
+            "tid", "timeout", "tp", "uaddr", "uaddr2", "unwind_buf", "val", "val3"
         }
 
         threads_info = self.get_thread_info()
         if not threads_info or "threads" not in threads_info[0]["payload"]:
             print("No se encontraron threads.")
-            return []
-        
-        all_variables = {}
-        threads = threads_info[0]["payload"]["threads"]
+            return 
+       
 
-        for thread in threads:
-            thread_id = thread["id"]
+        for thread_id in self.threads.keys():
             self.select_thread(thread_id)
 
             frames_info = self.get_frames()
@@ -246,16 +244,12 @@ class Debugger:
                     for var in variables:
                         name = var.get('name')
                         value = var.get('value')
-                        if name not in exclude_vars:
+                        if name not in exclude_vars and not name.startswith('_'):
                             thread_variables[name] = value
+                        
 
-            all_variables[thread_id] = thread_variables
+            self.threads[thread_id]["variables"] = thread_variables
 
-        return all_variables
-            
-        
-
-        
             
 
 debugger = Debugger("codigo.c","./codigo", rr=True)
@@ -265,6 +259,9 @@ print("Colocando breakkpoint")
 debugger.set_breakpoint(70)
 print("Ejecutando el programa")
 pprint(debugger.run())
+
+
+
 print("Continuando la ejecución")
 pprint(debugger.continue_execution())
 print("Volviendo al anterior breakpoint")

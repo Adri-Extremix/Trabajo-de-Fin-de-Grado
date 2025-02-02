@@ -46,23 +46,23 @@ int main() {
 }
 
 // Function to print a greeting message
-void* greet(void* arg) {
+void* greet(void* argumento) {
     printf("Hello, welcome to the program!\n");
     return NULL;
 }
 
 // Function to add two numbers
-void* add(void* arg) {
+void* add(void* argumento) {
     float flags = 3.14;
-    AddArgs* args = (AddArgs*)arg;
+    AddArgs* args = (AddArgs*)argumento;
     args->result = args->a + args->b;
     return NULL;
 }
 
 // Function to print an array
-void* printArray(void* arg) {
+void* printArray(void* xd) {
     int a = 3;
-    PrintArrayArgs* args = (PrintArrayArgs*)arg;
+    PrintArrayArgs* args = (PrintArrayArgs*)xd;
     for (int i = 0; i < args->size; i++) {
         printf("%d ", args->arr[i]);
     }
