@@ -175,8 +175,6 @@ class Debugger:
         if self.enable_rr:
 
             self.gdb.write("reverse-continue")
-            
-
 
         return self._update_thread_functions()
 
@@ -199,7 +197,6 @@ class Debugger:
 
     def get_thread_info(self):
         info = self.gdb.write("-thread-info")
-        #pprint(info)
         return info
 
     def get_frames(self):
@@ -210,13 +207,6 @@ class Debugger:
     
     def get_all_thread_variables(self):
         """Method to get all the variables of all the threads except the ones in the exclude_vars list"""
-        """ exclude_vars = {
-            "sc_cancel_oldtype", "sc_ret", "unwind_buf", "not_first_call", 
-            "save_errno", "ret", "r", "pd", "clock_id", "clock_id@entry", 
-            "flags", "flags@entry", "rem", "rem@entry", "req", "req@entry", 
-            "ts"
-        } """
-
         
         threads_info = self.get_thread_info()
         if not threads_info or "threads" not in threads_info[0]["payload"]:
@@ -241,6 +231,7 @@ class Debugger:
                 variable_info = self.gdb.write(f'-stack-list-variables --thread {thread_id} --frame {frame_level} 1')
                 if variable_info and "variables" in variable_info[0]["payload"]:
                     variables = variable_info[0]["payload"]["variables"]
+                    
                     for var in variables:
                         name = var.get('name')
                         value = var.get('value')
