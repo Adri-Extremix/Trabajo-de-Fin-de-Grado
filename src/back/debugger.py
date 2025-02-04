@@ -25,6 +25,22 @@ class Debugger:
         self.threads = {}
         self.correspondence = {}
         self.gdb.write("set scheduler-locking off")  # Permitir planificación normal de hilos
+        
+        self._EXCLUDE_VARS = {
+            "abstime", "abstime@entry", "arg", "arg@entry", "attr", "attr@entry", 
+            "block", "call", "call@entry", "cancel", "clockbit", "clockid", 
+            "clockid@entry", "c11", "cl_args", "cl_args@entry", "clone3_supported", 
+            "clone_flags", "default_attr", "destroy_default_attr", "err", "expected", 
+            "flags", "futex_word", "futex_word@entry", "func", "func@entry", "iattr", 
+            "need_setaffinity", "newthread", "not_first_call", "op", "original_sigmask", 
+            "pd", "pd@entry", "pd_result", "private", "private@entry", "ptr", 
+            "resultvar", "ret", "retval", "saved_errno", "saved_uaddr", "saved_uaddr2", 
+            "sc_cancel_oldtype", "sc_ret", "self", "stackaddr", "stackaddr@entry", 
+            "stacksize", "start_routine", "stopped_start", "stopped_start@entry", 
+            "syscallno", "thread_ran", "thread_ran@entry", "thread_return", "threadid", 
+            "tid", "timeout", "tp", "uaddr", "uaddr2", "unwind_buf", "val", "val3"
+        }
+
 
     def parse_code(self):
         """Method to parse the code and get the functions and their lines"""
@@ -201,21 +217,7 @@ class Debugger:
             "ts"
         } """
 
-        exclude_vars = {
-            "abstime", "abstime@entry", "arg", "arg@entry", "attr", "attr@entry", 
-            "block", "call", "call@entry", "cancel", "clockbit", "clockid", 
-            "clockid@entry", "c11", "cl_args", "cl_args@entry", "clone3_supported", 
-            "clone_flags", "default_attr", "destroy_default_attr", "err", "expected", 
-            "flags", "futex_word", "futex_word@entry", "func", "func@entry", "iattr", 
-            "need_setaffinity", "newthread", "not_first_call", "op", "original_sigmask", 
-            "pd", "pd@entry", "pd_result", "private", "private@entry", "ptr", 
-            "resultvar", "ret", "retval", "saved_errno", "saved_uaddr", "saved_uaddr2", 
-            "sc_cancel_oldtype", "sc_ret", "self", "stackaddr", "stackaddr@entry", 
-            "stacksize", "start_routine", "stopped_start", "stopped_start@entry", 
-            "syscallno", "thread_ran", "thread_ran@entry", "thread_return", "threadid", 
-            "tid", "timeout", "tp", "uaddr", "uaddr2", "unwind_buf", "val", "val3"
-        }
-
+        
         threads_info = self.get_thread_info()
         if not threads_info or "threads" not in threads_info[0]["payload"]:
             print("No se encontraron threads.")
@@ -235,15 +237,14 @@ class Debugger:
 
             for frame in frames:
                 frame_level = frame["level"]
-                self.select_frame(frame_level)
 
-                variable_info = self.gdb.write("-stack-list-variables 1")
+                variable_info = self.gdb.write(f'-stack-list-variables --thread {thread_id} --frame {frame_level} 1')
                 if variable_info and "variables" in variable_info[0]["payload"]:
                     variables = variable_info[0]["payload"]["variables"]
                     for var in variables:
                         name = var.get('name')
                         value = var.get('value')
-                        if name not in exclude_vars and not name.startswith('_'):
+                        if name not in self._EXCLUDE_VARS and not name.startswith('_'):
                             thread_variables[name] = value
                         
 
