@@ -10,6 +10,8 @@ import time
 class Debugger:
     def __init__(self, code_path, compiled_path, rr: bool = False):
         self.compiled_path = compiled_path
+        self.code_path = code_path
+        print(self.code_path)
         self.enable_rr = rr
         if rr:
             subprocess.run(["rr", "record", compiled_path])
@@ -18,7 +20,7 @@ class Debugger:
             self.gdb = GdbController(command=["gdb", "--interpreter=mi3"])
 
         self.gdb.write(f"file {compiled_path}")
-        with open(code_path, "r") as file:
+        with open(self.code_path, "r") as file:
             self.code = file.read()
         self.functions = self.parse_code()
         print(self.functions)
@@ -26,22 +28,6 @@ class Debugger:
         self.correspondence = {}
         self.gdb.write("set scheduler-locking off")  # Permitir planificación normal de hilos
         
-        self._EXCLUDE_VARS = {
-            "abstime", "abstime@entry", "arg", "arg@entry", "attr", "attr@entry", 
-            "block", "call", "call@entry", "cancel", "clockbit", "clockid", 
-            "clockid@entry", "c11", "cl_args", "cl_args@entry", "clone3_supported", 
-            "clone_flags", "default_attr", "destroy_default_attr", "err", "expected", 
-            "flags", "futex_word", "futex_word@entry", "func", "func@entry", "iattr", 
-            "need_setaffinity", "newthread", "not_first_call", "op", "original_sigmask", 
-            "pd", "pd@entry", "pd_result", "private", "private@entry", "ptr", 
-            "resultvar", "ret", "retval", "saved_errno", "saved_uaddr", "saved_uaddr2", 
-            "sc_cancel_oldtype", "sc_ret", "self", "stackaddr", "stackaddr@entry", 
-            "stacksize", "start_routine", "stopped_start", "stopped_start@entry", 
-            "syscallno", "thread_ran", "thread_ran@entry", "thread_return", "threadid", 
-            "tid", "timeout", "tp", "uaddr", "uaddr2", "unwind_buf", "val", "val3"
-        }
-
-
     def parse_code(self):
         """Method to parse the code and get the functions and their lines"""
         function_pattern = re.compile(r'^\s*[a-zA-Z_][a-zA-Z0-9_]*\s*\*?\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\([^)]*\)\s*\{')
@@ -125,7 +111,7 @@ class Debugger:
         
         for frame in frames:
             
-            if frame.get("file") == "codigo.c":
+            if frame.get("file") == self.code_path:
                 self._update_thread_data(thread_id, thread_name, frame)
                 return frame
         
@@ -206,12 +192,8 @@ class Debugger:
         self.gdb.write(f"-stack-select-frame {frame}")
     
     def get_all_thread_variables(self):
+        #TODO: Alternativa: Obtener las funciones a las que pertence cada variable y solo obtener las variables de las funciones del usuario
         """Method to get all the variables of all the threads except the ones in the exclude_vars list"""
-        
-        threads_info = self.get_thread_info()
-        if not threads_info or "threads" not in threads_info[0]["payload"]:
-            print("No se encontraron threads.")
-            return 
        
 
         for thread_id in self.threads.keys():
@@ -227,15 +209,17 @@ class Debugger:
 
             for frame in frames:
                 frame_level = frame["level"]
+                frame_func = frame["func"]
+                frame_file = frame.get("file", "")
 
                 variable_info = self.gdb.write(f'-stack-list-variables --thread {thread_id} --frame {frame_level} 1')
                 if variable_info and "variables" in variable_info[0]["payload"]:
                     variables = variable_info[0]["payload"]["variables"]
                     
                     for var in variables:
-                        name = var.get('name')
+                        name = var.get('name') + "@" + frame_func
                         value = var.get('value')
-                        if name not in self._EXCLUDE_VARS and not name.startswith('_'):
+                        if frame_file == self.code_path:
                             thread_variables[name] = value
                         
 
@@ -246,11 +230,11 @@ start_time = time.time()
 
 # Aquí pones el código cuya ejecución quieres medir
 
-debugger = Debugger("codigo.c","./codigo", rr=True)
+debugger = Debugger("prueba.c","./prueba", rr=True)
 print("Colocando breakpoint")
-debugger.set_breakpoint(50)
+debugger.set_breakpoint(22)
 print("Colocando breakkpoint")
-debugger.set_breakpoint(70)
+debugger.set_breakpoint(50)
 print("Ejecutando el programa")
 pprint(debugger.run())
 
