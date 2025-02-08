@@ -26,7 +26,7 @@ class Debugger:
         print(self.functions)
         self.threads = {}
         self.correspondence = {}
-        self.gdb.write("set scheduler-locking off")  # Permitir planificación normal de hilos
+        
         
     def parse_code(self):
         """Method to parse the code and get the functions and their lines"""
@@ -72,32 +72,26 @@ class Debugger:
     
     def _update_thread_functions(self):
         """Actualiza la información de hilos optimizando consultas a GDB"""
-        try:
-            self.threads.clear()  # Limpieza más eficiente
-            
-            # Obtenemos toda la información necesaria en una sola consulta
-            threads_info = self.get_thread_info()[-1]["payload"]
-            current_thread_id = threads_info.get("current-thread-id")
-            
-            # Procesamiento por lotes de los hilos
-            threads_batch = []
-            for thread in threads_info["threads"]:
-                thread_id = str(thread["id"])
-                threads_batch.append((thread_id, thread["target-id"]))
-            
-            # Procesamiento paralelizable (usando ThreadPool si es posible)
-            for thread_id, thread_name in threads_batch:
-                if self._process_thread(thread_id, thread_name) is None:
-                    continue
-            
-            
-            self.select_thread(current_thread_id)
-            
-            self.get_all_thread_variables()
+        self.threads.clear()  # Limpieza más eficiente
+        # Obtenemos toda la información necesaria en una sola consulta
+        threads_info = self.get_thread_info()[0]["payload"]
+        current_thread_id = threads_info.get("current-thread-id")
         
-        except pygdbmi.constants.GdbTimeoutError:
-            print("Error: Timeout en la obtención de información de hilos")
-            self.threads = {}
+        # Procesamiento por lotes de los hilos
+        threads_batch = []
+        for thread in threads_info["threads"]:
+            thread_id = str(thread["id"])
+            threads_batch.append((thread_id, thread["target-id"]))
+        
+        # Procesamiento paralelizable (usando ThreadPool si es posible)
+        for thread_id, thread_name in threads_batch:
+            if self._process_thread(thread_id, thread_name) is None:
+                continue
+        
+        
+        self.select_thread(current_thread_id)
+        
+        self.get_all_thread_variables()
         
         return self.threads
 
@@ -127,10 +121,11 @@ class Debugger:
             "line": frame_info["line"],
             "code": self.get_code_function(frame_info["func"])
         }
+
     def run(self):
         """Method to run the program"""
         exec_run = self.gdb.write("-exec-run")
-        
+        self.gdb.write("-thread-info",timeout_sec=5)
         
         for response in exec_run:
             
@@ -140,6 +135,7 @@ class Debugger:
         if self.enable_rr:
             # Run with rr doesn't arrive to a breakpoint, so we need to continue the execution
             return self.continue_execution()
+
 
         return self._update_thread_functions()
                     
@@ -230,7 +226,7 @@ start_time = time.time()
 
 # Aquí pones el código cuya ejecución quieres medir
 
-debugger = Debugger("prueba.c","./prueba", rr=True)
+debugger = Debugger("prueba.c","./prueba", rr=False)
 print("Colocando breakpoint")
 debugger.set_breakpoint(22)
 print("Colocando breakkpoint")
