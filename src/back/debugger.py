@@ -74,7 +74,7 @@ class Debugger:
         """Actualiza la información de hilos optimizando consultas a GDB"""
         self.threads.clear()  # Limpieza más eficiente
         # Obtenemos toda la información necesaria en una sola consulta
-        threads_info = self.get_thread_info()[0]["payload"]
+        threads_info = self.get_thread_info()[-1]["payload"]
         current_thread_id = threads_info.get("current-thread-id")
         
         # Procesamiento por lotes de los hilos
@@ -97,7 +97,6 @@ class Debugger:
 
     def _process_thread(self, thread_id, thread_name):
         """Procesa un hilo optimizando el acceso a frames"""
-        self.select_thread(thread_id)
         
         # Obtenemos todos los frames en una sola consulta
         frames_response = self.gdb.write("-stack-list-frames 0 %d" % (self.get_stack_depth() - 1))
@@ -125,7 +124,6 @@ class Debugger:
     def run(self):
         """Method to run the program"""
         exec_run = self.gdb.write("-exec-run")
-        self.gdb.write("-thread-info",timeout_sec=5)
         
         for response in exec_run:
             
@@ -178,7 +176,8 @@ class Debugger:
         self.gdb.write(f"-thread-select {thread_id}")
 
     def get_thread_info(self):
-        info = self.gdb.write("-thread-info")
+        info = self.gdb.write("-thread-info", timeout_sec=5)
+        #pprint(info)
         return info
 
     def get_frames(self):
