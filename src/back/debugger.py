@@ -19,7 +19,7 @@ class Debugger:
         else:
             self.gdb = GdbController(command=["gdb", "--interpreter=mi3"])
 
-        self.gdb.write(f"file {compiled_path}")
+        self._gdb_write(f"file {compiled_path}")
         with open(self.code_path, "r") as file:
             self.code = file.read()
         self.functions = self.parse_code()
@@ -27,6 +27,7 @@ class Debugger:
         self.threads = {}
         self.correspondence = {}
         
+    
         
     def parse_code(self):
         """Method to parse the code and get the functions and their lines"""
@@ -65,7 +66,7 @@ class Debugger:
 
     def get_stack_depth(self):
         """Method to get the stack depth"""
-        response = self.gdb.write("-stack-info-depth")
+        response = self._gdb_write("-stack-info-depth")
         if response and response[0].get("message") == "done":
             return int(response[0]["payload"]["depth"])
         return 0
@@ -99,7 +100,7 @@ class Debugger:
         """Procesa un hilo optimizando el acceso a frames"""
         
         # Obtenemos todos los frames en una sola consulta
-        frames_response = self.gdb.write("-stack-list-frames 0 %d" % (self.get_stack_depth() - 1))
+        frames_response = self._gdb_write("-stack-list-frames 0 %d" % (self.get_stack_depth() - 1))
         frames = frames_response[0]["payload"].get("stack", []) if frames_response else []
         
         for frame in frames:
@@ -123,7 +124,7 @@ class Debugger:
 
     def run(self):
         """Method to run the program"""
-        exec_run = self.gdb.write("-exec-run")
+        exec_run = self._gdb_write("-exec-run")
         
         for response in exec_run:
             
@@ -140,7 +141,7 @@ class Debugger:
     def continue_execution(self):
         """Method to continue the execution of the program"""
         
-        exec_continue = self.gdb.write("-exec-continue")
+        exec_continue = self._gdb_write("-exec-continue")
         
         for response in exec_continue:
             
@@ -154,38 +155,44 @@ class Debugger:
 
         if self.enable_rr:
 
-            self.gdb.write("reverse-continue")
+            self._gdb_write("reverse-continue")
 
         return self._update_thread_functions()
 
 #TODO: Devolver solo lo necesario en los métodos
     def step_over(self):
-        pprint(self.gdb.write("-exec-next"))
+        pprint(self._gdb_write("-exec-next"))
 
     def step_into(self):
         #TODO: Si se está en una función que no esté en el código fuente, se realizará un step out para salir de la función
-        pprint(self.gdb.write("-exec-step"))
+        pprint(self._gdb_write("-exec-step"))
     
     def step_out(self):
-        pprint(self.gdb.write("-exec-finish"))
+        pprint(self._gdb_write("-exec-finish"))
     
     def set_breakpoint(self, line):
-        self.gdb.write(f"-break-insert {line}")
+        self._gdb_write(f"-break-insert {line}")
 
     def select_thread(self, thread_id):
-        self.gdb.write(f"-thread-select {thread_id}")
+        self._gdb_write(f"-thread-select {thread_id}")
 
     def get_thread_info(self):
-        info = self.gdb.write("-thread-info", timeout_sec=5)
+        info = self._gdb_write("-thread-info", timeout_sec=5)
         #pprint(info)
         return info
 
     def get_frames(self):
-        return self.gdb.write("-stack-list-frames")
+        return self._gdb_write("-stack-list-frames")
 
     def select_frame(self, frame):
-        self.gdb.write(f"-stack-select-frame {frame}")
+        self._gdb_write(f"-stack-select-frame {frame}")
     
+    def _gdb_write(self, command, **kwargs):
+        if not self.gdb:
+            raise RuntimeError("GDB controller is not initialized")
+        return self.gdb.write(command, **kwargs)
+
+
     def get_all_thread_variables(self):
         #TODO: Alternativa: Obtener las funciones a las que pertence cada variable y solo obtener las variables de las funciones del usuario
         """Method to get all the variables of all the threads except the ones in the exclude_vars list"""
@@ -207,7 +214,7 @@ class Debugger:
                 frame_func = frame["func"]
                 frame_file = frame.get("file", "")
 
-                variable_info = self.gdb.write(f'-stack-list-variables --thread {thread_id} --frame {frame_level} 1')
+                variable_info = self._gdb_write(f'-stack-list-variables --thread {thread_id} --frame {frame_level} 1')
                 if variable_info and "variables" in variable_info[0]["payload"]:
                     variables = variable_info[0]["payload"]["variables"]
                     
@@ -220,29 +227,36 @@ class Debugger:
 
             self.threads[thread_id]["variables"] = thread_variables
 
+    def __del__(self):
+        """Método destructor para liberar recursos."""
+        if hasattr(self, "gdb") and self.gdb:
+            self._gdb_write("-gdb-exit")
+            self.gdb.exit()  
+            self.gdb = None
+
             
-start_time = time.time()
+# start_time = time.time()
 
-# Aquí pones el código cuya ejecución quieres medir
+# # Aquí pones el código cuya ejecución quieres medir
 
-debugger = Debugger("prueba.c","./prueba", rr=False)
-print("Colocando breakpoint")
-debugger.set_breakpoint(22)
-print("Colocando breakkpoint")
-debugger.set_breakpoint(50)
-print("Ejecutando el programa")
-pprint(debugger.run())
-
-
-
-print("Continuando la ejecución")
-pprint(debugger.continue_execution())
-print("Volviendo al anterior breakpoint")
-pprint(debugger.reverse_continue())
+# debugger = Debugger("prueba.c","./prueba", rr=False)
+# print("Colocando breakpoint")
+# debugger.set_breakpoint(22)
+# print("Colocando breakkpoint")
+# debugger.set_breakpoint(50)
+# print("Ejecutando el programa")
+# pprint(debugger.run())
 
 
-elapsed_time = time.time() - start_time
-print(f"La ejecución tardó {elapsed_time:.4f} segundos")
+
+# print("Continuando la ejecución")
+# pprint(debugger.continue_execution())
+# print("Volviendo al anterior breakpoint")
+# pprint(debugger.reverse_continue())
+
+
+# elapsed_time = time.time() - start_time
+# print(f"La ejecución tardó {elapsed_time:.4f} segundos")
 
 
 """ print("Ejecutando la siguiente línea")
