@@ -1,6 +1,6 @@
 # Archivos que no quiero
 .vscode
-
+__pycache__
 
 # Ignorar todos los archivos de salida de compilación de LaTeX excepto el .tex
 
