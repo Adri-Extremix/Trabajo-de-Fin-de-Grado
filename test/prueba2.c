@@ -48,7 +48,7 @@ int main() {
         }
     }
 
-    printf("Todos los hilos han terminado.\\n");
+    printf("Todos los hilos han terminado.\n");
     printf("¿Han términado en orden?");
     return 0;
 }
