@@ -23,7 +23,6 @@ class Debugger:
         with open(self.code_path, "r") as file:
             self.code = file.read()
         self.functions = self.parse_code()
-        print(self.functions)
         self.threads = {}
         self.correspondence = {}
         
@@ -232,25 +231,25 @@ class Debugger:
             self.gdb.exit()
             self.gdb = None
 
-start_time = time.time()
-
-# Aquí pones el código cuya ejecución quieres medir
-
-debugger = Debugger("codigo.c","./codigo", rr=False)
-print("Colocando breakpoint")
-debugger.set_breakpoint(22)
-print("Colocando breakkpoint")
-debugger.set_breakpoint(50)
-print("Ejecutando el programa")
-pprint(debugger.run())
+    
 
 
+if __name__ == "__main__":
+    start_time = time.time()
 
-print("Continuando la ejecución")
-pprint(debugger.continue_execution())
-print("Volviendo al anterior breakpoint")
-pprint(debugger.reverse_continue())
+    # Aquí pones el código cuya ejecución quieres medir
+    debugger = Debugger("prueba.c", "./prueba", rr=False)
+    print("Colocando breakpoint")
+    debugger.set_breakpoint(22)
+    print("Colocando breakkpoint")
+    debugger.set_breakpoint(33)
+    print("Ejecutando el programa")
+    pprint(debugger.run())
 
+    print("Continuando la ejecución")
+    pprint(debugger.continue_execution())
+    print("Volviendo al anterior breakpoint")
+    pprint(debugger.reverse_continue())
 
-elapsed_time = time.time() - start_time
-print(f"La ejecución tardó {elapsed_time:.4f} segundos")
+    elapsed_time = time.time() - start_time
+    print(f"La ejecución tardó {elapsed_time:.4f} segundos")
