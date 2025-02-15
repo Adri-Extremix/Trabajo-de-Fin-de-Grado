@@ -125,7 +125,7 @@ class Debugger:
     def run(self):
         """Method to run the program"""
         exec_run = self._gdb_write("-exec-run")
-        self.gdb.write("-thread-info",timeout_sec=5)
+        self._gdb_write("-thread-info",timeout_sec=5)
         
         for response in exec_run:
             
@@ -187,10 +187,10 @@ class Debugger:
     def select_frame(self, frame):
         self._gdb_write(f"-stack-select-frame {frame}")
 
-    def _gdb_write(self, command):
+    def _gdb_write(self, command, timeout_sec=5):
         if not self.gdb:
             raise RuntimeError("GDB controller is not initialized")
-        return self.gdb.write(command)
+        return self.gdb.write(command, timeout_sec=timeout_sec)
     
     def get_all_thread_variables(self):
         #TODO: Alternativa: Obtener las funciones a las que pertence cada variable y solo obtener las variables de las funciones del usuario
@@ -240,7 +240,7 @@ debugger = Debugger("prueba.c","./prueba", rr=True)
 print("Colocando breakpoint")
 debugger.set_breakpoint(22)
 print("Colocando breakkpoint")
-debugger.set_breakpoint(50)
+debugger.set_breakpoint(30)
 print("Ejecutando el programa")
 pprint(debugger.run())
 
