@@ -15,17 +15,22 @@ class TestDebugger(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.c_files = glob.glob("*.c")
+        cls.c_files = list(reversed(glob.glob("*.c")))
         cls.binary_files = []
         for c_file in cls.c_files:
             output_name = os.path.splitext(c_file)[0]
             subprocess.run(["gcc", c_file, "-o", output_name],
                check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            cls.binary_files.append(output_name)
+            cls.binary_files.insert(0,output_name)
 
-    def test_parse_code2(self):
-        debugger = Debugger(self.c_files[1], self.binary_files[1])
+
+    def test_parse_code1(self):
+        debugger = Debugger(self.c_files[0], self.binary_files[0])
         functions = debugger.parse_code()
         self.assertEqual(functions, {"main": (20, 46), "greet": (49, 52)
                                      , "add": (55, 60), "printArray": (63, 71)})
 
+    def test_parse_code2(self):
+        debugger = Debugger(self.c_files[1], self.binary_files[1])
+        functions = debugger.parse_code()
+        self.assertEqual(functions, {"print_row": (19, 28), "main": (30, 54)})
