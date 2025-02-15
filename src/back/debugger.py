@@ -236,11 +236,11 @@ start_time = time.time()
 
 # Aquí pones el código cuya ejecución quieres medir
 
-debugger = Debugger("prueba.c","./prueba", rr=True)
+debugger = Debugger("codigo.c","./codigo", rr=False)
 print("Colocando breakpoint")
 debugger.set_breakpoint(22)
 print("Colocando breakkpoint")
-debugger.set_breakpoint(30)
+debugger.set_breakpoint(50)
 print("Ejecutando el programa")
 pprint(debugger.run())
 
@@ -254,15 +254,3 @@ pprint(debugger.reverse_continue())
 
 elapsed_time = time.time() - start_time
 print(f"La ejecución tardó {elapsed_time:.4f} segundos")
-
-
-""" print("Ejecutando la siguiente línea")
-debugger.step_into()
-print("Ejecutando la siguiente línea")
-debugger.step_into()
-print("Ejecutando la siguiente línea")
-debugger.step_into()
-print("Ejecutando la siguiente línea")
-debugger.step_into()
-print("Ejecutando la siguiente línea")
-debugger.step_into() """
