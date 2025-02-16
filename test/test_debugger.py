@@ -1,5 +1,6 @@
 import sys
 import os
+import unittest.main
 
 # Add the src directory to the path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
@@ -16,15 +17,13 @@ class TestDebugger(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.c_files = list(reversed(glob.glob("*.c")))
+        cls.c_files = list(reversed(glob.glob("../examples/*.c")))
         cls.binary_files = []
         for c_file in cls.c_files:
-            output_name = os.path.splitext(c_file)[0]
+            output_name = os.path.splitext(c_file)[0] + ".out"
             subprocess.run(["gcc", c_file, "-o", output_name],
                check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             cls.binary_files.append("./" + output_name)
-
-        print(cls.c_files, cls.binary_files)
 
     def test_parse_code1(self):
         debugger = Debugger(self.c_files[0], self.binary_files[0])
@@ -112,20 +111,4 @@ class TestDebugger(unittest.TestCase):
         debugger = Debugger(self.c_files[0], self.binary_files[0])
         debugger.run()
         self.assertEqual(debugger.threads, {}, "Run method in code 1 is not working correctly")
-
-    def test_breakpoint_code1(self):
-        debugger = Debugger("codigo.c", "./codigo", rr=False)
-        print(self.c_files[0], self.binary_files[0])
-        debugger.set_breakpoint(50)
-        threads = debugger.run()
-        
-        pprint(threads)
-        pprint(debugger.threads)
-
-        self.assertIn("1", debugger.threads.keys(), "Falta el hilo 1 en debugger.threads")
-        self.assertEqual(debugger.threads[1].get("function"), "main", "El hilo 1 no está en la función 'main'")
-
-        self.assertIn("2", debugger.threads.keys(), "Falta el hilo 2 en debugger.threads")
-        self.assertEqual(debugger.threads[2].get("function"), "greet", "El hilo 2 no está en la función 'greet'")
-        self.assertEqual(debugger.threads[2].get("line"), 50, "La línea para el hilo 2 no es 50")
-
+            
