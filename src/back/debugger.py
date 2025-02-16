@@ -1,3 +1,4 @@
+from doctest import debug
 import pygdbmi.constants
 from pygdbmi.gdbcontroller import GdbController
 import pygdbmi
@@ -5,21 +6,22 @@ from pprint import pprint
 import re
 import subprocess
 import time
+import os
 
 
 class Debugger:
     def __init__(self, code_path, compiled_path, rr: bool = False):
-        self.compiled_path = compiled_path
-        self.code_path = code_path
-        print(self.code_path)
+        #self.compiled_path = compiled_path
+        self.compiled_path = os.path.abspath(compiled_path)
+        self.code_path = os.path.abspath(code_path)
         self.enable_rr = rr
         if rr:
-            subprocess.run(["rr", "record", compiled_path])
+            subprocess.run(["rr", "record", self.compiled_path])
             self.gdb = GdbController(command=["rr", "replay", "--interpreter=mi3"])
         else:
             self.gdb = GdbController(command=["gdb", "--interpreter=mi3"])
 
-        self.gdb.write(f"file {compiled_path}")
+        self.gdb.write(f"file {self.compiled_path}")
         with open(self.code_path, "r") as file:
             self.code = file.read()
         self.functions = self.parse_code()
@@ -101,10 +103,8 @@ class Debugger:
         # Obtenemos todos los frames en una sola consulta
         frames_response = self._gdb_write("-stack-list-frames 0 %d" % (self.get_stack_depth() - 1))
         frames = frames_response[0]["payload"].get("stack", []) if frames_response else []
-        
         for frame in frames:
-            
-            if frame.get("file") == self.code_path:
+            if frame.get("fullname") == self.code_path:
                 self._update_thread_data(thread_id, thread_name, frame)
                 return frame
         
@@ -210,7 +210,7 @@ class Debugger:
             for frame in frames:
                 frame_level = frame["level"]
                 frame_func = frame["func"]
-                frame_file = frame.get("file", "")
+                frame_file = frame.get("fullname", "")
 
                 variable_info = self._gdb_write(f'-stack-list-variables --thread {thread_id} --frame {frame_level} 1')
                 if variable_info and "variables" in variable_info[0]["payload"]:
@@ -237,14 +237,15 @@ class Debugger:
 if __name__ == "__main__":
     start_time = time.time()
 
-    # Aquí pones el código cuya ejecución quieres medir
-    debugger = Debugger("prueba.c", "./prueba", rr=False)
+    debugger = Debugger("../../examples/prueba2.c", "../../examples/prueba2.o", rr=False)
+
     print("Colocando breakpoint")
     debugger.set_breakpoint(22)
     print("Colocando breakkpoint")
     debugger.set_breakpoint(33)
     print("Ejecutando el programa")
     pprint(debugger.run())
+    pprint(debugger.get_thread_info())
 
     print("Continuando la ejecución")
     pprint(debugger.continue_execution())
