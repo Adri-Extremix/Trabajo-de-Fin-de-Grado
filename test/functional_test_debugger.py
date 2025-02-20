@@ -1,76 +1,151 @@
+from calendar import c
+from pdb import run
+import re
 import sys
 import os
+from unittest import result
 
 # Add the src directory to the path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
+from back import debugger
 from back.debugger import Debugger
 from pprint import pprint
+import subprocess
 
-def breakpoint_code1():
-    debugger = Debugger("../examples/prueba2.c", "../examples/prueba2.o", rr=False)
-    print("Colocando breakpoint")
+c_files = ["../examples/prueba1.c", "../examples/prueba2.c"]
+binary_files = []
+
+
+def setup():
+    for c_file in c_files:
+        binary_file = c_file.replace('.c', '.o')
+        compile_cmd = ['gcc', '-g', '-Og', c_file, '-o', binary_file]
+        subprocess.check_call(compile_cmd)
+        binary_files.append(binary_file)
+        print(f"Compilado {c_file} -> {binary_file}")
+
+def clean():
+    for binary_file in binary_files:
+        os.remove(binary_file)
+        print(f"Eliminado {binary_file}")
+
+
+def run_breakpoint_code1():
+    debugger = Debugger(c_files[0], binary_files[0], rr=False)
+    debugger.set_breakpoint(49)
+    result = debugger.run()
+
+    assert "1" in result.keys(), "El hilo '1' no se encontró en el resultado"
+    assert "2" in result.keys(), "El hilo '2' no se encontró en el resultado"
+
+    assert result["1"]["function"] == "main", f"El hilo '1' no se detuvo en la función 'main', se detuvo en la función {result['1']['function']}"
+
+    assert result["2"]["line"] == "49", f"El hilo '2' no se detuvo en la línea 49, se detuvo en la línea {result['2']['line']}"
+    assert result["2"]["function"] == "greet", f"El hilo '2' no se detuvo en la función 'greet', se detuvo en la función {result['2']['function']}"
+
+
+def run_breakpoint_code2():
+    debugger = Debugger(c_files[1], binary_files[1], rr=False)
+    debugger.set_breakpoint(20)
+    result = debugger.run()
+
+    assert "1" in result.keys(), "El hilo '1' no se encontró en el resultado"
+
+    assert result["1"]["function"] == "main", f"El hilo '1' no se detuvo en la función 'main', se detuvo en la función {result['1']['function']}"
+
+    found = any(info.get("line") == "20" for info in result.values())
+    assert found, "Ningún hilo se ha parado en la línea 20"
+
+
+def continue_breakpoint_code1():
+    debugger = Debugger(c_files[0], binary_files[0], rr=False)
+    debugger.set_breakpoint(28)
+    debugger.set_breakpoint(70)
+    
+    result_run = debugger.run()
+
+    assert len(result_run) == 1, f"Se esperaba solo 1 hilo, se encontraron {len(result_run)}"
+
+    assert "1" in result_run, "La clave '1' no se encontró en el resultado"
+
+    assert result_run["1"]["function"] == "main", f"El hilo '1' no se detuvo en la función 'main', se detuvo en la función {result_run['1']['function']}"
+
+    assert result_run["1"]["line"] == "28", f"El hilo '1' no se detuvo en la línea 28, se detuvo en la línea {result_run['1']['line']}"
+
+
+    result_continue = debugger.continue_execution()
+
+    assert len(result_continue) == 2, f"Se esperaban 2 hilos, se encontraron {len(result_continue)}"
+
+    assert "1" in result_continue, "La clave '1' no se encontró en el resultado"
+    assert "4" in result_continue, "La clave '4' no se encontró en el resultado"
+
+    assert result_continue["1"]["function"] == "main", f"El hilo '1' no se detuvo en la función 'main', se detuvo en la función {result_continue['1']['function']}"
+
+    assert result_continue["4"]["function"] == "printArray", f"El hilo '4' no se detuvo en la función 'printArray', se detuvo en la función {result_continue['4']['function']}"
+
+    assert result_continue["4"]["line"] == "70", f"El hilo '4' no se detuvo en la línea 70, se detuvo en la línea {result_continue['4']['line']}"
+
+
+def continue_breakpoint_code2():
+    debugger = Debugger(c_files[1], binary_files[1], rr=False)
     debugger.set_breakpoint(22)
-    print("Colocando breakkpoint")
-    debugger.set_breakpoint(33)
-    print("Ejecutando el programa")
-    pprint(debugger.run())
+    debugger.set_breakpoint(41)
+    result_run = debugger.run()
 
-    print("Continuando la ejecución")
-    pprint(debugger.continue_execution())
-    print("Volviendo al anterior breakpoint")
-    result = debugger.reverse_continue()
-    pprint(result)
-    # Reemplaza "expected_result" por el resultado esperado, por ejemplo:
-    expected_result = {
-        'clave1': 'valor1',
-        'clave2': 'valor2'
-    }
-    # Al comparar diccionarios con == se verifica que tengan las mismas claves y valores
-    assert result == expected_result, f"El resultado {result} no coincide con lo esperado {expected_result}"
+    assert len(result_run) == 7, f"Se esperaban solo 7 hilos, se encontraron {len(result_run)}"
 
-def breakpoint_code2():
-    debugger = Debugger("../examples/prueba1.c", "../examples/prueba1.o", rr=False)
-    print("Colocando breakpoint")
+    result_continue = debugger.continue_execution()
+
+    assert len(result_continue) == 7, f"Se esperaban que se mantuvieran los 7 hilos, pero se encontraron {len(result_continue)}"
+    
+
+def reversing_breakpoint_code1():
+    debugger = Debugger(c_files[0], binary_files[0], rr=True)
+    debugger.set_breakpoint(28)
+    debugger.set_breakpoint(70)
+    result_run = debugger.run()
+    debugger.continue_execution()
+    result_reverse = debugger.reverse_continue()
+
+    assert result_run == result_reverse, "El resultado de la ejecución al breakpoint 28 y el resultado de la reversión a ese mismo breakpoint no son iguales"
+
+def reversing_breakpoint_code2():
+    debugger = Debugger(c_files[1], binary_files[1], rr=True)
     debugger.set_breakpoint(22)
-    print("Colocando breakkpoint")
-    debugger.set_breakpoint(33)
-    print("Ejecutando el programa")
-    pprint(debugger.run())
-
-    print("Continuando la ejecución")
-    pprint(debugger.continue_execution())
-    print("Volviendo al anterior breakpoint")
-    result = debugger.reverse_continue()
-    pprint(result)
-    # Reemplaza "expected_result" por el resultado esperado, por ejemplo:
-    expected_result = {
-        'clave1': 'valor1',
-        'clave2': 'valor2'
-    }
-    # Al comparar diccionarios con == se verifica que tengan las mismas claves y valores
-    assert result == expected_result, f"El resultado {result} no coincide con lo esperado {expected_result}"
+    debugger.set_breakpoint(41)
+    result_run = debugger.run()
+    debugger.continue_execution()
+    result_reverse = debugger.reverse_continue()
+    
+    assert result_run == result_reverse, "El resultado de la ejecución al breakpoint 22 y el resultado de la reversión a ese mismo breakpoint no son iguales"
 
 
 if __name__ == "__main__":
-    tests = [breakpoint_code1, breakpoint_code2]
+    print("\033[93m\n ----------------- Realizando el setup ----------------- \n\033[0m")
+    setup()
+    print("\033[93m\n ----------------- Ejecutando tests ----------------- \n\033[0m")
+    tests = [run_breakpoint_code1, run_breakpoint_code2, continue_breakpoint_code1, continue_breakpoint_code2, reversing_breakpoint_code1]
     passed = []
     failed = []
     errors = []
     
     for test in tests:
         try:
+            print(f"Ejecutando test {test.__name__}")
             test()
-            print(f"{test.__name__}: OK")
+            print("\033[92m" + f"{test.__name__}: OK" + "\033[0m\n")
             passed.append(test.__name__)
         except AssertionError as ae:
-            print(f"{test.__name__}: Falló - {ae}")
+            print("\033[91m" + f"{test.__name__}: Falló - {ae}\n" + "\033[0m")
             failed.append((test.__name__, str(ae)))
         except Exception as e:
-            print(f"{test.__name__}: Error inesperado - {e}")
+            print("\033[91m" + f"{test.__name__}: Error inesperado - {e}\n" + "\033[0m")
             errors.append((test.__name__, str(e)))
     
-    print("\nResumen de tests:")
+    print("\033[93m----------------- Resumen de tests ----------------- \n\033[0m")
+
     print(f"Pasaron {len(passed)} tests: {passed}")
     if failed:
         print("Fallaron {len(failed)} tests:")
@@ -80,3 +155,7 @@ if __name__ == "__main__":
         print("Errores inesperados:")
         for test_name, msg in errors:
             print(f" - {test_name}: {msg}")
+
+    print("\033[93m\n ----------------- Limpiando archivos ----------------- \n\033[0m")
+
+    clean()

@@ -21,7 +21,7 @@ class TestDebugger(unittest.TestCase):
         cls.binary_files = []
         for c_file in cls.c_files:
             output_name = os.path.splitext(c_file)[0] + ".out"
-            subprocess.run(["gcc", c_file, "-o", output_name],
+            subprocess.run(["gcc", "-g", "-Og",c_file, "-o", output_name],
                check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             cls.binary_files.append("./" + output_name)
 
