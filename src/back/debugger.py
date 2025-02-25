@@ -7,16 +7,16 @@ import re
 import subprocess
 import time
 import os
+import sys
 
 
 class Debugger:
     def __init__(self, code_path, compiled_path, rr: bool = False):
-        #self.compiled_path = compiled_path
         self.compiled_path = os.path.abspath(compiled_path)
         self.code_path = os.path.abspath(code_path)
         self.enable_rr = rr
         if rr:
-            subprocess.run(["rr", "record", self.compiled_path])
+            subprocess.run(["rr", "record", self.compiled_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             self.gdb = GdbController(command=["rr", "replay", "--interpreter=mi3"])
         else:
             self.gdb = GdbController(command=["gdb", "--interpreter=mi3"])
@@ -92,7 +92,7 @@ class Debugger:
         
         self.select_thread(current_thread_id)
         
-        self.get_all_thread_variables()
+        self.get_all_thread_local_variables()
         
         return self.threads
 
@@ -108,7 +108,7 @@ class Debugger:
                 self._update_thread_data(thread_id, thread_name, frame)
                 return frame
         
-        print(f"Thread {thread_id} no encontrado en código compilado")
+        #print(f"Thread {thread_id} no encontrado en código compilado")
         return None
 
     def _update_thread_data(self, thread_id, thread_name, frame_info):
@@ -159,17 +159,88 @@ class Debugger:
 
         return self._update_thread_functions()
 
-#TODO: Devolver solo lo necesario en los métodos
-    def step_over(self):
-        pprint(self._gdb_write("-exec-next"))
+    def generic_step(self, thread_id, step_type):
 
-    def step_into(self):
+        correspondece_step = {
+            "step_over": "-exec-next",
+            "step_into": "-exec-step",
+            "step_out": "-exec-finish"
+        }
+
+        self.select_thread(thread_id)
+
+        if step_type == "step_out":
+            frame_depth = self.get_stack_depth()
+            if frame_depth == 1:
+                step_type = "step_over"
+        print("Step type: ", step_type)
+        self._gdb_write(correspondece_step[step_type])
+        for name, id in self.correspondence.items():
+            if id == thread_id:
+                self._process_thread(thread_id, name)
+                break
+
+
+    def step_over(self, thread_id = None):
+        
+        if not self.enable_rr and thread_id:
+            self.generic_step(thread_id, "step_over")
+        
+        else:
+            pass
+
+        return self.threads
+   
+
+    def step_into(self, thread_id = None):
         #TODO: Si se está en una función que no esté en el código fuente, se realizará un step out para salir de la función
-        pprint(self._gdb_write("-exec-step"))
-    
-    def step_out(self):
-        pprint(self._gdb_write("-exec-finish"))
-    
+
+        if not self.enable_rr and thread_id:
+            self.generic_step(thread_id, "step_into")
+
+            frame_info = self.info_frame()[0]["payload"]
+
+
+            if frame_info["frame"]["fullname"] != self.code_path:
+                self.step_out(thread_id) 
+                frame_info = self.info_frame()[0]["payload"]
+        
+        else:
+            pass 
+
+        return self.threads
+
+    def step_out(self, thread_id = None):
+
+        # Agregamos código para conocer el frame superior al actual
+        upper_frame = None
+        frames_response = self.get_frames()
+        if frames_response:
+            stack = frames_response[0]["payload"].get("stack", [])
+            if len(stack) > 1:
+                upper_frame = stack[1]
+
+        if upper_frame and upper_frame["func"] == "start_thread":
+            self.step_over(thread_id)
+            return self.threads
+
+        
+        if not self.enable_rr and thread_id:
+
+            self.generic_step(thread_id, "step_out")
+
+
+            frame_info = self.info_frame()[0]["payload"]
+
+            while frame_info["frame"]["fullname"] != self.code_path:
+                self.step_into(thread_id)
+
+        else:
+            pass
+
+        return self.threads
+
+        
     def set_breakpoint(self, line):
         self._gdb_write(f"-break-insert {line}")
 
@@ -178,6 +249,10 @@ class Debugger:
 
     def get_thread_info(self):
         info = self._gdb_write("-thread-info")
+        return info
+
+    def info_frame(self):
+        info = self._gdb_write("-stack-info-frame")
         return info
 
     def get_frames(self):
@@ -191,10 +266,8 @@ class Debugger:
             raise RuntimeError("GDB controller is not initialized")
         return self.gdb.write(command, timeout_sec=timeout_sec)
     
-    def get_all_thread_variables(self):
-        #TODO: Alternativa: Obtener las funciones a las que pertence cada variable y solo obtener las variables de las funciones del usuario
+    def get_all_thread_local_variables(self):
         """Method to get all the variables of all the threads except the ones in the exclude_vars list"""
-       
 
         for thread_id in self.threads.keys():
             self.select_thread(thread_id)
@@ -237,7 +310,8 @@ class Debugger:
 if __name__ == "__main__":
     start_time = time.time()
 
-    debugger = Debugger("../../examples/prueba2.c", "../../examples/prueba2.o", rr=False)
+
+    debugger = Debugger("../../examples/prueba1.c", "../../examples/prueba1.o", rr=False)
 
     print("Colocando breakpoint")
     debugger.set_breakpoint(22)
@@ -245,8 +319,7 @@ if __name__ == "__main__":
     debugger.set_breakpoint(33)
     print("Ejecutando el programa")
     pprint(debugger.run())
-    pprint(debugger.get_thread_info())
-
+    pprint(debugger.correspondence)
     print("Continuando la ejecución")
     pprint(debugger.continue_execution())
     print("Volviendo al anterior breakpoint")
