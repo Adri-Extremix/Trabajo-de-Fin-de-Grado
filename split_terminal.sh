@@ -17,10 +17,10 @@ SESSION="desarrollo"
     tmux split-window -h -t $SESSION:0
 
     # Ejecutar npm start en el panel izquierdo
-    tmux send-keys -t $SESSION:0.0 "cd /home/afern193/Trabajo-de-Fin-de-Grado/src/front && npm start" C-m
+    tmux send-keys -t $SESSION:0.0 "cd ./src/front && npm start" C-m
 
     # Ejecutar python3 en el panel derecho
-    tmux send-keys -t $SESSION:0.1 "cd /home/afern193/Trabajo-de-Fin-de-Grado/src/back && source venv/bin/activate && python3 backend.py" C-m
+    tmux send-keys -t $SESSION:0.1 "cd ./src/back && source venv/bin/activate && python3 backend.py" C-m
 
 # Conectar a la sesión
 tmux attach -t $SESSION
