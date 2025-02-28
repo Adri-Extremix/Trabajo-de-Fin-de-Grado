@@ -1,0 +1,27 @@
+
+:root {
+  --primary-color-coder: #3885cc;
+  --secondary-color-coder: #3867cc;
+  --active-button-color-coder: #2d70ae;
+  --hover-button-color-coder: #428fd6;
+  --primary-color-debugger: #3ab150;
+  --secondary-color-debugger: #38a34c;
+  --active-button-color-debugger: #2d70ae;
+  --hover-button-color-debugger: #428fd6;
+  --background-color: #282c34;
+  --background-color-focus: #1f2228;
+  --text-color: white;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+      "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}

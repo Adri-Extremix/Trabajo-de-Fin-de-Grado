@@ -1,0 +1,23 @@
+@import "../../../global.css";
+
+.Button {
+    margin-top: 15%;
+    border-radius: calc(10px + 1vmin);
+    background-color: var(--primary-color-coder);
+    font-size: calc(10px + 1.5vmin);
+    width: 35%;
+    height: 10%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+.Button:hover {
+    background-color: var(
+        --hover-button-color-coder
+    ); /* Color al pasar el ratón por encima */
+}
+
+.Button:active {
+    background-color: var(--active-button-color-coder); /* Color al presionar el botón */
+}
