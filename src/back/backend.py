@@ -20,7 +20,7 @@ class Backend:
         self.app.add_url_rule("/CC/debug/step_into", "step_into", self.step_into, methods=["POST"])
         self.app.add_url_rule("/CC/debug/step_out", "step_out", self.step_out, methods=["POST"])
         self.app.add_url_rule("/CC/debug/continue", "continue_execution", self.continue_execution, methods=["POST"])
-        self.app.add_url_rule("/CC/debug/run", "run", self.run, methods=["POST"])
+        self.app.add_url_rule("/CC/debug/run", "run_execution", self.run_execution, methods=["POST"])
 
 
     def compile_code(self):
@@ -40,6 +40,55 @@ class Backend:
             return jsonify({"output": result["output"]}), 200
         else:
             return jsonify({"error": result["error"]}), 400
+
+    def add_breakpoint(self):
+        if not self.debugger:
+            return jsonify({"error": "Debugger no inicializado. Compila primero el código."}), 400
+        
+        data = request.get_json()
+        line_number = data.get("line", -1)
+        
+        result = self.debugger.add_breakpoint(line_number)
+
+        if result:
+            return jsonify({"message": result}), 200
+        else:
+            return jsonify({"error": "No se ha obtenido resultado"}), 400
+    
+    def step_over(self):
+        return self._execute_debug_step("step_over")
+    
+    def step_into(self):
+        return self._execute_debug_step("step_into")
+    
+    def step_out(self):
+        return self._execute_debug_step("step_out")
+
+    def _execute_debug_step(self, step_method):
+        """Método auxiliar para ejecutar operaciones de paso en el debugger"""
+        if not self.debugger:
+            return jsonify({"error": "Debugger no inicializado. Compila primero el código."}), 400
+        
+        data = request.get_json()
+        thread_id = data.get("thread_id", -1)
+        
+        method = getattr(self.debugger, step_method)
+        result = method(thread_id=thread_id)
+        return jsonify(result), 200
+    
+    def continue_execution(self):
+        if not self.debugger:
+            return jsonify({"error": "Debugger no inicializado. Compila primero el código."}), 400
+        
+        result = self.debugger.continue_execution()
+        return jsonify(result), 200
+    
+    def run_execution(self):
+        if not self.debugger:
+            return jsonify({"error": "Debugger no inicializado. Compila primero el código."}), 400
+        
+        result = self.debugger.start_debugging()
+        return jsonify(result), 200
 
     def run(self):
         self.app.run(debug=True, host="0.0.0.0", port=8080)

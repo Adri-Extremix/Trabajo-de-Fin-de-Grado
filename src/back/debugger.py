@@ -242,8 +242,13 @@ class Debugger:
 
         
     def set_breakpoint(self, line):
-        self._gdb_write(f"-break-insert {line}")
-
+        try:
+            self._gdb_write(f"-break-insert {line}")
+            return True
+        except Exception as e:
+            print(e)
+            return False
+        
     def select_thread(self, thread_id):
         self._gdb_write(f"-thread-select {thread_id}")
 
