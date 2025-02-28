@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concurrent Code</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/codemirror.min.css">
+    <link rel="stylesheet" href="variables.css">
+    <link rel="stylesheet" href="ConcurrentCode.css">
+
+</head>
+
+<body>
+    <div class="Screen">
+        <header class="Header">
+            <h1>
+                <span class="large-letter" id="first-c">C</span>oncurrent 
+                <span class="large-letter" id="second-c">C</span>ode
+            </h1>
+            <div class="Slicer">
+                <div class="slider-track">
+                    <div class="slider-thumb"></div>
+                </div>
+                <div class="slider-options">
+                    <div class="option active" data-value="0">Coder</div>
+                    <div class="option" data-value="1">Debugger</div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Contenedor para componentes (alternará entre Coder y Debugger) -->
+        <div id="component-container">
+            <!-- Estructura del componente Coder -->
+            <div className="Coder">
+                <div className="Code">
+                    <!-- <Editor value={code} /> -->
+
+                    
+
+                    <div className="Buttons">
+                        <Button text="Compilar" onClick={Compilar} />
+                        <Button text="Ejecutar" onClick={Ejecutar} />
+                    </div>
+                </div>
+                <!-- <Terminal output={outTerminal} /> -->
+            </div>
+            
+            <!-- Estructura del componente Debugger (inicialmente oculto) -->
+            <div class="Debugger" style="display:none;">
+                <div class="variables-panel">
+                    <!-- Panel de variables -->
+                </div>
+                <div class="execution-panel">
+                    <!-- Panel de ejecución -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/mode/javascript/javascript.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

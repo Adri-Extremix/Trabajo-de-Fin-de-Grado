@@ -7,7 +7,7 @@ import Button from "./Button/Button";
 import axios from "axios";
 
 function Coder() {
-    const [code, setCode] = React.useState(`//Este es un Código de Ejemplo
+    let code = `//Este es un Código de Ejemplo
 
 #include <stdio.h>
 #include <pthread.h>
@@ -60,8 +60,7 @@ int main() {
     printf("¿Han términado en orden?");
     return 0;
 }
-`);
-
+`
     const [outTerminal, setOutTerminal] = React.useState("");
     // const [isCompiled, setIsCompiled] = React.useState(false);
     let isCompiled = false;
