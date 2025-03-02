@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from compiler import Compiler
 from debugger import Debugger
@@ -6,13 +6,19 @@ from debugger import Debugger
 class Backend:
     def __init__(self):
         self.app = Flask(__name__)
-        CORS(self.app, resources={r"/CC/*": {"origins": "*"}})
+        CORS(self.app)
         self.compiler = Compiler()
         self.debugger = None # Inicializamos el debugger como None
         
         self.setup_routes()
 
     def setup_routes(self):
+
+        # Rutas para servir el frontend
+        self.app.add_url_rule("/", "serve_index", self.serve_index)
+        self.app.add_url_rule("/<path:filename>", "serve_static", self.serve_static)
+
+
         self.app.add_url_rule("/CC/compile", "compile_code", self.compile_code, methods=["POST"])
         self.app.add_url_rule("/CC/run", "run_code", self.run_code, methods=["POST"])
         self.app.add_url_rule("/CC/debug/add_breakpoint", "add_breakpoint", self.add_breakpoint, methods=["POST"])
@@ -21,6 +27,14 @@ class Backend:
         self.app.add_url_rule("/CC/debug/step_out", "step_out", self.step_out, methods=["POST"])
         self.app.add_url_rule("/CC/debug/continue", "continue_execution", self.continue_execution, methods=["POST"])
         self.app.add_url_rule("/CC/debug/run", "run_execution", self.run_execution, methods=["POST"])
+
+    def serve_index(self):
+        return send_from_directory("../front/dist", "index.html")
+
+    def serve_static(self, filename):
+        import os
+        static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "front", "dist")
+        return send_from_directory(static_dir, filename)
 
 
     def compile_code(self):
@@ -48,7 +62,7 @@ class Backend:
         data = request.get_json()
         line_number = data.get("line", -1)
         
-        result = self.debugger.add_breakpoint(line_number)
+        result = self.debugger.set_breakpoint(line_number)
 
         if result:
             return jsonify({"message": result}), 200
@@ -87,7 +101,7 @@ class Backend:
         if not self.debugger:
             return jsonify({"error": "Debugger no inicializado. Compila primero el código."}), 400
         
-        result = self.debugger.start_debugging()
+        result = self.debugger.run()
         return jsonify(result), 200
 
     def run(self):

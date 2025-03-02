@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concurrent Code</title>
+    <link rel="stylesheet" href="variables.css">
+    <link rel="stylesheet" href="ConcurrentCode.css">
+    <link rel="icon" type="image/svg+xml" href="/bug-solid.svg">
+
+</head>
+
+<body>
+    <div id="Screen">
+        <header>
+            <h1>
+                <span class="large-letter" id="first-c">C</span>oncurrent 
+                <span class="large-letter" id="second-c">C</span>ode
+            </h1>
+        </header>
+        
+        <main id="Coder">
+            <div id="Code">
+                <div id="Container-Editor">
+                    <div id="Editor" class="CodeMirror"></div>
+                </div>
+                                
+                <div class="Buttons">
+                    
+                    <button id="Compilar" class="Button">Compilar</button>
+                    <button id="Ejecutar" class="Button">Ejecutar</button>
+
+                </div>
+            </div>
+            
+            <div id="Terminal">
+                <pre id="Output"></pre>
+            </div>
+        </main>
+    </div>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
