@@ -1,89 +1,69 @@
-import { EditorState } from "@codemirror/state";
-import { javascript } from "@codemirror/lang-javascript";
-import { oneDark } from "@codemirror/theme-one-dark";
-import { EditorView, basicSetup } from "codemirror";
 import $ from "jquery";
+import { updateTerminal } from "./outputTerminal";
+import { crearEditor } from "./codeMirror";
+/* import { updateTerminal } from './outputTerminal'; */
 
-const code = `//Este es un Código de Ejemplo
+let compiled = false;
 
-#include <stdio.h>
-#include <pthread.h>
-
-#define M 6
-#define N 3
-
-int arr[M][N] = {
-    {1, 2, 3},
-    {4, 5, 6},
-    {7, 8, 9},
-    {10, 11, 12},
-    {13, 14, 15},
-    {16, 17, 18}
-};
-
-// Función que será ejecutada por cada hilo
-void* print_row(void* arg) {
-    int row = *(int*)arg; // Índice de la fila a imprimir
-    printf("Row %d: ", row);
-    for (int j = 0; j < N; j++) {
-        printf("%d ", arr[row][j]);
-    }
-    printf("\\n");
-    return NULL;
-}
-
-int main() {
-    pthread_t threads[M]; // Array para almacenar identificadores de los hilos
-    int row_indices[M];   // Array para pasar índices de las filas a los hilos
-
-    // Crear un hilo para cada fila
-    for (int i = 0; i < M; i++) {
-        row_indices[i] = i; // Asignar el índice de la fila
-        if (pthread_create(&threads[i], NULL, print_row, &row_indices[i]) != 0) {
-            perror("Error creando hilo");
-            return 1;
-        }
-    }
-
-    // Esperar a que todos los hilos terminen
-    for (int i = 0; i < M; i++) {
-        if (pthread_join(threads[i], NULL) != 0) {
-            perror("Error esperando hilo");
-            return 1;
-        }
-    }
-
-    printf("Todos los hilos han terminado.\\n");
-    printf("¿Han términado en orden?");
-    return 0;
-}
-`;
-
+// Button click event handlers
 $(function () {
-  const editorContainer = $("#Editor")[0];
-  // Crear el estado del editor
-  const startState = EditorState.create({
-    doc: code,
-    extensions: [
-      basicSetup,
-      javascript(), // Puedes cambiar esto por otro lenguaje si es necesario
-      oneDark,
-      EditorView.lineWrapping,
-      EditorView.updateListener.of((update) => {
-        if (update.docChanged) {
-          // Aquí puedes manejar los cambios en el documento si lo necesitas
-          console.log("El código ha cambiado");
-        }
-      }),
-    ],
-  });
+  crearEditor();
 
-  // Inicializar el editor
-  const view = new EditorView({
-    state: startState,
-    parent: editorContainer,
+  $("#Compilar").on("click", function () {
+    Compile();
   });
-
-  // Acceso global al editor si es necesario
-  window.editor = view;
+  $("#Ejecutar").on("click", function () {
+    Run();
+  });
 });
+
+function Compile() {
+  /* const data = { code: window.editor.state.doc.toString() , breakpoint: Array.from(window.editor.state.breakpointState.breakpoints) }; */
+  const data = { code: window.editor.state.doc.toString() };
+  console.log(data);
+  $.ajax({
+    url: "http://localhost:8080/CC/compile",
+    method: "POST",
+    contentType: "application/json",
+    data: JSON.stringify(data),
+    success: function (response) {
+      console.log("Respuesta obtenida:", response);
+      // Handle successful creation
+      updateTerminal(response.output);
+      compiled = true;
+    },
+    error: function (xhr, status, error) {
+      console.error("Error creating data:", error);
+      // Handle error
+      updateTerminal("Error de red o servidor no disponible");
+      compiled = false;
+    },
+  });
+}
+
+function Run() {
+  if (!compiled) {
+    updateTerminal("No se ha compilado previamente");
+    return;
+  }
+
+  /* const data = { code: window.editor.state.doc.toString() , breakpoint: Array.from(window.editor.state.breakpointState.breakpoints) }; */
+  const data = { code: window.editor.state.doc.toString() };
+  console.log(data);
+  $.ajax({
+    url: "http://localhost:8080/CC/run",
+    method: "POST",
+    contentType: "application/json",
+    data: JSON.stringify(data),
+    success: function (response) {
+      console.log("Respuesta Obtenida:", response);
+      // Handle successful creation
+      updateTerminal(response.output);
+    },
+    error: function (xhr, status, error) {
+      console.error("Error creating data:", error);
+      // Handle error
+      updateTerminal("Error de red o servidor no disponible");
+    },
+  });
+}
