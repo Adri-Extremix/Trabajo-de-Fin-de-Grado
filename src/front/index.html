@@ -18,24 +18,52 @@
                 <span class="large-letter" id="first-c">C</span>oncurrent 
                 <span class="large-letter" id="second-c">C</span>ode
             </h1>
+            <!-- Slicer para cambiar entre Coder y Debugger -->
+            <div class="Slicer">
+                <label for="slicerToggle" class="Slicer-label">Coder</label>
+                <input type="checkbox" id="slicerToggle" class="Slicer-toggle">
+            </div>
         </header>
         
-        <main id="Coder">
-            <div id="Code">
-                <div id="Container-Editor">
-                    <div id="Editor" class="CodeMirror"></div>
+        <!-- Contenedor principal para alternar entre Coder y Debugger -->
+        <main id="MainContent">
+            <!-- Sección Coder -->
+            <div id="Coder" class="active-tab">
+                <div id="Code">
+                    <div id="Container-Editor">
+                        <div id="Editor" class="CodeMirror"></div>
+                    </div>
+                                    
+                    <div class="Buttons">
+                        <button id="Compilar" class="Button">Compilar</button>
+                        <button id="Ejecutar" class="Button">Ejecutar</button>
+                    </div>
                 </div>
-                                
-                <div class="Buttons">
-                    
-                    <button id="Compilar" class="Button">Compilar</button>
-                    <button id="Ejecutar" class="Button">Ejecutar</button>
-
+                
+                <div id="Terminal">
+                    <pre id="Output"></pre>
                 </div>
             </div>
-            
-            <div id="Terminal">
-                <pre id="Output"></pre>
+
+            <!-- Sección Debugger -->
+            <div id="Debugger" class="inactive-tab">
+                <div class="Debugger-container">
+                    <div class="Debugg">
+                        <div class="Title">Depurador de Código</div>
+                        <div class="VerticalContainer">
+                            <div class="CodeShard">Fragmento de código 1</div>
+                            <div class="CodeShard">Fragmento de código 2</div>
+                            <div class="CodeShard">Fragmento de código 3</div>
+                            <div class="CodeShard">Fragmento de código 4</div>
+                            <div class="CodeShard">Fragmento de código 5</div>
+                            <div class="CodeShard">Fragmento de código 6</div>
+                        </div>
+                    </div>
+                    <div class="Visual">
+                        <h3 class="Title">Contenido de Hilos</h3>
+                        <div class="ThreadContent"></div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>

@@ -1,11 +1,72 @@
-import { EditorState } from "@codemirror/state";
+import { EditorState, StateEffect, StateField } from "@codemirror/state";
 import { cpp } from "@codemirror/lang-cpp";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView, basicSetup } from "codemirror";
+import { Decoration, gutter } from "@codemirror/view";
 import $ from "jquery";
 
+// Definir los efectos de estado para añadir y eliminar breakpoints
+const addBreakpoint = StateEffect.define();
+const removeBreakpoint = StateEffect.define();
+
+// Campo de estado para mantener los breakpoints
+const breakpointState = StateField.define({
+  create() {
+    return Decoration.set([]);
+  },
+  update(breakpoints, tr) {
+    breakpoints = breakpoints.map(tr.changes);
+    for (let e of tr.effects) {
+      if (e.is(addBreakpoint)) {
+        // Asegurarnos de que el rango no está vacío
+        const line = tr.state.doc.lineAt(e.value);
+        const from = line.from;
+        const to = line.to || from + 1; // Asegurarse de que to > from
+
+        const breakpointMark = Decoration.mark({
+          class: "cm-breakpoint"
+        });
+
+        breakpoints = breakpoints.update({
+          add: [breakpointMark.range(from, to)]
+        });
+      } else if (e.is(removeBreakpoint)) {
+        const line = tr.state.doc.lineAt(e.value);
+        breakpoints = breakpoints.update({
+          filter: (from, to) => from < line.from || from >= line.to
+        });
+      }
+    }
+    return breakpoints;
+  },
+  provide: f => EditorView.decorations.from(f)
+});
+
+// Función para obtener los breakpoints actuales como array de números de línea
+export function getBreakpoints(view) {
+  const breakpoints = [];
+  try {
+    const markers = view.state.field(breakpointState);
+
+    // Usar un conjunto para evitar duplicados
+    const lineSet = new Set();
+
+    markers.between(0, view.state.doc.length, (from) => {
+      const line = view.state.doc.lineAt(from).number;
+      lineSet.add(line);
+    });
+
+    // Convertir el conjunto a array y ordenar
+    breakpoints.push(...Array.from(lineSet).sort((a, b) => a - b));
+  } catch (e) {
+    console.error("Error al obtener breakpoints:", e);
+  }
+
+  return breakpoints;
+}
+
 export function crearEditor() {
-const code = `//Este es un Código de Ejemplo
+  const code = `//Este es un Código de Ejemplo
 
 #include <stdio.h>
 #include <pthread.h>
@@ -61,18 +122,71 @@ int main() {
 `;
   const editorContainer = $("#Editor")[0];
 
+  // Configuración del gutter para breakpoints
+  const breakpointGutter = gutter({
+    class: "cm-breakpoint-gutter",
+    lineMarkerWidth: 15,
+    renderEmptyElements: true,
+    lineMarker: (view, line) => {
+      const lineBreakpoints = getBreakpoints(view);
+      if (lineBreakpoints.includes(line.number)) {
+        const marker = document.createElement("div");
+        marker.className = "cm-breakpoint-marker";
+        marker.innerHTML = "●";
+        return marker;
+      }
+      return null;
+    },
+    domEventHandlers: {
+      click: (view, line) => {
+        try {
+          const lineNumber = line.number;
+          const linePos = line.from;
+          const lineBreakpoints = getBreakpoints(view);
+          const hasBreakpoint = lineBreakpoints.includes(lineNumber);
+
+          view.dispatch({
+            effects: hasBreakpoint
+              ? removeBreakpoint.of(linePos)
+              : addBreakpoint.of(linePos)
+          });
+
+          console.log("Breakpoints:", getBreakpoints(view));
+          return true;
+        } catch (e) {
+          console.error("Error al manejar clic en gutter:", e);
+          return false;
+        }
+      }
+    }
+  });
+
   // Crear el estado del editor
   const startState = EditorState.create({
     doc: code,
     extensions: [
       basicSetup,
-      cpp(), // Puedes cambiar esto por otro lenguaje si es necesario
+      cpp(),
       oneDark,
+      breakpointState,
+      breakpointGutter,
       EditorView.lineWrapping,
+      EditorView.theme({
+        ".cm-breakpoint-gutter": {
+          width: "15px",
+          cursor: "pointer"
+        },
+        ".cm-breakpoint-marker": {
+          color: "red",
+          fontSize: "18px",
+          lineHeight: "18px",
+          margin: "0 auto",
+          textAlign: "center"
+        }
+      }),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
-          // Aquí puedes manejar los cambios en el documento si lo necesitas
-          console.log("El código ha cambiado");
+          // Notificar cambios si es necesario
         }
       }),
     ],
@@ -85,4 +199,5 @@ int main() {
   });
 
   window.editor = view;
+  window.editor.breakpointState = breakpointState;
 }
