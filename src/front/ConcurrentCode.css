@@ -138,6 +138,16 @@ header {
     font-size: 1rem;
 }
 
+/* .CodeMirror-gutters {
+    border-right: 1px solid #ddd;
+    background-color: #f7f7f7;
+  }
+.breakpoint {
+color: red;
+font-size: 16px;
+line-height: 0.8;
+} */
+ 
 /* ******************** Terminal ******************** */
 
 #Terminal {
