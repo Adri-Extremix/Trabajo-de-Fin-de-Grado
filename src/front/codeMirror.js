@@ -12,39 +12,29 @@ const removeBreakpoint = StateEffect.define();
 // Campo de estado para mantener los breakpoints
 const breakpointState = StateField.define({
     create() {
-        return Decoration.set([]);
+      return Decoration.none;
     },
-    update(breakpoints, tr) {
-        breakpoints = breakpoints.map(tr.changes);
-        for (let e of tr.effects) {
-            if (e.is(addBreakpoint)) {
-                // Asegurarnos de que el rango no está vacío
-                const line = tr.state.doc.lineAt(e.value);
-                const from = line.from;
-                let to;
-                if (line.to > from) {
-                    to = line.to;
-                } else {
-                    to = from + 1;
-                }
-                const breakpointMark = Decoration.mark({
-                    class: "cm-breakpoint"
-                });
-
-                breakpoints = breakpoints.update({
-                    add: [breakpointMark.range(from, to)]
-                });
-            } else if (e.is(removeBreakpoint)) {
-                const line = tr.state.doc.lineAt(e.value);
-                breakpoints = breakpoints.update({
-                    filter: (from, to) => from < line.from || from >= line.to
-                });
-            }
+    update(decorations, tr) {
+      let deco = decorations.map(tr.changes);
+      for (let e of tr.effects) {
+        if (e.is(addBreakpoint)) {
+          const line = tr.state.doc.lineAt(e.value);
+          const bpDeco = Decoration.line({ class: "cm-breakpoint" });
+          deco = deco.update({
+            add: [bpDeco.range(line.from)]
+          });
+        } else if (e.is(removeBreakpoint)) {
+          const line = tr.state.doc.lineAt(e.value);
+          deco = deco.update({
+            filter: (from, to, value) => from !== line.from
+          });
         }
-        return breakpoints;
+      }
+      return deco;
     },
     provide: f => EditorView.decorations.from(f)
-});
+  });
+  
 
 // Función para obtener los breakpoints actuales como array de números de línea
 export function getBreakpoints(view) {
@@ -131,17 +121,18 @@ int main() {
     const breakpointGutter = gutter({
         class: "cm-breakpoint-gutter",
         renderEmptyElements: true,
-        lineMarker: (view, line) => {
+/*         lineMarker: (view, line) => {
             const lineNumber = view.state.doc.lineAt(line.from).number;
             const lineBreakpoints = getBreakpoints(view);
-            if (lineNumber in lineBreakpoints) {
+            // Cambiar el uso de "in" por "includes" para verificar correctamente
+            if (lineBreakpoints.includes(lineNumber)) {
                 const marker = document.createElement("div");
                 marker.className = "cm-breakpoint-marker";
                 marker.textContent = "●";
                 return marker;
             }
             return null;
-        },
+        }, */
         domEventHandlers: {
             click: (view, line) => {
                 try {
@@ -149,13 +140,13 @@ int main() {
                     const linePos = line.from;
                     const lineBreakpoints = getBreakpoints(view);
                     const hasBreakpoint = lineBreakpoints.includes(lineNumber);
-
+    
                     view.dispatch({
                         effects: hasBreakpoint
                             ? removeBreakpoint.of(linePos)
                             : addBreakpoint.of(linePos)
                     });
-
+    
                     console.log("Breakpoints:", getBreakpoints(view));
                     return true;
                 } catch (e) {
@@ -165,6 +156,7 @@ int main() {
             }
         }
     });
+    
 
     // Crear el estado del editor
     const startState = EditorState.create({
