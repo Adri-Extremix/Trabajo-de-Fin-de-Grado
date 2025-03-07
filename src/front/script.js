@@ -1,6 +1,7 @@
 import $ from "jquery";
 import { updateTerminal } from "./outputTerminal";
 import { crearEditor } from "./codeMirror";
+import "./debuggerManager";
 import './variables.css';
 
 /* import { updateTerminal } from './outputTerminal'; */
@@ -19,10 +20,16 @@ function RunColorManager() {
 $(function () {
     crearEditor();
     RunColorManager();
+    
+    $("#Debugger").hide();
+    // Inicialmente deshabilitar el slicer si no se ha compilado
+    $("#slicerToggle").prop("disabled", !compiled);
 
     // Eventos de los botones de compilar y ejecutar
     $("#Compilar").on("click", function () {
         Compile();
+        console.log(compiled)
+        $("#slicerToggle").prop("disabled", !compiled);
     });
     $("#Ejecutar").on("click", function () {
         Run();
@@ -30,6 +37,7 @@ $(function () {
 
     // Evento del slicer para cambiar entre Coder y Debugger
     $("#slicerToggle").on("change", function () {
+
         const isChecked = $(this).is(":checked");
 
         if (isChecked) {
@@ -53,7 +61,6 @@ $(function () {
 });
 
 function Compile() {
-    /* const data = { code: window.editor.state.doc.toString() , breakpoint: Array.from(window.editor.state.breakpointState.breakpoints) }; */
     const data = { code: window.editor.state.doc.toString() };
     console.log(data);
     $.ajax({
@@ -63,17 +70,23 @@ function Compile() {
         data: JSON.stringify(data),
         success: function (response) {
             console.log("Respuesta obtenida:", response);
-            // Handle successful creation
             updateTerminal(response.output);
             compiled = true;
             $("#Ejecutar").css("backgroundColor", "");
             $("#Ejecutar").css("border-color", "#007bff");
+
+            // Actualizamos botones y slicer solo cuando se reciba la respuesta
+            RunColorManager();
+            $("#slicerToggle").prop("disabled", !compiled);
         },
         error: function (xhr, status, error) {
             console.error("Error creating data:", error);
-            // Handle error
             updateTerminal("Error de red o servidor no disponible");
             compiled = false;
+
+            // Actualizamos botones y slicer en caso de error
+            RunColorManager();
+            $("#slicerToggle").prop("disabled", !compiled);
         },
     });
 }

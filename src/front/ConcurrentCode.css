@@ -1,3 +1,5 @@
+
+
 body {
     height: 100%;
     margin: 0;
@@ -63,6 +65,12 @@ header {
     left: 1px;
     transition: transform 0.3s;
 }
+
+.Slicer-toggle:disabled {
+    background-color: #6c8397;
+    cursor: not-allowed;
+}
+
 
 .Slicer-toggle:checked::before {
     transform: translateX(25px);
@@ -138,6 +146,18 @@ header {
     font-size: 1rem;
 }
 
+/* Nuevos estilos para breakpoints */
+.cm-breakpoint {
+    background-color: rgba(255, 0, 0,0.1);
+    border-left: 10px solid red;
+}
+
+.cm-breakpoint-gutter {
+    width: 200px;
+    background-color: var(--background-color-focus);
+    cursor: pointer;
+}
+
 /* .CodeMirror-gutters {
     border-right: 1px solid #ddd;
     background-color: #f7f7f7;
@@ -173,14 +193,15 @@ line-height: 0.8;
     font-size: calc(10px + 1.5vmin);
     width: 40%;
     
-        height: 12%;
+    height: 12%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
     font-family: inherit;
-        border-color: var(--secondary-color-coder);
-        color: var(--text-color);
+    border-color: var(--secondary-color-coder);
+    color: var(--text-color);
+    cursor: pointer;
 }
 
 .Button:hover {
@@ -190,12 +211,14 @@ line-height: 0.8;
 
 .Button:active {
     background-color: var(--active-button-color-coder);
+    cursor: pointer;
     /* Color al presionar el botón */
 }
 
 .Button:disabled {
     background-color: #6c8397;
     border-color: #5b6e80;
+    cursor: not-allowed;
     /* Color al deshabilitar el botón */
 }
 
