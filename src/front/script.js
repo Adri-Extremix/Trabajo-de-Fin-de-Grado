@@ -1,6 +1,6 @@
 import $ from "jquery";
 import { updateTerminal } from "./outputTerminal";
-import { crearEditor } from "./codeMirror";
+import { crearEditor,getBreakpoints } from "./codeMirror";
 import "./debuggerManager";
 import './variables.css';
 
@@ -58,6 +58,18 @@ $(function () {
             $(".large-letter").css("color", "var(--primary-color-coder)");
         }
     });
+
+
+    // Eventos de los botones del Debugger
+    $("#Debug-Run").on("click", runExecution);
+    $("#Debug-Continue").on("click", continueExecution);
+    $("#Debug-Reverse-Continue").on("click", reverseContinueExecution);
+    $("#Debug-Step-Over").on("click", stepOverExecution);
+    $("#Debug-Reverse-Step-Over").on("click", reverseStepOverExecution);
+    $("#Debug-Step-Into").on("click", stepIntoExecution);
+    $("#Debug-Reverse-Step-Into").on("click", reverseStepIntoExecution);
+    $("#Debug-Step-Out").on("click", stepOutExecution);
+    $("#Debug-Reverse-Step-Out").on("click", reverseStepOutExecution);
 });
 
 function Compile() {
@@ -78,6 +90,7 @@ function Compile() {
             // Actualizamos botones y slicer solo cuando se reciba la respuesta
             RunColorManager();
             $("#slicerToggle").prop("disabled", !compiled);
+            addBreakpoints();
         },
         error: function (xhr, status, error) {
             console.error("Error creating data:", error);
@@ -114,6 +127,150 @@ function Run() {
             console.error("Error creating data:", error);
             // Handle error
             updateTerminal("Error de red o servidor no disponible");
+        },
+    });
+}
+
+function addBreakpoints() {
+    const breakpoints = getBreakpoints(window.editor);
+    console.log("Se envían los siguientes Breakpoints:", breakpoints);
+    $.ajax({
+        url: "http://localhost:8080/CC/debug/add_breakpoint",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ breakpoints }),
+        success: function (response) {
+            console.log("Respuesta obtenida:", response);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error creating data:", error);
+        },
+    });
+}
+
+function runExecution() {
+    console.log("Ejecutando...");
+    $.ajax({
+        url: "http://localhost:8080/CC/debug/run",
+        method: "GET",
+        contentType: "application/json",
+        success: function (response) {
+            console.log("Respuesta obtenida:", response);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error creating data:", error);
+        },
+    });
+}
+
+function continueExecution(){
+    $.ajax({
+        url: "http://localhost:8080/CC/debug/continue",
+        method: "GET",
+        contentType: "application/json",
+        success: function (response) {
+            console.log("Respuesta obtenida:", response);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error creating data:", error);
+        },
+    });
+}
+
+function reverseContinueExecution(){
+    $.ajax({
+        url: "http://localhost:8080/CC/debug/reverse_continue",
+        method: "GET",
+        contentType: "application/json",
+        success: function (response) {
+            console.log("Respuesta obtenida:", response);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error creating data:", error);
+        },
+    });
+}
+
+function stepOverExecution(){
+    $.ajax({
+        url: "http://localhost:8080/CC/debug/step_over",
+        method: "GET",
+        contentType: "application/json",
+        success: function (response) {
+            console.log("Respuesta obtenida:", response);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error creating data:", error);
+        },
+    });
+}
+
+function reverseStepOverExecution(){
+    $.ajax({
+        url: "http://localhost:8080/CC/debug/reverse_step_over",
+        method: "GET",
+        contentType: "application/json",
+        success: function (response) {
+            console.log("Respuesta obtenida:", response);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error creating data:", error);
+        },
+    });
+}
+
+function stepIntoExecution(){
+    $.ajax({
+        url: "http://localhost:8080/CC/debug/step_into",
+        method: "GET",
+        contentType: "application/json",
+        success: function (response) {
+            console.log("Respuesta obtenida:", response);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error creating data:", error);
+        },
+    });
+}
+
+function reverseStepIntoExecution(){
+    $.ajax({
+        url: "http://localhost:8080/CC/debug/reverse_step_into",
+        method: "GET",
+        contentType: "application/json",
+        success: function (response) {
+            console.log("Respuesta obtenida:", response);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error creating data:", error);
+        },
+    });
+}
+
+function stepOutExecution(){
+    $.ajax({
+        url: "http://localhost:8080/CC/debug/step_out",
+        method: "GET",
+        contentType: "application/json",
+        success: function (response) {
+            console.log("Respuesta obtenida:", response);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error creating data:", error);
+        },
+    });
+}
+
+function reverseStepOutExecution(){
+    $.ajax({
+        url: "http://localhost:8080/CC/debug/reverse_step_out",
+        method: "GET",
+        contentType: "application/json",
+        success: function (response) {
+            console.log("Respuesta obtenida:", response);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error creating data:", error);
         },
     });
 }

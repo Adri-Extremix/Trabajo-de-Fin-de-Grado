@@ -243,7 +243,10 @@ class Debugger:
         
     def set_breakpoint(self, line):
         try:
+            if line == None:
+                return True 
             self._gdb_write(f"-break-insert {line}")
+            print(f"Breakpoint en la línea {line}")
             return True
         except Exception as e:
             print(e)

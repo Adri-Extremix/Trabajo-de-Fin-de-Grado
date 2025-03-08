@@ -121,7 +121,7 @@ int main() {
     const breakpointGutter = gutter({
         class: "cm-breakpoint-gutter",
         renderEmptyElements: true,
-/*         lineMarker: (view, line) => {
+        /*lineMarker: (view, line) => {
             const lineNumber = view.state.doc.lineAt(line.from).number;
             const lineBreakpoints = getBreakpoints(view);
             // Cambiar el uso de "in" por "includes" para verificar correctamente
@@ -191,5 +191,5 @@ int main() {
     });
 
     window.editor = view;
-    window.editor.breakpointState = breakpointState;
+    // window.editor.breakpointState = breakpointState;
 }

@@ -178,7 +178,7 @@ line-height: 0.8;
     width: calc(100% - 4%);
     text-align: left;
     overflow: auto;
-    height: 20vh;
+    height: 22vh;
 }
 
 #Output {
@@ -222,24 +222,49 @@ line-height: 0.8;
     /* Color al deshabilitar el botón */
 }
 
+#Debugger .Button {
+    background-color: var(--primary-color-debugger);
+    border-color: var(--secondary-color-debugger);
+    width: 6%;
+    height: auto;
+    padding:0.5%;
+}
+.Button img {
+    width: auto;  /* Define el ancho deseado */
+    height: 3vh; /* Ajusta la altura manteniendo la proporción */
+}
+
+#Debugger .Reverse-Button {
+    background-color: #21642d;
+    border-color: #15421e;
+}
+
+#Debugger .Button:active {
+    transform: translateY(2px);
+}
+
 /* ******************** Debugger ******************** */
 
 #Debugger {
     height: 100%;
+    display: grid;
+    grid-template-rows: 25% 75%;
+
 }
 
 .Debugger-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1%;
-    height: 100%;
-    padding: 10px;
+    height: 75vh;
+    padding: 17px;
 }
 
 .Debugg {
     background-color: var(--background-color-focus);
     padding: 15px;
     border-radius: 5px;
+    height: 100%;
 }
 
 .Visual {
@@ -248,6 +273,7 @@ line-height: 0.8;
     border-radius: 5px;
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 
 .Title {
@@ -280,3 +306,7 @@ line-height: 0.8;
     overflow-y: auto;
 }
 
+#Debugger .Buttons{
+    margin-top: 1%;
+    gap: 1%
+}

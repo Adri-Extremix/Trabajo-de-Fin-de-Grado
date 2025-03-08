@@ -22,11 +22,11 @@ class Backend:
         self.app.add_url_rule("/CC/compile", "compile_code", self.compile_code, methods=["POST"])
         self.app.add_url_rule("/CC/run", "run_code", self.run_code, methods=["POST"])
         self.app.add_url_rule("/CC/debug/add_breakpoint", "add_breakpoint", self.add_breakpoint, methods=["POST"])
-        self.app.add_url_rule("/CC/debug/step_over", "step_over", self.step_over, methods=["POST"])
-        self.app.add_url_rule("/CC/debug/step_into", "step_into", self.step_into, methods=["POST"])
-        self.app.add_url_rule("/CC/debug/step_out", "step_out", self.step_out, methods=["POST"])
-        self.app.add_url_rule("/CC/debug/continue", "continue_execution", self.continue_execution, methods=["POST"])
-        self.app.add_url_rule("/CC/debug/run", "run_execution", self.run_execution, methods=["POST"])
+        self.app.add_url_rule("/CC/debug/step_over", "step_over", self.step_over, methods=["GET"])
+        self.app.add_url_rule("/CC/debug/step_into", "step_into", self.step_into, methods=["GET"])
+        self.app.add_url_rule("/CC/debug/step_out", "step_out", self.step_out, methods=["GET"])
+        self.app.add_url_rule("/CC/debug/continue", "continue_execution", self.continue_execution, methods=["GET"])
+        self.app.add_url_rule("/CC/debug/run", "run_execution", self.run_execution, methods=["GET"])
 
     def serve_index(self):
         return send_from_directory("../front/dist", "index.html")
@@ -43,31 +43,50 @@ class Backend:
         result = self.compiler.compile_code(code)
 
         if result["success"]:
-            self.debugger = Debugger(self.compiler.code_file_path ,self.compiler.compiled_file_path)
-            return jsonify({"output": result["output"]}), 200
+            self.debugger = Debugger(self.compiler.code_file_path, self.compiler.compiled_file_path)
+            response = jsonify({"output": result["output"]})
+            print({"output": result["output"]})
+            return response, 200
         else:
-            return jsonify({"error": result["error"]}), 400
+            response = jsonify({"error": result["error"]})
+            print({"error": result["error"]})
+            return response, 400
     
     def run_code(self):
         result = self.compiler.run_code()
         if result["success"]:
-            return jsonify({"output": result["output"]}), 200
+            response = jsonify({"output": result["output"]})
+            print({"output": result["output"]})
+            return response, 200
         else:
-            return jsonify({"error": result["error"]}), 400
+            response = jsonify({"error": result["error"]})
+            print({"error": result["error"]})
+            return response, 400
 
     def add_breakpoint(self):
         if not self.debugger:
-            return jsonify({"error": "Debugger no inicializado. Compila primero el código."}), 400
+            response = jsonify({"error": "Debugger no inicializado. Compila primero el código."})
+            print({"error": "Debugger no inicializado. Compila primero el código."})
+            return response, 400
         
         data = request.get_json()
-        line_number = data.get("line", -1)
-        
-        result = self.debugger.set_breakpoint(line_number)
+        print(data)
+        breakpoints = data.get("breakpoints", [])
+        result = True
+        for breakpoint in breakpoints:
+            result_breakpoint = self.debugger.set_breakpoint(breakpoint)
+            if not result_breakpoint:
+                result = False
+                break
 
         if result:
-            return jsonify({"message": result}), 200
+            response = jsonify({"message": result})
+            print({"message": result})
+            return response, 200
         else:
-            return jsonify({"error": "No se ha obtenido resultado"}), 400
+            response = jsonify({"error": "No se ha obtenido resultado"})
+            print({"error": "No se ha obtenido resultado"})
+            return response, 400
     
     def step_over(self):
         return self._execute_debug_step("step_over")
@@ -81,28 +100,40 @@ class Backend:
     def _execute_debug_step(self, step_method):
         """Método auxiliar para ejecutar operaciones de paso en el debugger"""
         if not self.debugger:
-            return jsonify({"error": "Debugger no inicializado. Compila primero el código."}), 400
+            response = jsonify({"error": "Debugger no inicializado. Compila primero el código."})
+            print({"error": "Debugger no inicializado. Compila primero el código."})
+            return response, 400
         
         data = request.get_json()
         thread_id = data.get("thread_id", -1)
         
         method = getattr(self.debugger, step_method)
         result = method(thread_id=thread_id)
-        return jsonify(result), 200
+        response = jsonify(result)
+        print(result)
+        return response, 200
     
     def continue_execution(self):
         if not self.debugger:
-            return jsonify({"error": "Debugger no inicializado. Compila primero el código."}), 400
+            response = jsonify({"error": "Debugger no inicializado. Compila primero el código."})
+            print({"error": "Debugger no inicializado. Compila primero el código."})
+            return response, 400
         
         result = self.debugger.continue_execution()
-        return jsonify(result), 200
+        response = jsonify(result)
+        print(result)
+        return response, 200
     
     def run_execution(self):
         if not self.debugger:
-            return jsonify({"error": "Debugger no inicializado. Compila primero el código."}), 400
+            response = jsonify({"error": "Debugger no inicializado. Compila primero el código."})
+            print({"error": "Debugger no inicializado. Compila primero el código."})
+            return response, 400
         
         result = self.debugger.run()
-        return jsonify(result), 200
+        response = jsonify(result)
+        print(result)
+        return response, 200
 
     def run(self):
         self.app.run(debug=True, host="0.0.0.0", port=8080)
