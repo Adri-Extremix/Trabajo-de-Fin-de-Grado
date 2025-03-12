@@ -1,0 +1,49 @@
+\chapter{Introducción}\label{chap:introduccion}
+En este capítulo se presenta el proyecto, desde la motivacion que lo ha generado (\sectionref{motivacion}) hasta los objetivos que se pretenden alcanzar (\sectionref{objetivos}), además de describir la estructura del documento y cómo se detallan los capítulos que lo componen (\sectionref{estructura-documento}).
+
+\section{Motivación}\label{sec:motivacion}
+% Situación durante Sistemas Operativos
+Este proyecto se ve motivado por las dificultades vividas durante el desarrollo y aprendizaje de la asignatura Sistemas Operativos. Durante esta asignatura se nos presentó el concepto de la programación concurrente y se nos evaluó de forma práctica a través de una herramienta basada en un productor-consumidor escrito en \textit{C}.
+% Dificultades de Programar Concurrentemente
+
+Para programar concurrentemente es necesario entender qué son los procesos, los hilos y cómo se relacionan entre sí.
+Esta última parte es la más complicada de entender y no comprenderla supone caer en problemas de condiciones de carrera, inanición, etc.
+En lo personal, me costó desarrollar la práctica pedida, debido a ciertos problemas que surgían por no sincronizar correctamente los hilos y no ser capaz de encontrorar la causa de estos problemas.
+
+% Ayuda a Compañeros
+Durante este periodo estuve ayudando a aquellos compañeros que estaban teniendo los mismos problemas que yo, lo que me permitió ver qué cosas específicas eran, tanto en mi caso como en el de otras personas, más problemáticas y cómo podrían solucionarse o mermarse.
+
+Por todo esto, decidí que sería interesante realizar una herramienta que facilitara el desarrollo de la práctica de Sistemas Operativos. Por esta razón, la herramienta debía de permitir escribir código en \textit{C} y poder observar cómo se comportan los procesos y los hilos, según el código que se haya escrito.\\
+
+\section{Objetivos}\label{sec:objetivos}
+Teniendo en cuenta la motivación presentada en la \sectionref{motivacion}, se definen unos objetivos principales y unos objetivos secundarios que se pretenden alcanzar con este proyecto:
+\begin{itemize}
+
+    \item \textbf{Obj.1}: La herramienta debe de compilar, ejecutar y depurar código concurrente en \textit{C}
+    \begin{itemize}
+        \item \textbf{1.1}: La depuración debe de permitir al usuario controlar la ejecución de los hilos.
+        \item \textbf{1.2}: La depuración debe de permitir al usuario observar el estado de los hilos.
+    \end{itemize}
+     
+    \item \textbf{Obj.2}: La herramienta debe de tener un enfoque didáctico
+    \begin{itemize}
+        \item \textbf{2.1}: Debe de abstraerse de la complejidades como compilación, memoria de los procesos y llamadas al sistema.
+        \item \textbf{2.2}: Debe de tener una \gls{interfaz gráfica} que permita al usuario interactuar con la herramienta.
+        \item \textbf{2.3}: Debe de tener las funcionalidadades básicas para permitir al usuario entender cómo se comportan los hilos.
+    \end{itemize}
+
+\end{itemize}
+
+\section{Estructura del Documento}\label{sec:estructura-documento}
+El documento se estructura de la siguiente manera:
+\begin{itemize}
+  \item \chapterref{introduccion}: presenta brevemente el proyecto, sus motivaciones y una descripción de la estructura del documento.
+  \item \chapterref{estado-del-arte}: describe el estado actual de los depuradores y comparandolos entre si.
+  \item \chapterref{analisis}, .
+  \item \chapterref{diseno}, .
+  \item \chapterref{implementacion}, .
+  \item \chapterref{validacion}, .
+  \item \chapterref{planificacion}, .
+  \item \chapterref{marco-regulador},.
+  \item \chapterref{conclusiones}, .
+\end{itemize}

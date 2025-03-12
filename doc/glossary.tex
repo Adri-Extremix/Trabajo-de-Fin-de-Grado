@@ -1,0 +1,199 @@
+\makeglossaries
+% \makenoidxglossaries  % slower, but no need to do $ makeglossaries report.tex
+
+
+% usage:
+% - \gls{term}: regular stuff
+% - \Gls{term}: first uppercase
+% - \glspl{term}: plural
+% - \Glspl{term}: you know the drill
+% - \glsdisp{term}{custom text}: link with custom text
+% https://www.overleaf.com/learn/latex/Glossaries
+
+\newglossaryentry{depurar}{
+    name = {depurar},
+    description = {Proceso de identificar y corregir errores en un programa},
+    see = {depurador}
+}
+
+
+\newglossaryentry{depurador} {
+    name = {depurador},
+    description = {Programa que tiene como objetivo probar y depurar otros programas, a través del control de la ejecución del programa y la inspección del estado del mismo},
+    plural = {depuradores},
+    see = {proceso}
+}
+
+\newglossaryentry{programa concurrente} {
+    name = {programa concurrente},
+    description = {Programa que utiliza múltiples procesos en ejecución ,que pueden ser ejecutados en paralelo o de forma intercalada, para realizar tareas de forma simultánea},
+    plural = {programas concurrentes},
+    see = {proceso}
+}
+
+\newglossaryentry{ensamblador}{
+    name = {ensamblador},
+    description = {Lenguaje de programación de bajo nivel que representa instrucciones en código máquina}
+}
+
+\newglossaryentry{planificador}{
+    name = {planificador},
+    description = {Software responsable de gestionar y asignar recursos a los procesos en un sistema operativo para optimizar su ejecución},
+    see = {proceso}
+}
+
+\newglossaryentry{proceso} {
+    name = {proceso},
+    description = {Entidad que representa una tarea en ejecución en un sistema operativo},
+    plural = {procesos}
+}
+
+\newglossaryentry{step over} {
+    name = {step over},
+    description = {Comando de depuración que permite avanzar una instrucción en el código fuente sin entrar en las funciones que se llaman},
+    see = {depurar}
+}
+
+\newglossaryentry{step into} {
+    name = {step into},
+    description = {Comando de depuración que permite avanzar una instrucción en el código fuente y entrar en las funciones que se llaman},
+    see = {depurar}
+}
+
+\newglossaryentry{interfaz gráfica} {
+    name = {interfaz gráfica},
+    description = {Tipo de interfaz que permite la interacción con un programa a través de elementos visuales, como botones, menús y ventanas}
+}
+
+\newglossaryentry{Ley de Moore}{
+    name = {Ley de Moore},
+        description = {Principio que establece que el número de transistores en los circuitos integrados se duplica aproximadamente cada dos años, lo que conduce a un crecimiento exponencial en el rendimiento de los dispositivos electrónicos}
+}
+
+\newglossaryentry{script} {
+    name = {script},
+    description = {Programas que automatizan tareas repetitivas},
+    plural = {scripts}
+}
+
+\newglossaryentry{Unix} {
+    name = {Unix},
+    description = {Familia de sistemas operativos multiusuario y multitarea, desarrollados en los años 70}
+}
+
+\newglossaryentry{C}{
+    name = {C},
+    description = {Lenguaje de programación de propósito general, creado por Dennis Ritchie en los años 70}
+}
+
+\newglossaryentry{C++}{
+    name = {C++},
+    description = {Lenguaje de programación de propósito general, derivado de C, creado por Bjarne Stroustrup en los años 80}
+}
+
+\newglossaryentry{D}{
+    name = {D},
+    description = {Lenguaje de programación de propósito general, creado por Walter Bright en los años 2000}
+}
+
+\newglossaryentry{Fortran}{
+    name = {Fortran},
+    description = {Lenguaje de programación de propósito general, creado por IBM en los años 50}
+}
+
+\newglossaryentry{Go}{
+    name = {Go},
+    description = {Lenguaje de programación de propósito general, creado por Google en los años 2000}
+}
+
+\newglossaryentry{Pascal}{
+    name = {Pascal},
+    description = {Lenguaje de programación de propósito general, creado por Niklaus Wirth en los años 70}
+}
+
+\newglossaryentry{Rust}{
+    name = {Rust},
+    description = {Lenguaje de programación de propósito general, creado por Mozilla en los años 2010}
+}
+
+\newglossaryentry{Python}{
+    name = {Python},
+    description = {Lenguaje de programación de alto nivel, creado por Guido van Rossum en los años 90}
+}
+
+\newglossaryentry{CLion} {
+    name = {CLion},
+    description = {IDE de propiedad de JetBrains, enfocado en la programación en C/C++}
+}
+
+\newglossaryentry{Valgrind} {
+    name = {Valgrind},
+    description = {Herramienta de análisis de código que permite detectar errores de memoria y rendimiento en programas}
+}
+
+\newglossaryentry{ThreadSanitizer} {
+    name = {ThreadSanitizer},
+    description = {Herramienta de análisis de código que permite detectar errores de concurrencia en programas}
+}
+
+\newglossaryentry{LLVM} {
+    name = {LLVM},
+    description = {Proyecto de compilador modular y herramientas relacionadas, desarrollado por la Universidad de Illinois en Urbana-Champaign}
+}
+
+\newglossaryentry{Clang} {
+    name = {Clang},
+    description = {Compilador de código abierto, parte del proyecto LLVM, que fue diseñado para remplazar a GCC},
+    see = {LLVM, GCC}
+}
+
+\newglossaryentry{Xcode} {
+    name = {Xcode},
+    description = {IDE de Apple, enfocado en el desarrollo de aplicaciones para sus sistemas operativos}
+}
+
+\newglossaryentry{GCC} {
+    name = {GCC},
+    description = {Compilador de código abierto, desarrollado por el proyecto GNU, que soporta múltiples lenguajes de programación}
+}
+\newglossaryentry{Seer} {
+    name = {Seer},
+    description = {Herramienta de análisis de código para programas concurrentes que permite detectar errores de concurrencia que utiliza GDB},
+    see = {depurador ,GDB}
+}
+
+\newglossaryentrywithacronym{CPU}
+{Central Processing Unit}
+{Unidad de procesamiento central, componente de un ordenador que interpreta y ejecuta instrucciones}
+
+
+\newglossaryentrywithacronym{IDE}
+{Integrated Development Environment}
+{Entorno de desarrollo integrado, un software que combina herramientas para facilitar la programación, como un editor de texto, un compilador, un depurador, entre otros}
+
+\newglossaryentrywithacronym{API}
+{Application Programming Interface}
+{Conjunto de funciones y procedimientos que permiten la comunicación entre distintos componentes de software}
+
+\newglossaryentrywithacronym{GDB}
+{GNU Debugger}
+{Depurador de código abierto que permite controlar la ejecución
+de programas y analizar su estado en tiempo de ejecución hecho por la Free Software Foundation}
+
+\newglossaryentrywithacronym{LLDB}
+{Low Level Debugger}
+{Depurador de código abierto que permite controlar la ejecución
+de programas y analizar su estado en tiempo de ejecución hecho por el proyecto LLVM}
+
+\newglossaryentrywithacronym{macOS}
+{Macintosh Operating System}
+{Sistema operativo desarrollado por Apple para sus ordenadores Macintosh}
+
+\newglossaryentrywithacronym{CLI}
+{Command Line Interface}
+{Tipo de interfaz basada en texto que permite la interacción con un programa a través de comandos escritos en la consola}
+
+\newglossaryentrywithacronym{TUI}
+{Text User Interface}
+{Tipo de interfaz basada en texto que permite la interacción con un programa a través de elementos visuales, como botones, menús y ventanas}
+

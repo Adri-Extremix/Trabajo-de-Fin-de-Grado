@@ -1,0 +1,68 @@
+\ProvidesPackage{mymacros}[Auxiliary helper macros for the report]
+
+
+\RequirePackage{nameref}
+
+% \chapterref{mychap}
+% remember to create a label for the section (\label{chap:mychap})
+\newcommand{\chapterref}[1] {%
+  Capítulo \ref{chap:#1}, \textit{\nameref{chap:#1}}%
+}
+
+% \sectionref{mysec}
+% remember to create a label for the section (\label{sec:mysec})
+\newcommand{\sectionref}[1] {%
+  Sección \ref{sec:#1}, \textit{\nameref{sec:#1}}%
+}
+
+% \subsectionref{mysubsec}
+% remember to create a label for the subsection (\label{subsec:mysubsec})
+\newcommand{\subsectionref}[1] {%
+  Subsección \ref{subsec:#1}, \textit{\nameref{subsec:#1}}%
+}
+
+% \tabref{mytab}
+% remember to create a label for the table (\label{tab:mytab})
+\newcommand{\tabref}[1]{Table \ref{tab:#1}}
+
+% \figref{myfig}
+% remember to create a label for the figure (\label{fig:myfig})
+\newcommand{\figref}[1] {Figure \ref{fig:#1}}
+
+
+% \drawiosvgfigure[width]{filename}{caption}
+% remember to disable Word Wrap and Formatted Text for all text (https://www.drawio.com/doc/faq/svg-export-text-problems#disable-formatted-text-and-word-wrap)
+\newcommand{\drawiosvgfigure}[3][0.7] {
+  \begin{figure}[h]
+    \centering
+    \includesvg[inkscapelatex=false,width=#1\textwidth]{#2.drawio.svg}
+    \caption{#3}
+    \label{fig:#2}
+  \end{figure}
+}
+
+
+% \rasterfigure[width]{filename}{caption}
+\newcommand{\rasterfigure}[3][.7] {
+  \begin{figure}[htb]
+    \ffigbox[\FBwidth]
+      {%
+        \caption{#3}
+        \label{fig:#2}
+      }%
+      {\includegraphics[width=#1\textwidth]{#2}}
+  \end{figure}
+}
+
+% \svgfigure[width]{filename}{caption}
+\newcommand{\svgfigure}[3][.7] {
+  \begin{figure}[htb]
+    \ffigbox[\FBwidth]
+      {%
+        \caption{#3}
+        \label{fig:#2}
+      }%
+      {\includesvg[inkscapelatex=false,width=#1\textwidth]{#2.svg}}
+  \end{figure}
+}
+

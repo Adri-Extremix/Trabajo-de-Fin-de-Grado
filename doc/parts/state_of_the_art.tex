@@ -1,0 +1,105 @@
+\chapter{Estado del arte}\label{chap:estado-del-arte}
+En este capítulo se describirá el estado actual de las tecnologías y herramientas relacionadas con el proyecto. Se explorará la importancia de la concurrencia y las distintas herramientas de \glsdisp{depurar}{depuración} de código que permitan analizar el comportamiento de \gls{programa concurrente} y cómo sus características casan con los objetivos del proyecto (\sectionref{objetivos}).
+
+\section{Concurrencia y su Importancia}\label{sec:concurrencia-importancia}
+
+La concurrencia se define como la capacidad de un sistema para ejecutar múltiples procesos de forma simultánea o intercalada, según lo determine el \gls{planificador} del sistema operativo. Gracias a este mecanismo, un programa puede gestionar diversas tareas—como la interacción con el usuario, el procesamiento de datos y la comunicación en red—sin que el bloqueo de una impida el progreso de las demás, lo que optimiza el rendimiento general y reduce el tiempo de respuesta.
+
+Este enfoque no solo mejora la eficiencia en la ejecución, sino que también incrementa la escalabilidad, especialmente en entornos distribuidos, y contribuye a disminuir el consumo energético mediante una distribución adecuada de las tareas y la reducción de las frecuencias de reloj \cite{EnergyEfficiencyParallelAplications}. Además, la desaceleración en el avance de la \gls{Ley de Moore} ha subrayado la necesidad de explorar otros medios para aumentar el rendimiento y la eficiencia de los sistemas \cite{ParallelProgramming}.
+
+Sin embargo, diversas investigaciones sobre la paralelización en tiempo de compilación han evidenciado que extraer de forma automática el paralelismo de programas secuenciales resulta un desafío considerable \cite{ParallelProgramming}. Esto implica que, para aprovechar plenamente las ventajas de los sistemas multicore, es indispensable que los desarrolladores realicen una reestructuración manual del código para transformarlo en una aplicación concurrente.
+
+En este contexto, formar nuevos profesionales con conocimientos profundos en concurrencia se presenta como una estrategia clave para mejorar el rendimiento de las aplicaciones y reducir los costes energéticos, consolidándose como un factor competitivo esencial en el desarrollo de software actual y futuro.
+
+
+\section{Depuradores de Programas Concurrentes}\label{sec:depuradores-programas-concurrentes}
+
+Un \gls{depurador} \cite{WikipediaDebugger} es un programa usado para probar y \gls{depurar} otros programas. Los \glspl{depurador} suelen permitir colocar puntos de interrupción, saltar a través de distintas partes del código e inspeccionar el estado de la memoria, registros de la \gls{CPU} y la pila de llamadas.
+Estos \glspl{depurador} suelen ser integrados en los entornos de desarrollo, como \textit{Visual Studio} \cite{DebuggerVisualStudio} o \textit{Eclipse} \cite{DebuggerEclipse}, aunque también existen \glspl{depurador} basados en línea de comandos (\gls{CLI}) como \textit{\gls{GDB}} \cite{GDB} o \textit{\gls{LLDB}} \cite{LLDB}. 
+
+.
+Sin embargo, los \glspl{depurador} tradicionales no suelen estar diseñados para \glspl {programa concurrente}. En un \gls{programa concurrente} \cite{ParallelismComputerArchitecture} existen múltiples \glspl{proceso}, que pueden ser ejecutados en paralelo o de forma intercalada, que interactuan con los recursos, lo que obliga a que los \glspl{depurador} tengan funcionalidades específicas para soportar este tipo de ejecuciones.
+
+Los \glspl{depurador} de programas concurrentes son capaces de controlar e inspeccionar cada uno de los procesos que existen en el programa, aunque el nivel de granularidadd y funcionalidad dependen de la herramienta. A continuación se explorarán algunas de las herramientas usadas en la actualidad.
+
+\subsection{GDB}{\label{subsec:gdb}}
+\gls{GDB} es un \gls{depurador} de código abierto creado por la \textit{Free Software Foundation} en 1986 \cite{GDB}. Este \gls{depurador} solo está disponible para sistemas \gls{Unix}, aunque simulando este sistema en otros sistemas operativos se puede utilizar \cite{GDBDownload}. Es importante destacar que esta herramienta ocupa en disco únicamente en torno a 12.22 MB. 
+\gls{GDB} una herramienta con la que se interactua a través de su \gls{CLI} o \gls{TUI} y permite controlar la ejecución de programas y analizar su estado en tiempo de ejecución. \gls{GDB} es capaz de depurar programas escritos en \gls{C}, \gls{C++}, \gls{D}, \gls{Fortran}, \gls{Go}, \gls{Pascal}, \gls{Rust} y \gls{ensamblador} \cite{GDB}.  
+
+\gls{GDB} permite colocar puntos de interrupción, inspeccionar la memoria, los registros de la CPU y la pila de llamadas e incluso revisar el código ensamblador del programa y modificar el valor de las variables en tiempo de ejecución. Además presenta ciertas características avanzadas como la posibilidad de crear \glspl{script} en \gls{Python} para automatizar tareas \cite{GDBPython}, utilizar lenguaje máquina para devolver respuestas procesadas y entendibles por las máquinas \cite{GDB/MI} controlar la ejecución del programa hacia atrás, aunque esta última solo está disponible para programas mono-hilo \cite{GDBReversing}.
+
+Sus puntos fuertes son la multitud de funcionalidades que ofrece para depurar y obtener información sobre el estado del programa y posibilidad de automatizar sus procesos a través de la \gls{API} de \gls{Python} o su interfaz máquina-humano, lo que permite crear nuevas herramientas que extiendan las características de este depurador y se adapten a las necesidades del usuario. Ejemplos de ello son \gls{CLion} (\subsectionref{clion}) o herramientas menos cononidas como Blink \cite{Blink}, un depurador de entornos mixtos que utiliza la composición para depurar programas que utilizan varios códigos.
+
+\begin{lstlisting}[caption={Muestra del depurador \gls{GDB}}]
+(gdb) break 50
+Breakpoint 1 at 0x1324: file prueba1.c, line 50.
+(gdb) break 60
+Breakpoint 2 at 0x1376: file prueba1.c, line 60.
+(gdb) run
+Starting program: /home/adrian/Documents/Trabajo-de-Fin-de-Grado/examples/prueba1.o 
+[New Thread 0x7ffff7a006c0 (LWP 39887)]
+[Switching to Thread 0x7ffff7a006c0 (LWP 39887)]
+
+Thread 2 "prueba1.o" hit Breakpoint 1, greet (argumento=0x0) at prueba1.c:50
+50	   printf("Hello, welcome to the program!\n");
+(gdb) continue
+Continuing.
+[New Thread 0x7ffff70006c0 (LWP 39888)]
+Hello, welcome to the program!
+[Thread 0x7ffff7a006c0 (LWP 39887) exited]
+[Switching to Thread 0x7ffff70006c0 (LWP 39888)]
+
+Thread 3 "prueba1.o" hit Breakpoint 2, add (argumento=0x7fffffffdd04) at prueba1.c:60
+60	}
+(gdb) list
+55	void* add(void* argumento) {
+56	   float flags = 3.14;
+57	   AddArgs* args = (AddArgs*)argumento;
+58	   args->result = args->a + args->b;
+59	   return NULL;
+60	}
+(gdb) 
+\end{lstlisting}
+
+\subsection{LLDB}{\label{subsec:lldb}}
+\gls{LLDB} es un \gls{depurador} de código abierto creado por \gls{LLVM} en 2003, siendo construido a través de un conjunto de componentes reusables que son ampliamentes usados en librerías existentes de \gls{LLVM}, como \gls{Clang} o el desensamblador \gls{LLVM} \cite{LLDB}, lo que hace que tan solo pese en torno a 4 MB.
+Aunque \gls{LLDB} es el depurador por defecto de \gls{Xcode} en \gls{macOS}, también está disponible para sistemas \gls{Unix} y Windows \cite{LLDB}.
+
+\gls{LLDB} es un depurador para programas en \gls{C} y \gls{C++} con una \gls{CLI} y consta de funcionalidades similares a \gls{GDB}, como colocar puntos de interrupción, inspeccionar la memoria, etc. Por esta razón existe una correspondencia entre las funcionalidades de \gls{GDB} y \gls{LLDB} que permite a los usuarios de \gls{GDB} (\subsectionref{GDB}) cambiar a \gls{LLDB} sin problemas \cite{LLDB}, aunque pueden existir funcionalidades de \gls{GDB} que no existan en \gls{LLDB}. Además, al ser un depurador moderno, ofrece funcionalidades como autocompletado de comandos e historial de comandos.
+
+\gls{LLDB} se caracteriza por tener una \gls{API} de \gls{Python} más completa que la de \gls{GDB}, la cual permite desde crear \glspl{script} para automatizar tareas hasta controlar programáticamente la ejecución del programa \cite{LLDBPython}. 
+
+Por lo tanto, \gls{LLDB} destaca por su integración con \gls{LLVM} y la posibilidad de controlar el depurador a través de \gls{Python}, lo que permite a los usuarios crear herramientas personalizadas y adaptar el depurador a sus necesidades.
+
+
+\subsection{CLion}{\label{subsec:clion}}
+\gls{CLion} es un \gls{IDE} de propiedad de JetBrains, enfocado en la programación en \gls{C} \gls{C++}. Esta aplicación necesita de una licencia para su uso de entre 60€ a 100€, aunque existe una prueba gratuita de 30 días \cite{ClionPrizing}. Cabe destacar que \gls{CLion} es multiplataforma, disponible para Windows, macOS y Linux y ocupa un espacio de 3.5 GB en disco \cite{ClionDownload}.
+
+\gls{CLion} incluye una opción para depurar a través de \gls{GDB} (\subsectionref{gdb}) o LLDB (\subsectionref{lldb}), elegible a través de un menú contextual, mediante una \gls{interfaz gráfica} y extendible con \gls{Valgrind} y \gls{ThreadSanitizer}. En este modo depuración se pueden colocar puntos de interrupción, ejecutar el programa, parar el programa, y realizar \textit{\gls{step over}} y \textit{\gls{step into}} \cite{ClionDebugger}.
+
+La depuración muestra multitud de información, organizada en pestañas, como la pila de llamadas, variables locales, variables globales, la salida del programa o inspeccionar la memoria y los registros de la \gls{CPU}. También es posible ver el valor de las variables en tiempo real, y modificarlas durante la ejecución del programa \cite{ClionDebuggerToolWindow}.
+
+Por lo que las claves de \gls{CLion} son su integración de un \gls{depurador} con una \gls{interfaz gráfica}, la variedad de funcionalidades de depuración que permite y la integración con diferentes herramientas de análisis de código.
+
+\subsection{Seer}{\label{subsec:seer}}
+\gls{Seer} es un depurador de código abierto, hecho principalmente en C++ y QTile para la \gls{interfaz gráfica}, que envuelve las funcionalidades de \gls{GDB}. Este depurador solo se encuentra disponible en sistemas \gls{Unix} y ocupa un espacio de 47.4 MB en disco. 
+
+\gls{Seer} se caracteriza por tener una \gls{interfaz gráfica} que permite visualizar la información de una forma más amigable y accesible que la \gls{CLI} de \gls{GDB}. Esta interfaz gráfica tiene una barra de herramientas con botones para las funcionalidades más comunes, como colocar puntos de interrupción, ejecutar el programa, parar el programa, y realizar \textit{\gls{step over}} y \textit{\gls{step into}}. Además, tiene diferentes secciones para visualizar información sobre la pila de llamadas, los distintos hilos en ejecución y las variables locales y globales, pudiendo pulsar en ellos para mostrar más información sobre ellos.
+
+\gls{Seer} destaca por su ligereza, su \gls{interfaz gráfica}, su rendimiento y la multitud de funcionalidades que ofrece.
+
+\rasterfigure[.9]{seer.png}{Muestra del depurador de Seer}
+
+\subsection{DDD}{\label{subsec:ddd}}
+
+\section{Otras Herramientas}\label{sec:herramientas}
+
+\subsection{Hellgrind}{\label{subsec:hellgrind}}
+
+\subsection{ThreadSanitizer}{\label{subsec:thread-sanitizer}}
+
+\subsection{RR}{\label{subsec:rr}}
+
+
+
+
