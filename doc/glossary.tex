@@ -16,6 +16,10 @@
     see = {depurador}
 }
 
+\newglossaryentry{software}{
+    name = {software},
+    description = {Conjunto de programas y datos que permiten el funcionamiento de un sistema informático}
+}
 
 \newglossaryentry{depurador} {
     name = {depurador},
@@ -31,9 +35,30 @@
     see = {proceso}
 }
 
+\newglossaryentry{registros}{
+    name = {registros},
+    description = {Memoria de alta velocidad que almacena datos y direcciones de memoria temporales para mejorar el rendimiento de un procesador}
+}
+
+\newglossaryentry{concurrencia} {
+    name = {concurrencia},
+    description = {Propiedad de un sistema que permite la ejecución de múltiples tareas de forma simultánea},
+    see = {proceso}
+}
+
+\newglossaryentry{lenguaje máquina}{
+    name = {lenguaje máquina},
+    description = {Lenguaje de programación que representa instrucciones en código binario}
+}
+
 \newglossaryentry{ensamblador}{
     name = {ensamblador},
     description = {Lenguaje de programación de bajo nivel que representa instrucciones en código máquina}
+}
+
+\newglossaryentry{desensamblador}{
+    name = {desensamblador},
+    description = {Programa que traduce código máquina a código ensamblador}
 }
 
 \newglossaryentry{planificador}{
@@ -42,10 +67,49 @@
     see = {proceso}
 }
 
+\newglossaryentry{paralelismo}{
+    name = {paralelismo},
+    description = {Técnica de programación que consiste en ejecutar múltiples tareas de forma simultánea para mejorar el rendimiento de un programa}
+}
+
+\newglossaryentry{cerrojo}{
+    name = {cerrojo},
+    description = {Mecanismo de sincronización que permite controlar el acceso a recursos compartidos entre múltiples procesos},
+    plural = {cerrojos}
+}
+
+\newglossaryentry{variable de condición}{
+    name = {variable de condición},
+    description = {Mecanismo de sincronización que permite a un hilo esperar a que se cumpla una condición antes de continuar su ejecución}
+}
+
+\newglossaryentry{condicion de carrera}{
+    name = {condicion de carrera},
+    description = {Situación en la que el resultado de un programa depende del orden de ejecución de sus instrucciones},
+    plural = {condiciones de carrera}
+}
+
+\newglossaryentry{interbloqueo}{
+    name = {interbloqueo},
+    description = {Situación en la que dos o más procesos quedan bloqueados esperando a que se liberen recursos que se están utilizando},
+    plural = {interbloqueos}
+}
+
+\newglossaryentry{sistemas multicore}{
+    name = {sistemas multicore},
+    description = {Sistemas que contienen múltiples núcleos de procesamiento en un solo chip, lo que permite ejecutar múltiples tareas de forma simultánea}
+}
+
 \newglossaryentry{proceso} {
     name = {proceso},
     description = {Entidad que representa una tarea en ejecución en un sistema operativo},
     plural = {procesos}
+}
+
+\newglossaryentry{hilo}{
+    name = {hilo},
+    description = {Unidad de ejecución más pequeña que un proceso, que comparte recursos con otros hilos de un mismo proceso},
+    plural = {hilos}
 }
 
 \newglossaryentry{step over} {
@@ -65,11 +129,6 @@
     description = {Tipo de interfaz que permite la interacción con un programa a través de elementos visuales, como botones, menús y ventanas}
 }
 
-\newglossaryentry{Ley de Moore}{
-    name = {Ley de Moore},
-        description = {Principio que establece que el número de transistores en los circuitos integrados se duplica aproximadamente cada dos años, lo que conduce a un crecimiento exponencial en el rendimiento de los dispositivos electrónicos}
-}
-
 \newglossaryentry{script} {
     name = {script},
     description = {Programas que automatizan tareas repetitivas},
@@ -81,85 +140,57 @@
     description = {Familia de sistemas operativos multiusuario y multitarea, desarrollados en los años 70}
 }
 
-\newglossaryentry{C}{
-    name = {C},
-    description = {Lenguaje de programación de propósito general, creado por Dennis Ritchie en los años 70}
+\newglossaryentry{interfaz máquina-humano} {
+    name = {interfaz máquina-humano},
+    description = {Conjunto de elementos que permiten la interacción entre un ser humano y una máquina}
 }
 
-\newglossaryentry{C++}{
-    name = {C++},
-    description = {Lenguaje de programación de propósito general, derivado de C, creado por Bjarne Stroustrup en los años 80}
+\newglossaryentry{salida estándar}{
+    name = {salida estándar},
+    description = {Canal de comunicación que permite la salida de datos de un programa}
 }
 
-\newglossaryentry{D}{
-    name = {D},
-    description = {Lenguaje de programación de propósito general, creado por Walter Bright en los años 2000}
+\newglossaryentry{código abierto}{
+    name = {código abierto},
+    description = {Software cuyo código fuente es accesible y modificable por cualquier usuario}
 }
 
-\newglossaryentry{Fortran}{
-    name = {Fortran},
-    description = {Lenguaje de programación de propósito general, creado por IBM en los años 50}
+\newglossaryentry{compilación}{
+    name = {compilación},
+    description = {Proceso de traducción de un programa escrito en un lenguaje de programación a código máquina}
 }
 
-\newglossaryentry{Go}{
-    name = {Go},
-    description = {Lenguaje de programación de propósito general, creado por Google en los años 2000}
+\newglossaryentry{condición de carrera}{
+    name = {condición de carrera},
+    description = {Situación en la que el resultado de un programa depende del orden de ejecución de sus instrucciones},
+    plural = {condiciones de carrera}
 }
 
-\newglossaryentry{Pascal}{
-    name = {Pascal},
-    description = {Lenguaje de programación de propósito general, creado por Niklaus Wirth en los años 70}
+\newglossaryentry{inyección de código}{
+    name = {inyección de código},
+    description = {Técnica de programación que consiste en insertar código en un programa en tiempo de ejecución}
 }
 
-\newglossaryentry{Rust}{
-    name = {Rust},
-    description = {Lenguaje de programación de propósito general, creado por Mozilla en los años 2010}
+\newglossaryentry{tiempo de compilación}{
+    name = {tiempo de compilación},
+    description = {Período durante el cual un programa se traduce a código máquina},
+    see = {compilación}
 }
 
-\newglossaryentry{Python}{
-    name = {Python},
-    description = {Lenguaje de programación de alto nivel, creado por Guido van Rossum en los años 90}
+\newglossaryentry{tiempo de ejecución}{
+    name = {tiempo de ejecución},
+    description = {Período durante el cual un programa se ejecuta en un sistema}
 }
 
-\newglossaryentry{CLion} {
-    name = {CLion},
-    description = {IDE de propiedad de JetBrains, enfocado en la programación en C/C++}
+\newglossaryentry{falso positivo}{
+    name = {falso positivo},
+    description = {Resultado de una prueba que indica que un error existe cuando en realidad no es así},
+    plural = {falsos positivos}
 }
 
-\newglossaryentry{Valgrind} {
-    name = {Valgrind},
-    description = {Herramienta de análisis de código que permite detectar errores de memoria y rendimiento en programas}
-}
-
-\newglossaryentry{ThreadSanitizer} {
-    name = {ThreadSanitizer},
-    description = {Herramienta de análisis de código que permite detectar errores de concurrencia en programas}
-}
-
-\newglossaryentry{LLVM} {
-    name = {LLVM},
-    description = {Proyecto de compilador modular y herramientas relacionadas, desarrollado por la Universidad de Illinois en Urbana-Champaign}
-}
-
-\newglossaryentry{Clang} {
-    name = {Clang},
-    description = {Compilador de código abierto, parte del proyecto LLVM, que fue diseñado para remplazar a GCC},
-    see = {LLVM, GCC}
-}
-
-\newglossaryentry{Xcode} {
-    name = {Xcode},
-    description = {IDE de Apple, enfocado en el desarrollo de aplicaciones para sus sistemas operativos}
-}
-
-\newglossaryentry{GCC} {
-    name = {GCC},
-    description = {Compilador de código abierto, desarrollado por el proyecto GNU, que soporta múltiples lenguajes de programación}
-}
-\newglossaryentry{Seer} {
-    name = {Seer},
-    description = {Herramienta de análisis de código para programas concurrentes que permite detectar errores de concurrencia que utiliza GDB},
-    see = {depurador ,GDB}
+\newglossaryentry{barreras}{
+    name = {barreras},
+    description = {Mecanismo de sincronización que permite a un hilo esperar a que otros hilos alcancen un punto de sincronización antes de continuar su ejecución}
 }
 
 \newglossaryentrywithacronym{CPU}
@@ -175,19 +206,6 @@
 {Application Programming Interface}
 {Conjunto de funciones y procedimientos que permiten la comunicación entre distintos componentes de software}
 
-\newglossaryentrywithacronym{GDB}
-{GNU Debugger}
-{Depurador de código abierto que permite controlar la ejecución
-de programas y analizar su estado en tiempo de ejecución hecho por la Free Software Foundation}
-
-\newglossaryentrywithacronym{LLDB}
-{Low Level Debugger}
-{Depurador de código abierto que permite controlar la ejecución
-de programas y analizar su estado en tiempo de ejecución hecho por el proyecto LLVM}
-
-\newglossaryentrywithacronym{macOS}
-{Macintosh Operating System}
-{Sistema operativo desarrollado por Apple para sus ordenadores Macintosh}
 
 \newglossaryentrywithacronym{CLI}
 {Command Line Interface}
