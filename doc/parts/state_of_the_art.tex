@@ -75,11 +75,11 @@ Por lo tanto, LLDB destaca por su integración con LLVM y la posibilidad de cont
 
 #TODO: Hablar de la información de la conclusión antes de la propia conclusión
 
-RR es un \gls{depurador} ligero de código abierto creado en 2013 por Mozilla \cite{RRWiki}. Este depurador utiliza GDB (\subsectionref{gdb}) para depurar programas, sin embargo añade la funcionalidad de rebobinar las ejecuciones de cualquier tipo de programa, siendo uno de ellos un \gls{programa concurrente}, mediante la grabación de la ejecución del programa y la reproducción de esta grabación. Al grabar una ejecución y poder reproducirla convierte la ejecución concurrente, que es indeterminista por naturaleza, en determinista, lo que facilita la depuración \cite{RR}.
+RR es un \gls{depurador} ligero de código abierto creado en 2013 por Mozilla \cite{RRWiki}. Este depurador utiliza GDB (\subsectionref{gdb}) para \gls{depurar} programas, sin embargo añade la funcionalidad de rebobinar las ejecuciones de cualquier tipo de programa, siendo uno de ellos un \gls{programa concurrente}, mediante la grabación de la ejecución del programa y la reproducción de esta grabación. Al grabar una ejecución y poder reproducirla convierte la ejecución concurrente, que es \gls{indeterminista} por naturaleza, en \gls{determinista}, lo que facilita la depuración \cite{RR}.
 
-Para poder grabar la ejecución es necesario ejecutar \texttt{rr record <program>} y para reproducir esta grabación \texttt{rr replay}, tras esto se mostrará la CLI de la herramienta. RR utiliza la CLI de GDB para interactuar con el usuario, manteniendo los mismos comandos, pero añadiendo comandos específicos para rebobinar.
+Para poder grabar la ejecución es necesario ejecutar \texttt{rr record <program>} y para reproducir esta grabación \texttt{rr replay}, tras esto se mostrará la \gls{CLI} de la herramienta. RR utiliza la \gls{CLI} de GDB para interactuar con el usuario, manteniendo los mismos comandos, pero añadiendo comandos específicos para rebobinar.
 
-Esto hace a RR un depurador muy útil por la flexibilidad y las funcionalidades que le ofrece gdb y la capacidad de convertir procesos no deterministas en deterministas, sin embargo añade un \textit{\gls{overhead}} en la memoria en la ejecución del programa de entre 1.5 y 2 veces y la ralentización que supone ejecutar programas paralelos en una emulación de un solo núcleo\cite{RR}.
+Esto hace a RR un \gls{depurador} muy útil por la flexibilidad y las funcionalidades que le ofrece GDB y la capacidad de convertir \gls{proceso} no deterministas en\glspl{determinista}, sin embargo añade un \textit{\gls{overhead}} en la memoria en la ejecución del programa de entre 1.5 y 2 veces y la ralentización que supone ejecutar programas paralelos en una emulación de un solo núcleo\cite{RR}.
 
 \subsection{CLion}{\label{subsec:clion}}
 CLion es un \gls{IDE} de propiedad de JetBrains, enfocado en la programación en C y C++. Esta aplicación necesita de una licencia para su uso de entre 60€ a 100€, aunque existe una prueba gratuita de 30 días \cite{ClionPrizing}. Cabe destacar que CLion es multiplataforma, disponible para Windows, macOS y Linux y ocupa un espacio de 3.5 GB en disco \cite{ClionDownload}.
@@ -107,7 +107,7 @@ Además de los \glspl{depurador} de \glspl{programa concurrente}, existen otras 
 
 \subsection{Helgrind}{\label{subsec:helgrind}}
 
-Helgrind es una de las herramientas del grupo Valgrind que detecta errores de sincronización en programas en C y C++ que usan las primitivas POSIX \cite{POSIX}. Estas abstracciones POSIX son: \glspl{hilo} compartiendo un espacio de direccionamiento común, creación de \glspl{hilo}, unión de \glspl{hilo}, salida de \glspl{hilo}, \gls{cerrojo} (mutex), \gls{variable de condición} y \gls{barreras}. Helgrind detecta tres clases de errores: mal uso del API POSIX, potenciales \glspl{interbloqueo}, y \glspl{condicion de carrera} \cite{Helgrind}. 
+Helgrind es una de las herramientas del grupo Valgrind que detecta errores de sincronización en programas en C y C++ que usan las primitivas POSIX \cite{POSIX}. Estas abstracciones POSIX son: \glspl{hilo} compartiendo un espacio de direccionamiento común, creación de \glspl{hilo}, unión de \glspl{hilo}, salida de \glspl{hilo}, \gls{cerrojo} (mutex), \gls{variable de condición} y \glspl{barrera}. Helgrind detecta tres clases de errores: mal uso del API POSIX, potenciales \glspl{interbloqueo}, y \glspl{condicion de carrera} \cite{Helgrind}. 
 Estos resultados suelen ser irreproducibles, lo que complica la tarea de encontrar otras maneras para solucionar los errores.
 
 Helgrind monitorea el orden en el que los distintos \glspl{hilo} adquieren el \gls{cerrojo}, permitiendo detectar potenciales \glspl{interbloqueo} y \glspl{condición de carrera}, lo que resulta útil dado que algunos de ellos pueden haberse reproducido durantes las pruebas del programa. Sin embargo, este monitoreo puede ralentizar la ejecución del programa hasta en un factor de 100 \cite{Helgrind}.
@@ -170,6 +170,24 @@ WARNING: ThreadSanitizer: data race (pid=26327)
 \end{lstlisting}
 
 \section{Comparativa de Depuradores}\label{sec:comparativa-depuradores}
+Con el objetivo de encontrar cual de las herramientas descritas en las secciones anteriores es la que mejor se adapta a las necesidades del proyecto, se ha realizado una comparativa de las características de cada una de ellas. 
+
+Las características que se tendrán en cuenta para la comparación son las siguientes:
+\begin{itemize}
+  \item \textbf{Plataforma}: Sistema operativo en el que está disponible la herramienta.
+  \item \textbf{Interfaz}: Tipo de interfaz que ofrece la herramienta.
+  \item \textbf{Variedad de Funcionalidades}: Número de funcionalidades que ofrece la herramienta.
+  \item \textbf{Integración con otras herramientas}: Capacidad de la herramienta para integrarse con otras herramientas.
+  \item \textbf{Flexibilidad}: Capacidad de la herramienta para adaptarse a las necesidades del usuario.
+  \item \textbf{Facilidad de uso}: Facilidad con la que el usuario puede aprender a usar la herramienta.
+  \item \textbf{Coste}: Precio de la herramienta.
+  \item \textbf{Espacio en disco}: Espacio que ocupa la herramienta en disco.
+  \item \textbf{Arquitecuras soportadas}: Arquitecturas de \gls{CPU} que soporta la herramienta.
+\end{itemize}
+
+Para aquellas caracteristicas que no se puedan medir de forma objetiva se realizará una valoración subjetiva de Nula, Baja, Media-Baja, Media, Media-Alta o Alta. 
+
+
 
 \subsection{Comparativa de Depuradores de Programas Concurrentes}{\label{subsec:comparativa-depuradores-concurrentes}}
 

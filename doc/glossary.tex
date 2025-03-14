@@ -171,6 +171,21 @@
     description = {Técnica de programación que consiste en insertar código en un programa en tiempo de ejecución}
 }
 
+\newglossaryentry{indeterminista}{
+    name = {indeterminista},
+    description = {Propiedad de un sistema que no garantiza un resultado predecible},
+    see = {determinista},
+    plural = {indeterministas}
+}
+
+\newglossaryentry{determinista}{
+    name = {determinista},
+    description = {Propiedad de un sistema que garantiza un resultado predecible},
+    see = {indeterminista}
+    prural = {deterministas}
+}
+
+
 \newglossaryentry{tiempo de compilación}{
     name = {tiempo de compilación},
     description = {Período durante el cual un programa se traduce a código máquina},
@@ -188,9 +203,10 @@
     plural = {falsos positivos}
 }
 
-\newglossaryentry{barreras}{
-    name = {barreras},
-    description = {Mecanismo de sincronización que permite a un hilo esperar a que otros hilos alcancen un punto de sincronización antes de continuar su ejecución}
+\newglossaryentry{barrera}{
+    name = {barrera},
+    description = {Mecanismo de sincronización que permite a un hilo esperar a que otros hilos alcancen un punto de sincronización antes de continuar su ejecución},
+    plural = {barreras}
 }
 
 \newglossaryentrywithacronym{CPU}
