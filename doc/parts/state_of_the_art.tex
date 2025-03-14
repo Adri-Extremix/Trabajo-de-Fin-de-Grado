@@ -72,9 +72,14 @@ LLDB se caracteriza por tener una \gls{API} de Python más completa que la de GD
 Por lo tanto, LLDB destaca por su integración con LLVM y la posibilidad de controlar el depurador a través de Python, lo que permite a los usuarios crear herramientas personalizadas y adaptar el depurador a sus necesidades.
 
 \subsection{RR}{\label{subsec:rr}}
-RR es un \gls{depurador} ligero de código abierto creado en 2013 por Mozilla \cite{RRWiki}. Este depurador utiliza GDB para depurar programas, sin embargo añade la funcionalidad de rebobinar las ejecuciones de cualquier tipo de programa, siendo uno de ellos un \gls{programa concurrente}, mediante la grabación de la ejecución del programa y la reproducción de esta grabación \cite{RR}.
 
+#TODO: Hablar de la información de la conclusión antes de la propia conclusión
 
+RR es un \gls{depurador} ligero de código abierto creado en 2013 por Mozilla \cite{RRWiki}. Este depurador utiliza GDB (\subsectionref{gdb}) para depurar programas, sin embargo añade la funcionalidad de rebobinar las ejecuciones de cualquier tipo de programa, siendo uno de ellos un \gls{programa concurrente}, mediante la grabación de la ejecución del programa y la reproducción de esta grabación. Al grabar una ejecución y poder reproducirla convierte la ejecución concurrente, que es indeterminista por naturaleza, en determinista, lo que facilita la depuración \cite{RR}.
+
+Para poder grabar la ejecución es necesario ejecutar \texttt{rr record <program>} y para reproducir esta grabación \texttt{rr replay}, tras esto se mostrará la CLI de la herramienta. RR utiliza la CLI de GDB para interactuar con el usuario, manteniendo los mismos comandos, pero añadiendo comandos específicos para rebobinar.
+
+Esto hace a RR un depurador muy útil por la flexibilidad y las funcionalidades que le ofrece gdb y la capacidad de convertir procesos no deterministas en deterministas, sin embargo añade un \textit{\gls{overhead}} en la memoria en la ejecución del programa de entre 1.5 y 2 veces y la ralentización que supone ejecutar programas paralelos en una emulación de un solo núcleo\cite{RR}.
 
 \subsection{CLion}{\label{subsec:clion}}
 CLion es un \gls{IDE} de propiedad de JetBrains, enfocado en la programación en C C++. Esta aplicación necesita de una licencia para su uso de entre 60€ a 100€, aunque existe una prueba gratuita de 30 días \cite{ClionPrizing}. Cabe destacar que CLion es multiplataforma, disponible para Windows, macOS y Linux y ocupa un espacio de 3.5 GB en disco \cite{ClionDownload}.
@@ -164,7 +169,11 @@ WARNING: ThreadSanitizer: data race (pid=26327)
 
 \end{lstlisting}
 
+\section{Comparativa de Depuradores}\label{sec:comparativa-depuradores}
 
+\subsection{Comparativa de Depuradores de Programas Concurrentes}{\label{subsec:comparativa-depuradores-concurrentes}}
+
+\subsection{Conexión con los Objetivos del Proyecto}{\label{subsec:conexión-objetivos-proyecto}}
 
 
 
