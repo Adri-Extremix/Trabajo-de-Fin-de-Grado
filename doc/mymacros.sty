@@ -33,7 +33,7 @@
 % \drawiosvgfigure[width]{filename}{caption}
 % remember to disable Word Wrap and Formatted Text for all text (https://www.drawio.com/doc/faq/svg-export-text-problems#disable-formatted-text-and-word-wrap)
 \newcommand{\drawiosvgfigure}[3][0.7] {
-  \begin{figure}[h]
+  \begin{figure}[H]
     \centering
     \includesvg[inkscapelatex=false,width=#1\textwidth]{#2.drawio.svg}
     \caption{#3}

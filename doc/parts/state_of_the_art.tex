@@ -73,7 +73,6 @@ Por lo tanto, LLDB destaca por su integración con LLVM y la posibilidad de cont
 
 \subsection{RR}{\label{subsec:rr}}
 
-#TODO: Hablar de la información de la conclusión antes de la propia conclusión
 
 RR es un \gls{depurador} ligero de código abierto creado en 2013 por Mozilla \cite{RRWiki}. Este depurador utiliza GDB (\subsectionref{gdb}) para \gls{depurar} programas, sin embargo añade la funcionalidad de rebobinar las ejecuciones de cualquier tipo de programa, siendo uno de ellos un \gls{programa concurrente}, mediante la grabación de la ejecución del programa y la reproducción de esta grabación. Al grabar una ejecución y poder reproducirla convierte la ejecución concurrente, que es \gls{indeterminista} por naturaleza, en \gls{determinista}, lo que facilita la depuración \cite{RR}.
 
@@ -98,8 +97,6 @@ Seer se caracteriza por tener una \gls{interfaz gráfica} que permite visualizar
 Seer destaca por su ligereza, su \gls{interfaz gráfica}, su rendimiento y la multitud de funcionalidades que ofrece.
 
 \rasterfigure[0.9]{seer.png}{Muestra del depurador de Seer}
-
-\subsection{DDD}{\label{subsec:ddd}}
 
 \section{Otras Herramientas}\label{sec:herramientas}
 
@@ -176,20 +173,55 @@ Las características que se tendrán en cuenta para la comparación son las sigu
 \begin{itemize}
   \item \textbf{Plataforma}: Sistema operativo en el que está disponible la herramienta.
   \item \textbf{Interfaz}: Tipo de interfaz que ofrece la herramienta.
-  \item \textbf{Variedad de Funcionalidades}: Número de funcionalidades que ofrece la herramienta.
-  \item \textbf{Integración con otras herramientas}: Capacidad de la herramienta para integrarse con otras herramientas.
-  \item \textbf{Flexibilidad}: Capacidad de la herramienta para adaptarse a las necesidades del usuario.
-  \item \textbf{Facilidad de uso}: Facilidad con la que el usuario puede aprender a usar la herramienta.
+  \item \textbf{Func. Clave}: Funcionalidades clave que se diferencian del resto de herramientas.
+  \item \textbf{Integración}: Capacidad de la herramienta para integrarse con otras herramientas.
+  \item \textbf{Usabilidad}: Facilidad con la que el usuario puede aprender a usar la herramienta.
   \item \textbf{Coste}: Precio de la herramienta.
-  \item \textbf{Espacio en disco}: Espacio que ocupa la herramienta en disco.
-  \item \textbf{Arquitecuras soportadas}: Arquitecturas de \gls{CPU} que soporta la herramienta.
+  \item \textbf{Almacenamiento}: Espacio que ocupa la herramienta en disco.
+  \item \textbf{Arquitecuras}: Arquitecturas de \gls{CPU} que soporta la herramienta.
 \end{itemize}
 
-Para aquellas caracteristicas que no se puedan medir de forma objetiva se realizará una valoración subjetiva de Nula, Baja, Media-Baja, Media, Media-Alta o Alta. 
-
+Para el caso de la \textbf{Usabilidad} se han tenido en cuenta el número de botones, número de pestañas, número de secciones y el acceso a las anteriores características en el caso de \gls{GUI}. Para el caso de \gls{CLI} se tendrán en cuenta la complejidad de estos comandos y características adicionales como autocompletado o sugerencias. De esta manera se han definido los siguientes valores:
+\begin{itemize}
+    \item \gls{GUI}
+        \begin{itemize}
+            \item Alta: Entre 1 y 5 botones accesibles, 3 o menos secciones y pestañas.
+            \item Media: Entre 6 y 10 botones accesibles, 4 o 5 secciones y pestañas.
+            \item Baja: Más de 10 botones accesibles, más de 5 secciones y pestañas.
+        \end{itemize}
+    \item \gls{CLI}
+        \begin{itemize}
+            \item Alta: Entre 20 y 30 comandos sencillos, autocompletado y sugerencias.
+            \item Media: Más de 30 comandos sencillos y autocompletado.
+            \item Baja: Más de 30 comandos complejos y sin autocompletado.
+        \end{itemize}
+\end{itemize}
 
 
 \subsection{Comparativa de Depuradores de Programas Concurrentes}{\label{subsec:comparativa-depuradores-concurrentes}}
+
+\begin{table}[htb]
+    \begin{adjustbox}{max width=\textwidth}  % permite que la tabla se desborde y quede centrada
+        \begin{threeparttable}[htb]
+            \begin{tabular}{lcccccc}
+                \toprule
+                \textbf{Depurador} & GDB & LLDB & RR & CLion & SEER & \textit{Propuesta} \\ \hline
+                \textbf{Plataforma}      & Unix     & Multiplataforma & Unix     & Multiplataforma & Unix       & \textit{Web}        \\
+                \textbf{Interfaz}        & CLI      & CLI             & CLI      & GUI + IDE       & GUI        & \textit{GUI}        \\
+                \textbf{Func. Clave}     & Muy Versátil     & Versátil + Moderno           & Rebobinado     & Integrado en IDE           & Visual      & \textit{Abstracción} \\
+                \textbf{Integración}     & MI    & API Python            & MI    & $\times$            & $\times$       & $\times$ \\              
+                \textbf{Usabilidad}      & Baja     & Media      & Baja     & Media      & Baja      & Alta       \\
+                \textbf{Coste}           & Gratuita & Gratuita        & Gratuita & 60€ - 100€/año   & Gratuita   & \textit{Gratuita}   \\
+                \textbf{Almacenamiento}  & 12.22 MB & 4 MB + Módulos  & 50MB     & 3.5 GB          & 5.8 MB     & \textit{0 MB}       \\
+                \textbf{Arquitecturas}   & Todas & x86, ARM, MIPS64  & ARM y x86 Modernas     & Todas          & Todas     & \textit{No Afecta}       \\ \bottomrule
+            \end{tabular}
+        \end{threeparttable}
+    \end{adjustbox}
+    \caption{Comparativa de depuradores}
+    \label{tab:comparativa-depuradores}
+\end{table}
+
+\drawiosvgfigure[0.7]{grafico_comparacion}{Comparativa de depuradores}
 
 \subsection{Conexión con los Objetivos del Proyecto}{\label{subsec:conexión-objetivos-proyecto}}
 
