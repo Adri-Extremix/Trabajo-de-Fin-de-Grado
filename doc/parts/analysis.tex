@@ -1,1 +1,464 @@
-\chapter{Analysis}\label{chap:analysis}
+\chapter{Análisis}\label{chap:analisis}
+En este capítulo se detallará el sistema a desarrollar describiendo brevemente la propuesta a desarrollar, sus requisitos y los casos de uso que se han identificado.
+
+\section{Descripción del proyecto}\label{sec:descripcion}
+Este proyecto tiene como objetivo construir una herramienta que permita a los estudiantes que comienzan a crear programas concurrentes depurar su código abstrayendose de ciertas complejidades ajenas a la programación concurrente y enfocandose en la sincronización de los hilos y procesos.
+
+Como se mencionó durante el \chapterref{estado-del-arte}, los depuradores que permiten la depuración concurrente no están enfocados en el aprendizaje ni la abstracción, sino en ofrecer todo tipo de funcionalidades al usuario para que él, que entiende al completo todos los factores que pueden inducir a un error, encuentre el problema. Es por esto que se propone una herramienta que permita a los estudiantes entender cómo se comportan los hilos y procesos de forma sencilla y visual.
+
+\section{Requisitos}\label{sec:requisitos}
+
+En esta sección se describirán los requisitos del sistema. Para la tarea de la especificación de los requisitos se ha seguido el estándar de IEEE \cite{IEEE-Requirements} y la guía práctica sobre la redacción de requisitos de COSEC \cite{INCOSE-Requirements}. Estas prácticas describen que una buena especificación de requisitos de software debe explicar la funcionalidad del software, rendimiento del sistema, interfaces con otros sistemas y otras características no funcionales.
+
+Para tranformar una necesidad a un requisito se han seguido las siguientes características:
+
+\begin{itemize}
+
+    \item \textbf{C1 - Necesario}: Debe definir una capacidad, característica o restricción esencial para satisfacer una necesidad del sistema.
+    \item \textbf{C2 - Apropiado}: Debe estar definido con el nivel de detalle adecuado para el contexto en el que se aplicará.
+    \item \textbf{C3 - No ambiguo}: Debe ser claro y comprensible para que no haya interpretaciones múltiples.
+    \item \textbf{C4 - Completo}: Debe proporcionar toda la información necesaria para ser implementado sin suposiciones adicionales.
+    \item \textbf{C5 - Singular}: Debe expresar una única idea o necesidad sin combinar múltiples conceptos.
+    \item \textbf{C6 - Factible}: Debe ser posible de implementar dentro de las restricciones de costos, tiempo y tecnología.
+    \item \textbf{C7 - Verificable}: Debe ser medible y comprobable mediante inspección, análisis, prueba o demostración.
+    \item \textbf{C8 - Correcto}: Debe representar fielmente la necesidad o el requisito de nivel superior del que se deriva.
+    \item \textbf{C9 - Conforme}: Debe seguir un formato y un estilo estandarizado, evitando términos vagos o ambiguos.
+
+\end{itemize}
+
+Para comenzar con la especificación de los requisitos se parte de las necesidades de los usuarios, que se transforman a requisitos, de la manera antes mencionada, para convertirlos en requisitos de usuario, que se detallan en \subsectionref{requisitos-usuario}.
+Tras especificar los requistos de usuario se derivarán los requisitos de sistema, que se detallarán en \subsectionref{requisitos-sistema}, que proporcionan una información más concisa sobre el funcionamiento y las diferentes características del sistema.
+Estos requisitos serán la base para la construcción del sistema y servirán como guía para el desarrollo del mismo.
+
+
+\subsection{Requisitos de usuario}\label{subsec:requisitos-usuario}
+
+En esta sección se detalla la descripción de cada uno de los requisitos de usuario de este proyecto. Estos requisitos reflejan las necesidades y restricciones impuestas por los usuarios finales. Estos requisios pueden clasificarse en dos tipos:
+\begin{itemize}
+    \item \textbf{Capacidades}: Representan las funcionalidades que el usuario necesita para lograr un objetivo o resolver un problema.
+    \item \textbf{Restricciones}: Representan las limitaciones impuestas por el usuario o el entorno en el que se desarrolla el sistema.
+\end{itemize}
+
+Cada requisito tiene un identificador único que sigue el siguiente formato: UR-YY-XX, donde YY es el tipo de requisito, \textit{CA} para capacidades y \textit{RE} para restricciones, y XX es un número secuencial que identifica el requisito y comienza en 01.
+
+Para la especificación los requisitos se usará la siguiente plantilla:
+
+\printureqtemplate{}
+
+\begin{userReq}{CA}{sistema}
+    {pc=h,pd=ha,s=c,v=m}
+    % pc: Client priority
+      %  - h: high, m: medium, l: low
+      % pd: Developer priority
+      %  - h: high, m: medium, l: low
+      % s: Stability
+      %  - c: constant, i: inconstant, vu: very unstable
+      % v: Verifiability
+      %  - h: high, m: medium, l: low
+    % description
+    El sistema debe de mostrar información sobre la ejecución de un programa concurrente escrito en C.
+\end{userReq}
+
+\begin{userReq}{CA}{escribir-codigo}
+    {pc=m,pd=m,s=c,v=h}
+    El usuario debe ser capaz de escribir código.
+\end{userReq}
+
+\begin{userReq}{CA}{c-highlight}
+    {pc=m,pd=l,s=c,v=m}
+    El editor debe resaltar la sintaxis del código en C.
+\end{userReq}
+
+\begin{userReq}{CA}{compilar-codigo}
+    {pc=l,pd=h,s=i,v=h}
+    El usuario debe ser capaz de compilar el código escrito con anterioridad.
+\end{userReq}
+
+\begin{userReq}{CA}{ejecutar-codigo}
+    {pc=l,pd=m,s=i,v=m}
+    El usuario debe ser capaz de ejecutar el código compilado.
+\end{userReq}
+
+
+\begin{userReq}{CA}{depurar-codigo}
+    {pc=h,pd=h,s=i,v=l}
+    El usuario debe ser capaz de depurar el código escrito.
+\end{userReq}
+
+\begin{userReq}{CA}{aviso-error-concurrencia}
+    {pc=m,pd=l,s=i,v=m}
+    El sistema debe de avisar al usuario si se encuentran errores de concurrencia.
+\end{userReq}
+
+\begin{userReq}{CA}{depurar-parar-ejecucion}
+    {pc=m,pd=m,s=c,v=h}
+    El usuario debe ser capaz de parar la ejecución del programa en cualquier momento.
+\end{userReq}
+
+\begin{userReq}{CA}{depurar-paso}
+    {pc=m,pd=m,s=i,v=h}
+    El usuario debe ser capaz de depurar paso a paso.
+\end{userReq}
+
+\begin{userReq}{CA}{depurar-rebobinar}
+    {pc=m,pd=l,s=c,v=m}
+    El usuario debe ser capaz de rebobinar la ejecución del programa.
+\end{userReq}
+
+\begin{userReq}{CA}{visibilidad-hilos}
+    {pc=h,pd=h,s=c,v=h}
+    El usuario debe ser capaz de ver los hilos y procesos en ejecución.
+\end{userReq}
+
+\begin{userReq}{CA}{visibilidad-variables}
+    {pc=h,pd=h,s=c,v=h}
+    El usuario debe ser capaz de ver el estado de las variables de cada uno de los hilos.
+\end{userReq}
+
+\begin{userReq}{CA}{evolucion-hilos}
+    {pc=h,pd=m,s=i,v=h}
+    El usuario debe ser capaz de ver la evolución de los hilos y procesos.
+\end{userReq}
+
+\begin{userReq}{RE}{compilar-c}
+    {pc=m,pd=h,s=c,v=h}
+    El sistema debe ser capaz de compilar código C.
+\end{userReq}
+
+\begin{userReq}{RE}{ejecutar-c}
+    {pc=m,pd=m,s=c,v=h}
+    El sistema debe ser capaz de ejecutar código C.
+\end{userReq}
+
+\begin{userReq}{RE}{depurar-c}
+    {pc=h,pd=h,s=c,v=l}
+    El sistema debe ser capaz de depurar código C.
+\end{userReq}
+
+\begin{userReq}{RE}{abstraccion-so}
+    {pc=h,pd=l,s=c,v=m}
+    El sistema debe de abstraerse de las diferencias al usar la herramienta en distintos sistemas operativos.
+\end{userReq}
+
+\begin{userReq}{RE}{abstraccion-arch}
+    {pc=h,pd=l,s=c,v=l}
+    El sistema debe de abstraerse de las diferencias al usar la herramienta en distintas arquitecturas.
+\end{userReq}
+
+\begin{userReq}{RE}{abstraccion-comp}
+    {pc=h,pd=m,s=c,v=m}
+    El sistema debe de abstraerse de la elección del compilador.
+\end{userReq}
+
+\begin{userReq}{RE}{abstraccion-memoria}
+    {pc=h,pd=m,s=c,v=h}
+    El sistema debe de abstraerse de direcciones de memoria de las variables, hilos y procesos.
+\end{userReq}
+
+\begin{userReq}{RE}{abstraccion-codigo-no-propio}
+    {pc=m,pd=m,s=c,v=m}
+    El sistema debe de abstraerse de depurar cualquier tipo de fragmento de código que no pertenezca al usuario.
+\end{userReq}
+
+\begin{userReq}{RE}{seguridad}
+    {pc=h,pd=h,s=c,v=l}
+    Un mal uso de la herramienta no debe de comprometer la seguridad del sistema.
+\end{userReq}
+
+\begin{userReq}{RE}{multiplataforma}
+    {pc=m,pd=h,s=c,v=h}
+    El sistema debe de ser multiplataforma.
+\end{userReq}
+
+\FloatBarrier
+
+\subsection{Requisitos de sistema}\label{subsec:requisitos-sistema}
+
+Esta sección detalla la descripción de cada uno de los requisitos de sistema de este proyecto. Estos requisitos derivan de los requisitos de usuario, definidos en \subsectionref{requisitos-usuario}, y proporcionan una información más concisa sobre el funcionamiento y las diferentes características del sistema.
+
+Estos requisitos se clasifican en dos tipos:
+\begin{itemize}
+    \item \textbf{Funcionales}: Representan las funcionalidades que el sistema debe proporcionar.
+    \item \textbf{No funcionales}: Representan las restricciones y limitaciones impuestas por el sistema.
+\end{itemize}
+
+Cada requisito tiene un identificador único que sigue el siguiente formato: SR-YY-XX, donde YY es el tipo de requisito, \textit{FN} para funcionales y \textit{NF} para no funcionales, y XX es un número secuencial que identifica el requisito y comienza en 01.
+
+\printsreqtemplate
+
+\begin{softwareReq}{FN}{GUI}
+    {pc=h,pd=h,s=c,v=h}
+    {CA-sistema, CA-visibilidad-hilos, CA-visibilidad-variables, CA-evolucion-hilos}
+    El sistema debe de tener una \gls{GUI} que facilite la interacción del usuario con el sistema y le permita visualizar la información sobre la ejecución y depuración del programa
+\end{softwareReq}
+
+\begin{softwareReq}{FN}{editor}
+    {pc=m,pd=l,s=c,v=h}
+    {CA-escribir-codigo, CA-c-highlight}
+    El sistema debe de tener un editor de código donde se escriba el código
+\end{softwareReq}
+
+\begin{softwareReq}{FN}{editor-breakpoint}
+    {pc=m,pd=h,s=c,v=h}
+    {CA-escribir-codigo, CA-c-highlight, CA-depurar-parar-ejecucion}
+    El editor debe de permitir al usuario poner breakpoints en el código, donde se parará la ejecución del programa al depurar
+\end{softwareReq}
+
+\begin{softwareReq}{FN}{fichero-codigo}
+    {pc=l,pd=h,s=c,v=h}
+    {CA-escribir-codigo, CA-compilar-codigo}
+    El sistema debe de crear un fichero de código que almacene el código escrito por el usuario
+\end{softwareReq}
+
+\begin{softwareReq}{FN}{compilacion}
+    {pc=l,pd=h,s=c,v=h}
+    {CA-compilar-codigo, RE-compilar-c}
+    El sistema debe de generar un archivo ejecutable a partir del código escrito a través del compilador
+\end{softwareReq}
+
+\begin{softwareReq}{FN}{ejecutar}
+    {pc=l,pd=m,s=c,v=h}
+    {CA-ejecutar-codigo, RE-ejecutar-c, RE-abstraccion-so, RE-abstraccion-arch}
+    El sistema debe de ejecutar el archivo ejecutable generado
+\end{softwareReq}
+
+\begin{softwareReq}{FN}{depurar}
+    {pc=m,pd=h,s=i,v=l}
+    {CA-depurar-codigo, RE-depurar-c, RE-abstraccion-memoria, RE-abstraccion-codigo-no-propio}
+    El sistema debe abrir una sesión de depuración sobre el archivo ejecutable generado
+\end{softwareReq}
+
+\begin{softwareReq}{FN}{aviso-error-concurrencia}
+    {pc=m,pd=m,s=c,v=h}
+    {CA-aviso-error-concurrencia}
+    El sistema debe de utilizar Helgrind o ThreadSanitizer para detectar errores de concurrencia
+\end{softwareReq}
+
+\begin{softwareReq}{FN}{step-over}
+    {pc=m,pd=m,s=c,v=h}
+    {CA-depurar-paso}
+    El sistema debe permitir al usuario depurar paso a paso sin entrar en las funciones que se llaman
+\end{softwareReq}
+
+\begin{softwareReq}{FN}{step-into}
+    {pc=m,pd=m,s=c,v=h}
+    {CA-depurar-paso}
+    El sistema debe permitir al usuario depurar paso a paso entrando en las funciones que se llaman
+\end{softwareReq}
+
+\begin{softwareReq}{FN}{step-out}
+    {pc=m,pd=m,s=c,v=h}
+    {CA-depurar-paso}
+    El sistema debe permitir al usuario depurar paso a paso saliendo de las funciones que se llaman
+\end{softwareReq}
+
+\begin{softwareReq}{FN}{continuar-ejecucion}
+    {pc=m,pd=m,s=c,v=h}
+    {CA-depurar-parar-ejecucion, CA-depurar-paso}
+    El sistema debe permitir moverse entre los breakpoints y continuar la ejecución del programa
+\end{softwareReq}
+
+\begin{softwareReq}{FN}{rebobinar}
+    {pc=m,pd=l,s=c,v=m}
+    {CA-depurar-rebobinar}
+    El sistema debe permitir al usuario rebobinar la ejecución del programa
+\end{softwareReq}
+
+\begin{softwareReq}{FN}{visualizacion-hilos}
+    {pc=h,pd=m,s=c,v=h}
+    {CA-visibilidad-hilos}
+    El sistema debe de mostrar durante la depuración los hilos que se encuentran en ejecución en el punto actual
+\end{softwareReq}
+
+\begin{softwareReq}{FN}{visualizacion-variables}
+    {pc=h,pd=m,s=c,v=h}
+    {CA-visibilidad-variables}
+    El sistema debe de mostrar durante la depuración el estado de las variables de cada uno de los hilos
+\end{softwareReq}   
+
+\begin{softwareReq}{FN}{visualizacion-evolucion}
+    {pc=m,pd=l,s=c,v=l}
+    {CA-evolucion-hilos}
+    El sistema debe de mostrar durante la depuración la evolución de los hilos y procesos a través de un diagrama temporal
+\end{softwareReq}
+
+\begin{softwareReq}{NF}{compilador}
+    {pc=m,pd=h,s=i,v=h}
+    {RE-compilar-c, RE-abstraccion-comp}
+    El sistema debe de tener un compilador de código C
+\end{softwareReq}
+
+\begin{softwareReq}{NF}{ejecucion}
+    {pc=l,pd=m,s=c,v=h}
+    {RE-ejecutar-c}
+    El sistema debe de ejecutar el código C compilado
+\end{softwareReq}
+
+\begin{softwareReq}{NF}{ejecucion-POSIX}
+    {pc=m,pd=h,s=c,v=h}
+    {CA-ejecutar-codigo, RE-ejecutar-c}
+    El sistema debe de ejecutar en un sistema operativo UNIX para soportar la ejecución de hilos POSIX 
+\end{softwareReq}
+
+\begin{softwareReq}{NF}{depuracion-c}
+    {pc=h,pd=h,s=c,v=l}
+    {RE-depurar-c}
+    El sistema debe de depurar código C
+\end{softwareReq}
+
+\begin{softwareReq}{NF}{abstraccion-so}
+    {pc=m,pd=h,s=c,v=m}
+    {RE-abstraccion-so}
+    La herramienta debe de tener el mismo comportamiento independientemente del sistema operativo en el que se ejecute
+\end{softwareReq}
+
+\begin{softwareReq}{NF}{abstraccion-arch}
+    {pc=m,pd=h,s=c,v=l}
+    {RE-abstraccion-arch}
+    La herramienta debe de tener el mismo comportamiento independientemente de la arquitectura que tenga el sistema en el que se ejecute
+\end{softwareReq} 
+
+\begin{softwareReq}{NF}{informacion-depuracion}
+    {pc=h,pd=m,s=i,v=l}
+    {RE-abstraccion-memoria, RE-abstraccion-codigo-no-propio, CA-visibilidad-hilos, CA-visibilidad-variables}
+    La depuración no deberá mostrar información sobre direcciones de memoria ni de código que no pertenezca al usuario
+\end{softwareReq}
+
+\begin{softwareReq}{NF}{estabilidad}
+    {pc=h,pd=h,s=c,v=h}
+    {CA-sistema, CA-depurar-codigo, RE-seguridad}
+    El sistema debe ser estable y no presentar errores al depurar
+\end{softwareReq}
+
+\begin{softwareReq}{NF}{sandbox}
+    {pc=l,pd=h,s=c,v=m}
+    {RE-seguridad}
+    El sistema debe de ejecutar el código en un entorno aislado para evitar problemas de seguridad
+\end{softwareReq}
+
+\begin{softwareReq}{NF}{multiplataforma}
+    {pc=m,pd=h,s=c,v=h}
+    {RE-multiplataforma}
+    El sistema debe de ser multiplataforma
+\end{softwareReq}
+
+\FloatBarrier
+
+\section{Casos de uso}\label{sec:casos-de-uso}
+
+En esta sección se describirán los casos de uso del cliente a través de un modelo de casos de uso UML \cite{UML-UseCases}. Los casos de uso son una técnica que se utiliza para capturar los requisitos funcionales de un sistema y se representan como un conjunto de acciones que un sistema realiza en colaboración con uno o más actores. Los actores son entidades que interactúan con el sistema y pueden ser tanto humanos como sistemas externos \cite{UseCases-Wikipedia}.
+
+Cada caso de uso está identificado por un identificador único. Este identificador sigue el siguiente formato: CU-XX, donde XX es un número secuencial que identifica el caso de uso y comienza en 01.
+
+\drawiosvgfigure[0.7]{casos_uso_TFG}{Diagrama de casos de uso del sistema.}
+
+Para la especificación de los casos de uso se usará la siguiente plantilla:
+
+\printuctemplate{}
+
+\begin{useCase}{id}
+    {Escribir código} % name
+    {Usuario} % actors
+    {Desarrollar código C concurrente}  % objetivo
+    {N/A}  % pre-cond
+    {N/A} % post-cond
+    \begin{enumerate} % description
+        \item Clicka en el editor
+        \item Escribe código C 
+    \end{enumerate}
+\end{useCase}
+
+\begin{useCase}{id}
+    {Compilar código}
+    {Usuario}
+    {Compilar el código C}
+    {Tener código C escrito dentro del editor de código}
+    {Se genera un archivo ejecutable en el backend}
+    \begin{enumerate}
+        \item Clicka en el botón de compilar
+        \item Se compila el código
+        \item En la parte inferior se muestra el resultado de la compilación
+    \end{enumerate}
+\end{useCase}
+
+\begin{useCase}{id}
+    {Ejecutar código}
+    {Usuario}
+    {Ejecutar el código C}
+    {Tener código C compilado}
+    {Se ejecuta en el backend el archivo ejecutable}
+    \begin{enumerate}
+        \item Clicka en el botón de ejecutar
+        \item Se ejecuta el código
+        \item En la parte inferior se muestra el resultado de la ejecución
+    \end{enumerate}
+\end{useCase}
+
+\begin{useCase}{id}
+    {Depurar código}
+    {Usuario}
+    {Depurar el código C}
+    {Tener código C compilado}
+    {Se inicia una sesión de depuración respecto al fichero ejecutable en el backend}
+    \begin{enumerate}
+        \item Desde la sección de edición se selecciona la opción de depuración
+        \item El usuario elige de qué forma quiere depurar el código
+        \item Se ejecuta el código paso a paso
+        \item Se muestra el estado de los hilos y procesos
+    \end{enumerate}
+\end{useCase}
+
+\FloatBarrier
+
+\section{Trazabilidad}\label{sec:trazabilidad}
+
+En esta sección se detallará la trazabilidad de los requisitos de usuario y sistema, donde los requisitos funcionales deben de cubrir todos los requisitos de capacidad (\tabref{trazabilidadFN-CA}) y los requisitos no funcionales deben de cubrir todos los requisitos de restricción (\tabref{trazabilidadNF-RE}), y con los casos de uso (\tabref{trazabilidad-req-casos}). La trazabilidad es la capacidad de seguir y documentar la vida de un requisito, desde su origen hasta su implementación y pruebas. La trazabilidad es una parte importante de la gestión de requisitos, ya que permite a los desarrolladores y a los interesados comprender la historia y el propósito de un requisito, así como evaluar el impacto de los cambios en los requisitos \cite{IEEE-Requirements}.
+
+\begin{figure}[htbp]
+    \centering
+    \traceabilityFNCA
+    \caption{Trazabilidad de los requisitos funcionales con los requisitos de capacidad}
+    \label{tab:trazabilidadFN-CA}
+\end{figure}
+
+
+\begin{figure}[htbp]
+    \centering
+    \traceabilityNFRE
+    \caption{Trazabilidad de los requisitos no funcionales con los requisitos de restricción}
+    \label{tab:trazabilidadNF-RE}
+\end{figure}
+
+\begin{figure}[htbp]
+    \begin{tabular}{c|cccc}
+        \multicolumn{1}{l|}{} & \multicolumn{1}{l}{CU-01} & \multicolumn{1}{l}{CU-02} & \multicolumn{1}{l}{CU-03} & \multicolumn{1}{l}{CU-04} \\ \hline
+        RU-CA-01              & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     \\ \hline
+        RU-CA-02              & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     \\ \hline
+        RU-CA-03              & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     \\ \hline
+        RU-CA-04              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     \\ \hline
+        RU-CA-05              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{}     \\ \hline
+        RU-CA-06              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    \\ \hline
+        RU-CA-07              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    \\ \hline
+        RU-CA-08              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{\textbullet}    \\ \hline
+        RU-CA-09              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    \\ \hline
+        RU-CA-10              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    \\ \hline
+        RU-CA-11              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    \\ \hline
+        RU-CA-12              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    \\ \hline
+        RU-CA-13              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    \\ \hline
+        RU-RE-01              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     \\ \hline
+        RU-RE-02              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{}     \\ \hline
+        RU-RE-03              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    \\ \hline
+        RU-RE-04              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{\textbullet}    \\ \hline
+        RU-RE-05              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{\textbullet}    \\ \hline
+        RU-RE-06              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     \\ \hline
+        RU-RE-07              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    \\ \hline
+        RU-RE-08              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    \\ \hline
+        RU-RE-09              & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{}     \\ \hline
+        RU-RE-10              & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{\textbullet}    \\ \hline
+    \end{tabular}
+    \caption{Trazabilidad de requisitos de usuario con casos de uso}
+    \label{tab:trazabilidad-req-casos}
+\end{figure}
+
+
+

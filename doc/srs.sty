@@ -1,0 +1,751 @@
+% == srs.sty - Simple LaTeX2e support for software engineering tasks
+%              THIS PACKAGE REQUIRES LUALATEX.
+%
+% Copyright 2014, 2019 Javier L. Gómez, University Carlos III of Madrid
+%
+% Modified by Luis Daniel Casais Mezquida & Álvaro Guerrero Espinosa,
+% Universidad Carlos III de Madrid
+%
+% This work is licensed under a Creative Commons Attribution-ShareAlike 4.0
+% International License (https://creativecommons.org/licenses/by-sa/4.0/).
+
+\ProvidesPackage{srs}
+
+\RequirePackage{pgffor}
+\RequirePackage{graphicx}
+\RequirePackage{array}
+\RequirePackage{calc}
+\RequirePackage{xparse}
+\RequirePackage{float}
+\RequirePackage{hyperref}
+\usepackage{xifthen}  % \isempty
+\RequirePackage{booktabs}  % \toprule, \bottomrule
+\RequirePackage{enumitem}
+\RequirePackage{etoolbox}
+\RequirePackage{ifthen}
+
+
+% PACKAGE OPTIONS
+
+% english
+\newif\if@langen@pp\@langen@ppfalse  % check en language
+\DeclareOption{en}{\@langen@pptrue}
+% spanish
+\newif\if@langes@pp\@langes@ppfalse  % check es language
+\DeclareOption{es}{\@langes@pptrue}
+
+% traceability
+\newif\if@traceability@pp\@traceability@ppfalse
+\DeclareOption{enableTraceability}{\@traceability@pptrue}
+
+% captions on tables
+\newif\if@captions@pp\@captions@ppfalse
+\DeclareOption{enableCaptions}{\@captions@pptrue}
+
+% debug
+\newif\if@debug@pp\@debug@ppfalse
+\DeclareOption{debug}{\@debug@pptrue}
+
+\ProcessOptions\relax
+
+
+
+% --8<---- Template texts
+
+\newcommand\@na{N/A}
+\newcommand\NA{\@na}
+
+% english
+
+\if@langen@pp
+  \def\@req{Requirement}
+  \def\@req@u{User requirement}
+  \def\@req@s{Software requirement}
+  \def\@uc{Use case}
+  \def\@component{Component}
+  \def\@test{Test}
+
+  % prefix IDs
+  \def\@req@u@prefix{UR}
+  \def\@req@s@prefix{SR}
+  \def\@uc@prefix{UC}
+
+  % template captions
+  \def\@req@template@u{\@req@u~template}
+  \def\@req@template@s{\@req@s~template}
+  \def\@uc@template{\@uc~template}
+  \def\@component@template{\@component~template}
+  \def\@component@template@id{Name}
+  \def\@test@template{\@test~template}
+
+  \def\@table{Table}
+  \def\@req@u@template@id@description{Each user requirement is uniquely identified by an ID, which follows the format \textit{\printureqidtemplate}, where \textit{YY} identifies the type of the requirement, either a capacity (\textit{CA}) or a restriction (\textit{RE}); and \textit{XX} identifies the sequential number of the requirement within that type, starting at \textit{01}.}
+  \def\@req@s@template@id@description{Each software requirement is uniquely identified by an ID, which follows the format \textit{\printsreqidtemplate}, where \textit{YY} identifies the type of the requirement, either functional (\textit{FN}) or non-functional (\textit{NF}); and \textit{XX} identifies the sequential number of the requirement within that type, starting at \textit{01}.}
+  \def\@req@template@description{provides the template used for the specification of the requirements, including the description of each attribute.}
+  \def\@uc@template@id@description{Each use case is uniquely identified by an ID, which follows the format \textit{\printucidtemplate}, where \textit{XX} identifies the sequential number of the use case, starting at \textit{01}.}
+  \def\@uc@template@description{provides the template used for the specification of the use case, including the description of each attribute.}
+  \def\@component@template@description{provides the template used for the specification of the components, including the description of each attribute.}
+  \def\@test@template@id@description{Each test is uniquely identified by an ID. The ID follows the format \textit{\printtestidtemplate}, where \textit{XX} identifies the sequential number of the test case, starting at \textit{01}, and \textit{YYY} represents the type, either \textit{VET} (verification) or \textit{VAT} (validation).}
+  \def\@test@template@description{provides the template used for the specification of the test case, including the description of each attribute.}
+
+  % attribute names
+  \def\@req@description{Description}
+  \def\@req@priocus{Necessity}
+  \def\@req@priodev{Priority}
+  \def\@req@sta{Stability}
+  \def\@req@verif{Verifiability}
+  \def\@req@origin{Origin}
+
+  \def\@uc@name{Name}
+  \def\@uc@actors{Actors}
+  \def\@uc@shortdescription{Objetive}
+  \def\@uc@description{Description}
+  \def\@uc@precond{Pre-condition}
+  \def\@uc@postcond{Post-condition}
+
+  \def\@component@role{Role}
+  \def\@component@deps{Dependencies}
+  \def\@component@description{Description}
+  \def\@component@data{Data}
+  \def\@component@resources{Resources}
+  \def\@component@origin{Origin}
+  \def\@component@types{Types}
+  \def\@component@members{Functions/variables}
+
+  \def\@test@desc{Description}
+  \def\@test@precond{Preconditions}
+  \def\@test@postcond{Postconditions}
+  \def\@test@procedure{Procedure}
+  \def\@test@eval{Evaluation}
+  \def\@test@origin{Origin}
+
+  % attribute values
+  \def\@req@valueof@pc@h{Essential}
+  \def\@req@valueof@pc@m{Convenient}
+  \def\@req@valueof@pc@l{Optional}
+  \def\@req@valueof@pd@h{High}
+  \def\@req@valueof@pd@m{Medium}
+  \def\@req@valueof@pd@l{Low}
+  \def\@req@valueof@s@c{Constant}
+  \def\@req@valueof@s@i{Inconstant}
+  \def\@req@valueof@s@vu{Very unstable}
+  \def\@req@valueof@v@h{High}
+  \def\@req@valueof@v@m{Medium}
+  \def\@req@valueof@v@l{Low}
+
+  % attribute descriptions
+  \def\@req@description@desc{Detailed description of the requirement.}
+  \def\@req@priocus@desc{Priority of the requirement for the user (\textit{\@req@valueof@pc@h}, \textit{\@req@valueof@pc@m} or \textit{\@req@valueof@pc@l}).}
+  \def\@req@priodev@desc{Priority of the requirement for the developer (\textit{\@req@valueof@pd@h}, \textit{\@req@valueof@pd@m} or \textit{\@req@valueof@pd@l}).}
+  \def\@req@sta@desc{Indicates the requirement's variability trough the development process (\textit{\@req@valueof@s@c}, \textit{\@req@valueof@s@i} or \textit{\@req@valueof@s@vu}).}
+  \def\@req@verif@desc{Ability to test the validity of the requirement (\textit{\@req@valueof@v@h}, \textit{\@req@valueof@v@m} or \textit{\@req@valueof@v@l}).}
+  \def\@req@origin@desc{User requirements that derived this requirement.}
+
+  \def\@uc@name@desc{Brief description of the use case.}
+  \def\@uc@actors@desc{External agent that executes the use case.}
+  \def\@uc@shortdescription@desc{The use case's purpose.}
+  \def\@uc@description@desc{Steps that the external agent must take to execute the use case.}
+  \def\@uc@precond@desc{Conditions that must be fulfilled \textit{before} executing the use case.}
+  \def\@uc@postcond@desc{Conditions that must be fulfilled \textit{after} executing the use case.}
+
+  \def\@component@role@desc{Component's function in the system.}
+  \def\@component@deps@desc{Components that depend on this component.}
+  \def\@component@description@desc{Explanation of the functioning of the component.}
+  \def\@component@data@desc{Input (\textit{in}) and output (\textit{out}) data of the component.}
+  \def\@component@resources@desc{Resources that use the component.}
+  \def\@component@origin@desc{Software requirements that derived the component.}
+  \def\@component@type@desc{Component type.}
+
+  \def\@test@desc@desc{Test description.}
+  \def\@test@precond@desc{Conditions that must be fulfilled in order to perform the test.}
+  \def\@test@procedure@desc{Description of the steps to take in order to perform the test.}
+  \def\@test@postcond@desc{Conditions that must be fulfilled after performing the test in order to pass.}
+  \def\@test@eval@desc{Result of the test (\textit{OK} or \textit{Error}).}
+  \def\@test@origin@desc{Requirements that originated this test.}
+\fi
+
+
+% spanish
+
+\if@langes@pp
+  \def\@req{Requisito}
+  \def\@req@u{\@req~de usuario}
+  \def\@req@s{\@req~de software}
+  \def\@uc{Caso de uso}
+  \def\@component{Componente}
+  \def\@test{Prueba}
+
+  % prefix IDs
+  \def\@req@u@prefix{RU}
+  \def\@req@s@prefix{RS}
+  \def\@uc@prefix{CU}
+
+  % template captions
+  \def\@req@template@u{Plantilla de~\@req@u}
+  \def\@req@template@s{Plantilla de~\@req@s}
+  \def\@uc@template{Plantilla de \@uc}
+  \def\@component@template{Plantilla de~\@component}
+  \def\@component@template@id{Nombre}
+  \def\@test@template{Plantilla de~\@test}
+
+  \def\@table{La tabla}
+  \def\@req@u@template@id@description{Cada requisito de usuario se identifica con un ID que sigue el formato \textit{\printureqidtemplate}, donde \textit{YY} identifica el tipo del requisito, ya sea capacidad (\textit{CA}) o restricción (\textit{RE}); y \textit{XX} identifica el número secuencial del requisito dentro de su tipo, empezando en \textit{01}.}
+  \def\@req@s@template@id@description{Cada requisito de software se identifica con un ID que sigue el formato \textit{\printsreqidtemplate}, donde \textit{YY} identifica el tipo del requisito, ya sea funcional (\textit{FN}) o no funcional (\textit{NF}); y \textit{XX} identifica el número secuencial del requisito dentro de su tipo, empezando en \textit{01}.}
+  \def\@req@template@description{contiene la plantilla utilizada para la especificación de los requisitos, incluyendo la descripción de cada atributo.}
+  \def\@uc@template@id@description{Cada caso de uso se identifica con un ID que sigue el formato \textit{\printucidtemplate}, donde \textit{XX} identifica el número secuencial del caso de uso, empezando en \textit{01}.}
+  \def\@uc@template@description{contiene la plantilla utilizada para la especificación de los casos de uso, incluyendo la descripción de cada atributo.}
+  \def\@component@template@description{contiene la plantilla utilizada para la especificación de los componentes, incluyendo la descripción de cada atributo.}
+  \def\@test@template@id@description{Cada caso de prueba se identifica con un ID que sigue el formato \textit{\printtestidtemplate}, donde \textit{XX} identifica el número de secuencia del caso de prueba, empezando en \textit{01}, y \textit{YYY} representa el tipo, ya sea \textit{VET} (verificación) o \textit{VAT} (validación).}
+  \def\@test@template@description{contiene la plantilla utilizada para la especificación de los casos de prueba, incluyendo la descripción de cada atributo.}
+
+  % attribute names
+  \def\@req@description{Descripción}
+  \def\@req@priocus{Necesidad}
+  \def\@req@priodev{Prioridad}
+  \def\@req@sta{Estabilidad}
+  \def\@req@verif{Verificabilidad}
+  \def\@req@origin{Origen}
+
+  \def\@uc@name{Nombre}
+  \def\@uc@actors{Actores}
+  \def\@uc@shortdescription{Objetivo}
+  \def\@uc@description{Descripción}
+  \def\@uc@precond{Pre-condición}
+  \def\@uc@postcond{Post-condición}
+
+  \def\@component@role{Rol}
+  \def\@component@deps{Dependencias}
+  \def\@component@description{Descripción}
+  \def\@component@data{Datos}
+  \def\@component@resources{Recursos}
+  \def\@component@origin{Origen}
+  \def\@component@types{Tipos}
+  \def\@component@members{Funciones/variables}
+
+  \def\@test@desc{Descripción}
+  \def\@test@precond{Pre-condición}
+  \def\@test@postcond{Post-condición}
+  \def\@test@procedure{Procedimiento}
+  \def\@test@eval{Evaluación}
+  \def\@test@origin{Origen}
+
+  % attribute values
+  \def\@req@valueof@pc@h{Esencial}
+  \def\@req@valueof@pc@m{Conveniente}
+  \def\@req@valueof@pc@l{Opcional}
+  \def\@req@valueof@pd@h{Alta}
+  \def\@req@valueof@pd@m{Media}
+  \def\@req@valueof@pd@l{Baja}
+  \def\@req@valueof@s@c{No cambia}
+  \def\@req@valueof@s@i{Cambiante}
+  \def\@req@valueof@s@vu{Muy inestable}
+  \def\@req@valueof@v@h{Alta}
+  \def\@req@valueof@v@m{Media}
+  \def\@req@valueof@v@l{Baja}
+
+  % attribute descriptions
+  \def\@req@description@desc{Especificación del requisito en un lenguaje claro, conciso y no ambiguo.}
+  \def\@req@priocus@desc{Prioridad del requisito para el usuario (\textit{\@req@valueof@pc@h}, \textit{\@req@valueof@pc@m} u \textit{\@req@valueof@pc@l}).}
+  \def\@req@priodev@desc{Prioridad del requisito para el desarrollador (\textit{\@req@valueof@pd@h}, \textit{\@req@valueof@pd@m} o \textit{\@req@valueof@pd@l}).}
+  \def\@req@sta@desc{Indica si el requisito se modifica durante el desarrollo (\textit{\@req@valueof@s@c}, \textit{\@req@valueof@s@c} o \textit{\@req@valueof@s@vu}).}
+  \def\@req@verif@desc{Capacidad de comprobar la validez del requisito (\textit{\@req@valueof@v@h}, \textit{\@req@valueof@v@m} o \textit{\@req@valueof@v@l}).}
+  \def\@req@origin@desc{Referencia a los requisitos de usuario que dieron lugar al requisito.}
+
+  \def\@uc@name@desc{Descripción breve del caso de uso.}
+  \def\@uc@actors@desc{Agente externo que ejecuta el caso de uso.}
+  \def\@uc@shortdescription@desc{Propósito del caso de uso.}
+  \def\@uc@description@desc{Pasos que debe seguir el actor para ejecutar el caso de uso.}
+  \def\@uc@precond@desc{Condiciones previas que se deben cumplir para ejecutar el caso de uso.}
+  \def\@uc@postcond@desc{Condiciones que se deben cumplir después de ejecutar el caso de uso.}
+
+  \def\@component@role@desc{Papel del componente en el sistema.}
+  \def\@component@deps@desc{Componentes que dependen de este.}
+  \def\@component@description@desc{Explicación del funcionamiento del componente.}
+  \def\@component@data@desc{Datos de entrada (\textit{in}) y salida (\textit{out}) del componente.}
+  \def\@component@resources@desc{Recursos que utiliza el componente.}
+  \def\@component@origin@desc{Requisitos software que dieron lugar al componente.}
+  \def\@component@type@desc{Tipo del componente.}
+
+
+  \def\@test@desc@desc{Descripción del test.}
+  \def\@test@precond@desc{
+    Condiciones que deben cumplirse para realizar el test.}
+  \def\@test@procedure@desc{
+    Descripción de los pasos a seguir para realizar el test.}
+  \def\@test@postcond@desc{
+    Condiciones que deben cumplirse después de realizar el test para pasarlo.}
+  \def\@test@eval@desc{Resultado del test (\textit{OK} o \textit{Error}).}
+  \def\@test@origin@desc{Requisitos que originaron el test.}
+\fi
+
+
+% \@req@parseArgs - Parses string of the form `pc=h,pd=l,s=nc,v=m' and
+%                   sets \@@req@XX accordingly
+\def\@req@parseArgs pc=#1,pd=#2,s=#3,v=#4;{
+  \xdef\@@req@pc{\csname @req@valueof@pc@#1\endcsname}
+  \xdef\@@req@pd{\csname @req@valueof@pd@#2\endcsname}
+  \xdef\@@req@s{\csname @req@valueof@s@#3\endcsname}
+  \xdef\@@req@v{\csname @req@valueof@v@#4\endcsname}
+}
+
+% \itemizecsv - Typesets an itemize list using comma-separated values
+\def\@itemizecsv@empty{\@na}
+\def\@itemizecsv@style{}
+\newcommand{\itemizecsv}[1]
+           {\if\relax\detokenize{#1}\relax \@itemizecsv@empty%
+             \else\begin{itemize}\foreach \i in {#1}%
+                        {\item {\@itemizecsv@style\i}}\end{itemize} \fi}
+
+% --8<---- TRACEABILITY (REQUIRES LUALATEX) ----
+\def\@traceability@registerOrigin#1{}
+\def\@traceability@addOrigins#1#2{}
+
+\if@traceability@pp
+  \directlua{
+    __registered_origin = {}
+    __is_origin_of = {}
+
+    function __register_origin(i)
+        __registered_origin[i] = true
+    end
+
+    function __add_origins(i, origin_csv)
+        __is_origin_of[i] = {}
+        for j in string.gmatch(origin_csv, '[^, ]+') do
+            __is_origin_of[i][j] = true end
+    end
+
+    function __filter_keys(tab, patterns)
+        local ret = {}
+        local lua_pats = string.explode(patterns, ',')
+
+        for key,_ in pairs(tab) do
+            for _,pat in ipairs(lua_pats) do
+                if string.match(key, pat) then table.insert(ret, key) end
+            end
+        end
+        table.sort(ret)
+        return ret
+    end
+
+    function __print_matrix(item_luapat, origin_luapat, opts)
+        opts = opts or {}
+        local items = __filter_keys(__is_origin_of, item_luapat)
+        local origins = __filter_keys(__registered_origin, origin_luapat)
+
+        local i_offset, o_offset = opts.i_offset or 0,
+                                  opts.o_offset or 0
+        local i_count, o_count = opts.i_count or (\string#items - i_offset),
+                                opts.o_count or (\string#origins - o_offset)
+
+        \unexpanded{
+        tex.print([[\begin{traceabilityMatrix}{l|*{]] .. o_count .. [[}{c|}}]])
+        for i = 1+o_offset, o_offset+o_count do
+            tex.print([[&\traceabilityMatrixHeader{]] .. "\\hyperref[req:" .. origins[i] .. "]{" .. origins[i] .. "}}")
+        end
+        tex.print([[\\ \hline]])
+
+        for i = 1+i_offset, i_offset+i_count do
+            tex.print("\\hyperref[req:" .. items[i] .. "]{" .. items[i] .. "}")
+            for j = 1+o_offset, o_offset+o_count do
+                tex.print([[&]])
+                if __is_origin_of[items[i]][origins[j]] then
+                    tex.print([[\traceabilityMatrixChar]]) end
+            end
+            tex.print([[\\ \hline]])
+        end
+        tex.print([[\end{traceabilityMatrix}]])
+        }
+    end
+  }
+
+  \gdef\traceability@registerOrigin#1{\directlua{__register_origin('#1')}}
+  \gdef\traceability@addOrigins#1#2{\directlua{__add_origins('#1', '#2')}}
+
+  % \traceabilityPrintMatrix - Generate a traceability matrix (items in rows;
+  %                            their origins in colums)
+  %
+  % Usage: \traceabilityPrintMatrix{<ITEM_LUA_PATTERN>[,...]}
+  %                                {<ORIGIN_LUA_PATTERN>[,...]}{<OPTIONS>}
+  % <OPTIONS> may include values for [io]_offset=N (skip N items/origins),
+  % and [io]_count=N (number of items/origins to typeset).
+  %
+  % e.g.: `\traceabilityPrintMatrix{^F\37-SR}{^CA\37-UR}{i_offset=0,i_count=24}'
+  %
+  %       Generates a matrix that correlates items that have prefix 'F-SR' to
+  %       those that start with 'CA-UR'.
+  %
+  \gdef\traceabilityPrintMatrix#1#2#3{%
+    \directlua{__print_matrix('\unexpanded{#1}', '\unexpanded{#2}',
+                              \string{#3\string})}}
+  % TODO: allow to define type for ref: req/uc/comp
+
+  % redefine these macros to change table style
+  \newenvironment{traceabilityMatrix}[1]
+                 {\footnotesize\renewcommand{\arraystretch}{1.5}
+                   \begin{tabular}{#1}}
+                 {\end{tabular}}
+  \newcommand{\traceabilityMatrixHeader}[1]
+             {\multicolumn{1}{c}{\rlap{\rotatebox{45}{#1}}\rule{\widthof{\traceabilityMatrixChar}*\real{2}}{0pt}}}
+  \gdef\traceabilityMatrixChar{\bullet}
+
+  % Traceability matrix shorthands
+  \newcommand{\traceabilityFNCA}{\directlua{__print_matrix('^\@req@s@prefix\unexpanded{\37-FN}', '^\@req@u@prefix\unexpanded{\37-CA}')}}
+  \newcommand{\traceabilityNFRE}{\directlua{__print_matrix('^\@req@s@prefix\unexpanded{\37-NF}', '^\@req@u@prefix\unexpanded{\37-RE}')}}
+  \newcommand{\traceabilityCompFN}{\directlua{__print_matrix('^[^\@req@u@prefix][^\@req@s@prefix][^\@uc@prefix][^\unexpanded{\37-}]', '^\@req@s@prefix\unexpanded{\37-FN}')}}
+  \newcommand{\traceabilityVETSR}{\directlua{__print_matrix('^VET', '^\@req@s@prefix')}}
+  \newcommand{\traceabilityVATUR}{\directlua{__print_matrix('^VAT', '^\@req@u@prefix')}}
+\fi
+
+
+% --8<---- TEMPLATE DEFINITIONS ----
+% \begin{SRStabular}[caption][label][position][width]{id}
+\NewDocumentEnvironment{SRStabular}{o o O{h} O{.85} m}{%
+    \begin{table}[#3]
+      \centering
+      \IfNoValueTF{#1}%
+        {}
+        {\caption{#1}}  % add caption
+      \IfNoValueTF{#2}%
+        {\label{req:#5}}  % default label
+        { \ifthenelse{\isempty{#2}}
+          {\label{req:#5}}
+          {\label{#2}}  % custom label
+        }
+      \renewcommand{\arraystretch}{1.5}
+      \noindent
+      \begin{tabular}{@{}p{83pt}@{}p{#4\columnwidth-83pt}@{}}
+        %
+        \toprule
+        \multicolumn{2}{@{}l}{\bfseries#5}\\
+        \hline
+   }
+   {%
+        \bottomrule
+      \end{tabular}
+    \end{table}
+  }
+
+% Create a new counter with the given name if it doesn't exist. Otherwise
+% increment it. Counters are initialized to 1
+\newcommand*\newcounterOrIncrement[1]{%
+  \ifcsname c@#1\endcsname
+    \stepcounter{#1}
+  \else
+    \newcounter{#1}
+    \setcounter{#1}{1}
+  \fi
+}
+
+\newcommand{\padtwo}[1]{\ifnum\value{#1}<10 0\fi\arabic{#1}}
+
+% Create a new ID based on the prefix and reference name, using the format <PREFIX>-<N>
+% This is achieved by creating a new macro with the name <PREFIX>-<reference NAME>
+% that expands to <PREFIX>-<N>
+\newcommand\setID[2]{\newcounterOrIncrement{#1}\csxdef{#1-#2}{#1-\padtwo{#1}}}
+% Use the macro created by the command above
+\newcommand\useID[1]{\if@debug@pp#1\else\csuse{#1}\fi}
+
+% Translate a comma separated list of reference IDs to displayed IDs, using a
+% given prefix
+% \translateIDs{prefix}{IDs}
+\newcommand\translateIDs[2]{%
+  \xdef\@@translate@buf{}
+  \foreach [count=\i] \x in {#2} {\xdef\@@translate@buf{\@@translate@buf\ifnum\i>1,\fi\useID{#1-\x}}}
+}
+
+
+%% REQUIREMENTS %%
+
+\newenvironment{baseReq}[3]  % extender is responsible for adding \endSRStabular
+  {%
+    \setID{#1}{#2}
+    \def\@@baseReq@ID{\useID{#1-#2}}
+    \traceability@registerOrigin{\@@baseReq@ID} \@req@parseArgs #3;
+    \if@captions@pp
+      \SRStabular[\@req~\@@baseReq@ID]{\@@baseReq@ID}
+    \else
+      \SRStabular{\@@baseReq@ID}
+    \fi
+    \textbf{\@req@description} &%
+  }%
+  {%
+    \\
+    \textbf{\@req@priocus} & \@@req@pc \\
+    \textbf{\@req@priodev} & \@@req@pd \\
+    \textbf{\@req@sta}     & \@@req@s \\
+    \textbf{\@req@verif}   & \@@req@v \\
+  }%
+
+
+% Usage: \begin[<caption>]{userReq}{<type>}{<ID>}{pc=X,pd=Y,s=Z,v=A}
+%        ...
+%        \end{userReq}
+%
+% <type> may be one of 'CA' (capacity) or 'RE' (restriction)
+% <X>, <Y> and <A> may be one of 'h', 'm', 'l'; high, medium, low
+%               (respectively); <Z> may be 'nc', 'c', 'vi'
+% <caption> is optional
+% <type>-<ID> is the ID used referencely, but it is displayed as <ID-prefix><N>
+%               where <N> is a sequential number for each different prefix
+\newenvironment{userReq}[3]
+  {\baseReq{\@req@u@prefix-#1}{#2}{#3}}
+  {\endbaseReq\endSRStabular}
+
+% \printureqtemplate[caption]
+\newcommand{\printureqtemplate}[1][\@req@template@u]{%
+  \@req@u@template@id@description
+
+  \@table~\ref{tab:ur-template} \@req@template@description
+
+  \begin{SRStabular}[#1][tab:ur-template]{\printureqidtemplate}
+    \textbf{\@req@description} & \@req@description@desc\\
+    \textbf{\@req@priocus}     & \@req@priocus@desc \\
+    \textbf{\@req@priodev}     & \@req@priodev@desc \\
+    \textbf{\@req@sta}         & \@req@sta@desc \\
+    \textbf{\@req@verif}       & \@req@verif@desc \\
+  \end{SRStabular}
+}
+
+\newcommand{\printureqidtemplate}{\@req@u@prefix-YY-XX}
+
+
+% Usage: \begin{softwareReq}{<type>}{<ID>}{pc=X,pd=Y,s=Z,v=A}{<ORIGIN LIST>}
+%        ...
+%        \end{softwareReq}
+%
+% <type> may be one of 'CA' (capacity) or 'RE' (restriction)
+% <X>, <Y> and <A> may be one of 'h', 'm', 'l'; high, medium, low
+%               (respectively); <Z> may be 'nc', 'c', 'vi'
+% <type>-<ID> is the ID used referencely, but it is displayed as <ID-prefix><N>
+%             where <N> is a sequential number for each different prefix
+% <ORIGIN LIST> should be a comma-separated list of tuples <ID-prefix>-<ID>
+\newenvironment{softwareReq}[4]
+  {%
+    \translateIDs{\@req@u@prefix}{#4}
+    \xdef\@@req@origin{\@@translate@buf}
+    \baseReq{\@req@s@prefix-#1}{#2}{#3}
+    \traceability@addOrigins{\useID{\@req@s@prefix-#1-#2}}{\@@req@origin}
+  }
+  {%
+    \endbaseReq
+    \textbf{\@req@origin} & \foreach [count=\i] \x in \@@req@origin {\ifnum\i>1, \fi\hyperref[req:\x]{\x}} \\
+    \endSRStabular
+  }
+
+
+% \printsreqtemplate[caption]
+\newcommand{\printsreqtemplate}[1][\@req@template@s]{%
+  \@req@s@template@id@description
+
+  \@table~\ref{tab:sr-template} \@req@template@description
+
+  \begin{SRStabular}[#1][tab:sr-template]{\printsreqidtemplate}
+    \textbf{\@req@description} & \@req@description@desc\\
+    \textbf{\@req@priocus}     & \@req@priocus@desc \\
+    \textbf{\@req@priodev}     & \@req@priodev@desc \\
+    \textbf{\@req@sta}         & \@req@sta@desc \\
+    \textbf{\@req@verif}       & \@req@verif@desc \\
+    \textbf{\@req@origin}      & \@req@origin@desc \\
+  \end{SRStabular}
+}
+
+\newcommand{\printsreqidtemplate}{\@req@u@prefix-YY-XX}
+
+
+
+%% USE CASES %%
+
+% Usage: \begin{useCase}{<ID>}{<NAME>}{<ACTORS>}{<SHORT_DESCRIPTION>}
+%                       {<PRE_COND>}{<POST_COND>}
+%        ...
+%        \end{useCase}
+\newenvironment{useCase}[6]
+  {
+    \setID{\@uc@prefix}{#1}
+    \def\@@uc@precond{#5}\def\@@uc@postcond{#6}
+    \def\@@uc@id{\useID{\@uc@prefix-#1}}
+    \if@captions@pp
+      \SRStabular[\@uc~\@@uc@id][uc:\@@uc@id][htb][.9]{\@@uc@id}
+    \else
+      \SRStabular[][uc:\@@uc@id][htb][.9]{\@@uc@id}
+    \fi
+      \textbf{\@uc@name}             & #2 \\
+      \textbf{\@uc@actors}           & #3 \\
+      \textbf{\@uc@shortdescription} & #4 \\
+      \textbf{\@uc@description}      &%
+  }
+  {%
+      \makeatother\\
+      \textbf{\@uc@precond}          & \@@uc@precond \\
+      \textbf{\@uc@postcond}         & \@@uc@postcond \\
+    \endSRStabular
+  }
+
+% \printuctemplate[caption]
+\newcommand{\printuctemplate}[1][\@uc@template]{%
+  \@uc@template@id@description
+
+  \@table~\ref{tab:uc-template} \@uc@template@description
+
+  \begin{SRStabular}[#1][tab:uc-template][htb][.9]{\printucidtemplate}
+    \textbf{\@uc@name}              & \@uc@name@desc\\
+    \textbf{\@uc@actors}            & \@uc@actors@desc \\
+    \textbf{\@uc@shortdescription}  & \@uc@shortdescription@desc \\
+    \textbf{\@uc@description}       & \@uc@description@desc \\
+    \textbf{\@uc@precond}           & \@uc@precond@desc \\
+    \textbf{\@uc@postcond}          & \@uc@postcond@desc \\
+  \end{SRStabular}
+}
+
+\newcommand{\printucidtemplate}{\@uc@prefix-XX}
+
+
+
+%% COMPONENTS %%
+
+\newenvironment{baseComponent}[3]
+  {
+    \if@captions@pp
+      % \SRStabular[\@component~`#1']{#1}
+      \SRStabular[\@component~`#1'][req:#1]{#1}
+      % TODO: change req: label to comp: (requires modifying the __print_matrix lua function)
+    \else
+      \SRStabular{#1}
+    \fi
+    \textbf{\@component@role} & #2 \\
+    \textbf{\@component@deps} & #3 \\
+  }
+  {\endSRStabular}
+
+
+% Usage: \begin{component}{<ID>}{<ROLE>}{<DEPS>}{<IN-DATA>}{<OUT-DATA>}{<ORIGIN>}
+%        ...
+%        \end{component}
+\newenvironment{component}[6]
+  {
+    \translateIDs{\@req@s@prefix}{#6}
+    \xdef\@@component@origin{\@@translate@buf}
+    \traceability@addOrigins{#1}{\@@component@origin}
+    \def\@@component@data@in{#4}
+    \def\@@component@data@out{#5}
+    \begin{baseComponent}{#1}{#2}{#3}
+      \textbf{\@component@description} &%
+  }
+  {%
+      \\
+      \textbf{\@component@data}      &%
+      \begin{itemize}[leftmargin=*, nosep]
+        \item \textbf{in:} \@@component@data@in
+        \item \textbf{out:} \@@component@data@out
+      \end{itemize}\\
+      \textbf{\@component@origin}    & \foreach [count=\i] \x in \@@component@origin {\ifnum\i>1, \fi\hyperref[req:\x]{\x}} \\
+    \end{baseComponent}
+  }
+
+
+% \printcomptemplate[caption]
+\newcommand{\printcomptemplate}[1][\@component@template]{%
+  \@table~\ref{tab:comp-template} \@component@template@description
+
+  \begin{SRStabular}[#1][tab:comp-template]{\@component@template@id}
+    \textbf{\@component@role}         & \@component@role@desc\\
+    \textbf{\@component@deps}         & \@component@deps@desc \\
+    \textbf{\@component@description}  & \@component@description@desc \\
+    \textbf{\@component@data}         & \@component@data@desc \\
+    \textbf{\@component@origin}       & \@component@origin@desc \\
+  \end{SRStabular}
+}
+
+\newenvironment{subComponent}[4]
+  {
+    \begin{baseComponent}{#1}{#2}{#3}
+    \textbf{\@component@types}       & \def\@itemizecsv@style{\ttfamily}\itemizecsv{#4} \\
+    \textbf{\@component@members}     & \hangindent=10pt\hangafter=1\ttfamily
+  }
+  {\\\end{baseComponent}}
+
+% TODO: \printsubcomptemplate[caption]{id-format}
+
+
+
+%% TEST CASES %%
+
+% Usage: \begin{testCase}{<type>}{<ID>}{<PRECOND>}{<POSTCON>}{<DESCR>}{<EVAL>}{<ORIGIN>}
+%        <PROCEDURE>
+%        \end{testCase}
+% <type> may be one of 'VAT' (validation) or 'VET' (verification)
+\newenvironment{testCase}[7]
+  {
+    \setID{#1}{#2}
+    % VET correspond to FN, VAT to NF
+    \ifthenelse{\equal{#1}{VET}}{
+      \translateIDs{\@req@s@prefix}{#7}%
+    }{}
+    \ifthenelse{\equal{#1}{VAT}}{
+      \translateIDs{\@req@u@prefix}{#7}%
+    }{}
+    \xdef\@@test@origin{\@@translate@buf}
+    \def\@@test@id{\useID{#1-#2}}
+    \def\@@test@precond{#3}
+    \def\@@test@postcond{#4}
+    \def\@@test@desc{#5}
+    \def\@@test@eval{#6}
+    \traceability@addOrigins{\@@test@id}{\@@test@origin}
+    \if@captions@pp
+      \SRStabular[\@test~\@@test@id][req:\@@test@id][htb][.9]{\@@test@id}
+      % TODO: change req: label to test: (requires modifying the __print_matrix lua function)
+    \else
+      \SRStabular[][test:\@@test@id][htb][.9]{\@@test@id}
+    \fi
+    \textbf{\@test@desc} & \@@test@desc \\
+    \textbf{\@test@precond}  & \@@test@precond \\
+    \textbf{\@test@procedure} &
+  }
+  {
+    \\
+    \textbf{\@test@postcond} & \@@test@postcond \\
+    \textbf{\@test@origin} & \foreach [count=\i] \x in \@@test@origin {\ifnum\i>1, \fi\hyperref[req:\x]{\x}} \\
+    \textbf{\@test@eval} & \@@test@eval \\  % TODO: standarize eval values
+    \endSRStabular
+  }
+
+% \printtesttemplate[caption]
+\newcommand{\printtesttemplate}[1][\@test@template]{%
+  \@test@template@id@description
+
+  \@table~\ref{tab:test-template} \@test@template@description
+
+  \begin{SRStabular}[#1][tab:test-template]{\printtestidtemplate}
+    \textbf{\@test@desc}       & \@test@desc@desc\\
+    \textbf{\@test@precond}    & \@test@precond@desc \\
+    \textbf{\@test@procedure}  & \@test@procedure@desc \\
+    \textbf{\@test@postcond}   & \@test@postcond@desc \\
+    \textbf{\@test@origin}     & \@test@origin@desc \\
+    \textbf{\@test@eval}       & \@test@eval@desc \\
+  \end{SRStabular}
+}
+
+\newcommand{\printtestidtemplate}{YYY-XX}
+
+
+
+%% REFERENCES %%
+
+% \ureqref[prefix]{ID}
+\newcommand{\ureqref}[2][\@req]{\hyperref[req:\useID{\@req@u@prefix-#2}]{#1 \useID{\@req@u@prefix-#2}}}
+
+% \sreqref[prefix]{ID}
+\newcommand{\sreqref}[2][\@req]{\hyperref[req:\useID{\@req@s@prefix-#2}]{#1 \useID{\@req@s@prefix-#2}}}
+
+% \ucref[prefix]{ID}
+\newcommand{\ucref}[2][\@uc]{\hyperref[uc:\useID{\@uc@prefix-#2}]{#1 \useID{\@uc@prefix-#2}}}
+
+% \testref[prefix]{ID}
+\newcommand{\testref}[2][\@test]{\hyperref[req:\useID{#2}]{#1 \useID{#2}}}
+
+% \compref[prefix]{ID}
+\newcommand{\compref}[2][\@component]{\hyperref[req:#2]{#1 `#2'}}
+
+
+\endinput

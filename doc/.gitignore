@@ -28,8 +28,9 @@
 *.glg
 *.gls
 creationdate.timestamp
+*.xmpdata
 
 svg-inkscape/
 _markdown_report
 
-*.pdf
+

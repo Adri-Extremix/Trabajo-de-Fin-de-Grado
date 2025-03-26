@@ -71,6 +71,39 @@ LLDB se caracteriza por tener una \gls{API} de Python más completa que la de GD
 
 Por lo tanto, LLDB destaca por su integración con LLVM y la posibilidad de controlar el depurador a través de Python, lo que permite a los usuarios crear herramientas personalizadas y adaptar el \gls{depurador} a sus necesidades.
 
+\begin{lstlisting}[caption={Muestra del depurador LLDB}]
+    (lldb) breakpoint set --line 50
+Breakpoint 1: where = prueba1.o`greet + 16 at prueba1.c:50:5, address = 0x0000000000001324
+(lldb) breakpoint set --line 60
+Breakpoint 2: where = prueba1.o`add + 60 at prueba1.c:60:1, address = 0x0000000000001376
+(lldb) run
+Process 8704 launched: '/home/adrian/Documents/Trabajo-de-Fin-de-Grado/examples/prueba1.o' (x86_64)
+Process 8704 stopped
+* thread #2, name = 'prueba1.o', stop reason = breakpoint 1.1
+    frame #0: 0x0000555555555324 prueba1.o`greet(argumento=0x0000000000000000) at prueba1.c:50:5
+   47  	
+   48  	// Function to print a greeting message
+   49  	void* greet(void* argumento) {
+-> 50  	   printf("Hello, welcome to the program!\n");
+   51  	   return NULL;
+   52  	}
+   53  	
+(lldb) continue
+Process 8704 resuming
+Hello, welcome to the program!
+Process 8704 stopped
+* thread #3, name = 'prueba1.o', stop reason = breakpoint 2.1
+    frame #0: 0x0000555555555376 prueba1.o`add(argumento=0x00007fffffffdd64) at prueba1.c:60:1
+   57  	   AddArgs* args = (AddArgs*)argumento;
+   58  	   args->result = args->a + args->b;
+   59  	   return NULL;
+-> 60  	}
+   61  	
+   62  	// Function to print an array
+   63  	void* printArray(void* xd) {
+
+\end{lstlisting}
+
 \subsection{RR}{\label{subsec:rr}}
 
 
@@ -88,6 +121,8 @@ CLion incluye una opción para depurar a través de GDB (\subsectionref{gdb}) o 
 La depuración muestra multitud de información, organizada en pestañas, como la pila de llamadas, variables locales, variables globales, la salida del programa o inspeccionar la memoria y los \gls{registros} de la \gls{CPU}. También es posible ver el valor de las variables en tiempo real, y modificarlas durante la ejecución del programa \cite{ClionDebuggerToolWindow}.
 
 Por lo que las claves de CLion son su integración de un \gls{depurador} con una \gls{interfaz gráfica}, la variedad de funcionalidades de depuración que permite y la integración con diferentes herramientas de análisis de código.
+
+\rasterfigure[0.9]{clion.png}{Muestra del depurador de CLion}
 
 \subsection{Seer}{\label{subsec:seer}}
 Seer es un depurador de código abierto, hecho principalmente en C++ y QTile para la \gls{interfaz gráfica}, que envuelve las funcionalidades de GDB. Este \gls{depurador} solo se encuentra disponible en sistemas Unix y ocupa un espacio de 47.4 MB en disco. 
@@ -225,7 +260,7 @@ Para el caso de la \textbf{Usabilidad} se han tenido en cuenta el número de bot
 
 \subsection{Conexión con los Objetivos del Proyecto}{\label{subsec:conexión-objetivos-proyecto}}
 
-
+A partir del análisis de las herramientas existentes para la depuración de programas concurrentes, se observa que, si bien cada una presenta características distintivas, ninguna satisface completamente el objetivo 2 (\ref{obj:didactico}). La única excepción parcial es CLion (\subsectionref{clion}), que se acerca más a cumplir este objetivo, aunque carece de una versión gratuita, lo que limita su accesibilidad. Por ello, y basándose en los conocimientos adquiridos durante esta investigación, se plantea el desarrollo de una herramienta que no solo abstraiga las funcionalidades de los depuradores actuales, sino que también incorpore mecanismos didácticos que faciliten el aprendizaje de la depuración en entornos concurrentes de manera intuitiva y accesible para principiantes.
 
 
 

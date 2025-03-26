@@ -1,1 +1,105 @@
-\chapter{Design}\label{chap:design}
+\chapter{Diseño}\label{chap:diseno}
+
+En este capítulo se detalla el diseño que tendrá la solución propuesta. Para ello se discutirán sobre las posibles alternativas y cuál de ellas ha sido elegida (\sectionref{estudio-solucion-final}) y posteriormente, se describirá la arquitectura del sistema (\sectionref{arquitectura-sistema}) en base a la solución final elegida.
+
+\section{Estudio de la solución final}\label{sec:estudio-solucion-final}
+
+Para la realización del estudio de la solución final se han tenido en cuenta los requisitos especificados en \sectionref{requisitos} y las herramientas existentes descritas en \chapterref{estado-del-arte}. 
+
+\subsection{Monolítico vs Distribuido} \label{sec:monolitico-vs-distribuido}
+
+Durante la especificación de los requisitos se han descrito varios requisitos que influyen en la elección del sistema operativo y de la arquitectura del sistema. En concreto los requisitos \sreqref{NF-abstraccion-so} y \sreqref{NF-abstraccion-arch} especifican que la herramienta debe de tener el mismo funcionamiento aunque la arquitectura del sistema o el sistema operativo sean diferentes. Estos requisitos nos obligan a tomar una decisión respecto a la arquitectura del sistema. 
+
+\subsubsection{Monolítico} \label{sec:monolitico}
+
+Una aplicación monolítica es aquella que se ejecuta en un único proceso y en un único sistema operativo. Este tipo de aplicaciones son más sencillas de desarrollar y de mantener, ya que no requieren de una comunicación entre procesos. Sin embargo, una aplicación monolítica no es capaz de ejecutarse en diferentes sistemas operativos, ya que el código fuente debe de ser compilado para cada sistema operativo. Dado que el requisito \sreqref{NF-multiplataforma} indica que el sistema debe de poder ejecutar en cualquier sistema operativo, el monolítico no es una opción viable.
+
+\subsubsection{Distribuido} \label{sec:distribuido}
+
+Una aplicación distribuida es aquella que se ejecuta en múltiples procesos. Este tipo de aplicaciones tienen una mayor complejidad de desarrollar, debido a la comunicación entre procesos. Sin embargo, una aplicación distribuida que sirva un servicio web podría funcionar en cualquier sistema operativo, dado que solo ejecutaría el código del cliente, y además contemplaría el requisito \sreqref{NF-ejecucion-POSIX}, que indica que el sistema debe de ejecutarse en un sistema operativo UNIX para soportar la ejecución de hilos POSIX. Esta arquitectura permitiría tener una única aplicación web que se pueda ejecutar el lado cliente en cualquier sistema operativo y arquitectura, mientras se utiliza un servidor que ejecuta en un sistema operativo UNIX que permita la ejecución de hilos POSIX.
+
+Durante la sección \sectionref{arquitectura-sistema} se detallarán cómo se ha implementado este diseño distribuido. 
+
+\subsection{Depuración} \label{sec:depuracion}
+
+Para implementar la depuración concurrente existen varias alternativas. 
+
+\subsubsection{Almacenamiento de estados} \label{sec:almacenamiento-estados}
+
+Para implementar las operaciones básicas de un depurador es necesario moverse por la ejecución del código. Es por esta razón que se evaluó la posibilidad de inyectar código en el programa cuyo propósito sea almacenar el estado de la ejecución en un momento determinado. Con estos estados almacenados el usuario podría moverse entre cada uno de ellos, facilitando el rebobinado de la ejecución.
+
+Para almacenar estos estados sería necesario introducir código en el programa tras cada sentencia que modifique el estado de la ejecución, es decir, creación de variables, modificación de variables o llamadas al sistema que generasen nuevos hilos. Lo que supone crear un \textit{\gls{parser}} para encontrar estas sentencias y añadir a continuación una función que almacene la variable y su valor en la función e hilo correspondiente. 
+
+Sin embargo, el desarrollo del \textit{\gls{parser}} supone una gran complejidad debido a las numerosas sentencias que tener en cuenta, por lo que se decidió explorar nuevas alternativas.
+
+\subsubsection{Uso de depuradores externos} \label{sec:depuradores-externos}
+
+Dado que implementar un depurador desde 0 supone una gran complejidad, se ha evaluado la opción de utilizar un depurador externo. Durante el \chapterref{estado-del-arte} se analizaron los depuradores existentes, dentro de estos depuradores tan solo GDB (\subsectionref{gdb}), LLDB (\subsectionref{lldb}) y RR (\subsectionref{rr}) permitían construir una aplicación sobre ellos. Aunque LLDB tenga una API en Python que permita la interactividad con la sesión de depuración, carece de la capacidad de rebobinar durante la depuración, tal y como indica el requisito \sreqref {FN-rebobinar}. Por lo tanto, RR es una opción más viable, que aunque no ofrezca una API en Python que permita la interactividad, sí que ofrece una interfaz máquina que ofrece una salida formateada.
+
+No obstante, RR registra la ejecución del programa para reproducirla posteriormente, garantizando así una ejecución determinista. Esto limitaría la capacidad del usuario para modificar el flujo de ejecución a su conveniencia. Por ello, se ofrecerá la opción de elegir entre grabar la ejecución, permitiendo el rebobinado, o no grabarla (utilizando solo GDB), permitiendo una ejecución libre de los hilos.
+
+\subsection{Sandbox} \label{sec:sandbox}
+
+Tal y como se indica en \sreqref{NF-sandbox}, el sistema debe de ejecutar el código en un entorno aislado para evitar problemas de seguridad o disponibilidad. Para ello, se optó por utilizar contenedores Docker en los que se ejecutarán los programas. De esta manera cualquier código malicioso no podrá acceder a los archivos del sistema ni atacar a la disponibilidad del servidor. Además se limitarán los recursos del contenedor para controlar el uso de los mismos.
+
+\subsection{Lenguajes de Programación} \label{sec:programacion}
+
+Dada la arquitectura distribuida del sistema, se necesita usar un lenguaje de programación para el lado cliente y otro para el lado servidor.
+
+\subsubsection{Tecnologías del lado cliente} \label{sec:tecnologias-cliente}
+
+Para la construcción de la aplicación web se ha basará en HTML5 para dar estructura al código, CSS3 para dar estilos, sin embargo para implementar las distintas funcionalidades existen diferentes tecnologías.
+
+\begin{itemize}
+    \item \textbf{JavaScript Vanilla}: Lenguaje nativo del navegador, con el que ya se tiene experiencia. Ofrece control total sobre el código, pero requiere más esfuerzo para funcionalidades complejas.
+    \item \textbf{React}: Biblioteca enfocada en la creación y gestión de componentes, aunque requiere un tiempo de aprendizaje adicional.
+    \item \textbf{Angular}: Framework completo con una curva de aprendizaje pronunciada, no adecuado para el alcance de este proyecto.
+    \item \textbf{jQuery}: Biblioteca con la que se tiene experiencia, simplifica la manipulación del DOM y las peticiones AJAX, lo que facilitaría el desarrollo.
+\end{itemize}
+
+Dada la pequeña envergadura que tendrá la aplicación web, se optará por jQuery, por la experiencia previa que se tiene y la simplificación de manipulaciones del DOM y peticiones AJAX.
+
+\subsubsection{Tecnologías del lado servidor} \label{sec:tecnologias-servidor}
+
+En cuanto al lenguaje de programación del lado servidor es necesario elegir un lenguaje que permita la creación de un servidor web, que trabaje con ficheros para la creación de ficheros con el código del usuario, que permita la concurrencia para poder soportar varios usuarios al mismo tiempo, y que permita crear un proceso en el que ejecutar RR.
+Dentro de las opciones destacan Python, Go, Rust y NodeJS, por lo que vamos a analizar cada una de ellas.
+
+\begin{itemize}
+    \item \textbf{Python}: Un lenguaje de programación interpretado, muy versátil, aunque con un rendimiento moderado. Gracias al framework Flask, para crear un servidor web, y al módulo threading, para la concurrencia, es una opción viable. 
+    \item \textbf{Go}: Un lenguaje de programación compilado, con un buen rendimiento y orientado en la concurrencia y el procesamiento en la red. Gracias a al soporte nativo para concurrencia a través de las goroutines, y al framework net/http, para crear un servidor web, es una opción viable.
+    \item \textbf{Rust}: Un lenguaje de programación compilado, con un gran rendimiento, aunque con un curva de aprendizaje pronunciada. Si bien es una opción viable, no es la más recomendable. 
+    \item \textbf{NodeJS}: Un lenguaje de programación interpretado, cuya concurrencia se basa en un solo hilo utilizando un bucle de eventos y un modelo asíncrono; lo que no es un paralelismo real. Es por esta razón que no es una opción demasiado recomendable. 
+\end{itemize}
+
+Tanto Go como Python son lenguajes adecuados para el proyecto. Aunque Go ofrece un rendimiento superior, la disponibilidad de la biblioteca Python \textit{pygdbmi}, que facilita la gestión de una sesión RR/GDB y la obtención de la salida MI en formato JSON, convierte a Python en la opción más conveniente.
+
+\section{Arquitectura del sistema}\label{sec:arquitectura-sistema}
+
+Tal y como se ha comentado en \sectionref{estudio-solucion-final}, el sistema consta de dos partes: el cliente y el servidor, y cada uno de ellos consta de varios componentes. 
+
+\begin{itemize}
+    \item \textbf{Cliente}: Permite facilitar la interacción del usuario con el depurador, además de visualizar las salidas y cambios ocurridos durante la ejecución. En este componente se podrá escribir código, y comunicará las acciones al servidor para ejecutar las correspondientes funcionalidades. 
+    Dentro de la aplicación web, existen dos componentes principales:
+
+    \begin{itemize}
+        \item \textbf{Intefaz Gráfica}
+        \begin{itemize}
+            \item \textbf{Modo Edición}: En este modo existirá un editor de código, dos botones para compilar y ejecutar, y un área de texto para mostrar la salida de la ejecución. 
+            \item \textbf{Modo Depuración}: En este modo existirán varios botones para controlar la ejecución del código y dos vistas, una para mostrar los hilos en ejecución y la sección de código en la que se encuentran, y la segunda sección permitirá ver las variables locales y globales con su evolución
+        \end{itemize}
+        \item \textbf{Comunicación con el servidor}
+    \end{itemize}
+
+    \item \textbf{Servidor}: Contendrá toda la carga computacional asociada a las funcionalidades, como la creación de ficheros, la ejecución del código y la depuración del código.
+    Este componente consta de dos componentes principales:
+    \begin{itemize}
+        \item \textbf{Gestión de peticiones}: En este componente el servidor pondrá a disposición las API REST correspondientes con las funcionalidades asociadas a los componentes del cliente. Para cada sesión con un cliente se creará un hilo.
+        \item \textbf{Gestión de Contenedores}: Tras la creación del hilo, el servidor creará un contenedor Docker para cada sesión que recibirá el código del usuario y ejecutará las funcionalidades indicadas. 
+        \begin{itemize}
+            \item \textbf{Compilación}: Para la compilación se generará un fichero con el código C y posteriormente se compilará obteniendo un fichero ejecutable. 
+            \item \textbf{Ejecución}: Para la ejecución se ejecutará el fichero ejecutable. 
+            \item \textbf{Depuración}: Para la depuración se abrirá un sesión de GDB o RR y se irán realizando los comandos según el usuario.
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
