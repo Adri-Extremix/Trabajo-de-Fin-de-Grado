@@ -42,6 +42,11 @@ No obstante, RR registra la ejecución del programa para reproducirla posteriorm
 
 Tal y como se indica en \sreqref{NF-sandbox}, el sistema debe de ejecutar el código en un entorno aislado para evitar problemas de seguridad o disponibilidad. Para ello, se optó por utilizar contenedores Docker en los que se ejecutarán los programas. De esta manera cualquier código malicioso no podrá acceder a los archivos del sistema ni atacar a la disponibilidad del servidor. Además se limitarán los recursos del contenedor para controlar el uso de los mismos.
 
+\subsection{Comunicación entre procesos} \label{sec:comunicacion-procesos}
+
+
+
+
 \subsection{Lenguajes de Programación} \label{sec:programacion}
 
 Dada la arquitectura distribuida del sistema, se necesita usar un lenguaje de programación para el lado cliente y otro para el lado servidor.
@@ -75,31 +80,52 @@ Tanto Go como Python son lenguajes adecuados para el proyecto. Aunque Go ofrece 
 
 \section{Arquitectura del sistema}\label{sec:arquitectura-sistema}
 
-Tal y como se ha comentado en \sectionref{estudio-solucion-final}, el sistema consta de dos partes: el cliente y el servidor, y cada uno de ellos consta de varios componentes. 
+Tal y como se ha comentado en \sectionref{estudio-solucion-final}, el sistema consta de tres partes: el cliente, el servidor y el contenedor docker, y cada uno de ellos consta de varios componentes. 
 
 \begin{itemize}
     \item \textbf{Cliente}: Permite facilitar la interacción del usuario con el depurador, además de visualizar las salidas y cambios ocurridos durante la ejecución. En este componente se podrá escribir código, y comunicará las acciones al servidor para ejecutar las correspondientes funcionalidades. 
     Dentro de la aplicación web, existen dos componentes principales:
 
     \begin{itemize}
-        \item \textbf{Intefaz Gráfica}
-        \begin{itemize}
-            \item \textbf{Modo Edición}: En este modo existirá un editor de código, dos botones para compilar y ejecutar, y un área de texto para mostrar la salida de la ejecución. 
-            \item \textbf{Modo Depuración}: En este modo existirán varios botones para controlar la ejecución del código y dos vistas, una para mostrar los hilos en ejecución y la sección de código en la que se encuentran, y la segunda sección permitirá ver las variables locales y globales con su evolución
-        \end{itemize}
-        \item \textbf{Comunicación con el servidor}
+        \item \textbf{Intefaz Gráfica}: Su responsabilidad es actulizar la información que se muestra por pantalla-
+        \item \textbf{Comunicación con el Servidor (Web Socket)}: Se encargará enviar y recibir mensajes del servidor.
+        \item \textbf{Editor de Código} Su responsabilidad es permitir al usuario escribir el código que se va a depurar.
+        \item \textbf{Depurador}: Gestionará la interacción del usuario con el depurador, permitiendo la ejecución de las funcionalidades de depuración.
     \end{itemize}
 
-    \item \textbf{Servidor}: Contendrá toda la carga computacional asociada a las funcionalidades, como la creación de ficheros, la ejecución del código y la depuración del código.
-    Este componente consta de dos componentes principales:
+    \item \textbf{Servidor}: Se encargará de gestionar las peticiones de los clientes y ejecutar las funcionalidades solicitadas en los contenedores
+    Este componente consta de tres componentes principales:
     \begin{itemize}
-        \item \textbf{Gestión de peticiones}: En este componente el servidor pondrá a disposición las API REST correspondientes con las funcionalidades asociadas a los componentes del cliente. Para cada sesión con un cliente se creará un hilo.
-        \item \textbf{Gestión de Contenedores}: Tras la creación del hilo, el servidor creará un contenedor Docker para cada sesión que recibirá el código del usuario y ejecutará las funcionalidades indicadas. 
-        \begin{itemize}
-            \item \textbf{Compilación}: Para la compilación se generará un fichero con el código C y posteriormente se compilará obteniendo un fichero ejecutable. 
-            \item \textbf{Ejecución}: Para la ejecución se ejecutará el fichero ejecutable. 
-            \item \textbf{Depuración}: Para la depuración se abrirá un sesión de GDB o RR y se irán realizando los comandos según el usuario.
-        \end{itemize}
+        \item \textbf{Gestión de Clientes}: Aceptará las conexiones de los clientes y creará hilos para cada una de las sesiones
+        \item \textbf{Comunicación con el Cliente (Web Socket)}: Se encargará de recibir y enviar mensajes a los clientes. 
+        \item \textbf{Gestión de la Sesión de Depuración}: Se encargará de gestionar un contenedor docker para la sesión. Comunicará al contenedor las acciones que se realizan desde el cliente, y recibirá las respuestas del contenedor. 
+    \end{itemize}
+
+    \item \textbf{Contenedor Docker}: Se encargará de ejecutar el código del usuario y gestionar la sesión de depuración. Este componente consta de dos componentes principales:
+    \begin{itemize}
+        \item \textbf{Docker API}: El contenedor servirá una API REST para la comunicación con el exterior. Esta API permitirá realizar acciones asociadas a la depuración.
+        \item \textbf{Funcionalidades de Depuración}: Este componente contendrá la implementación de las funcionalidades de depuración, las cuales serán llamadas a través de la API.
     \end{itemize}
 \end{itemize}
 
+En la figura \ref{fig:componentes_TFG} se muestra el diagrama de componentes UML \cite{Cook2017} donde se pueden observar los distintos componentes y sus diferentes interfaces.
+
+\drawiosvgfigure[0.7]{componentes_TFG}{Diagrama de componentes del sistema}
+
+Para la especificación de los distintos componentes se ha usado la siguiente plantilla: 
+
+\printcomptemplate
+
+\begin{component}{Interfaz Gráfica}
+{Mostrar la información actualizada al usuario por pantalla}
+{} % dependencias
+{Estado actual del sistema} % in-data
+{NA} % out-data
+{FN-GUI} % relations
+La Interfaz Gráfica debe de gestionar la interacción del usuario con la aplicación y mostrar la información de manera estructurada y clara. %description 
+\end{component}
+
+
+
+
+\FloatBarrier
