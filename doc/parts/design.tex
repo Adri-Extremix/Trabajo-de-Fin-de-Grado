@@ -42,10 +42,20 @@ No obstante, RR registra la ejecución del programa para reproducirla posteriorm
 
 Tal y como se indica en \sreqref{NF-sandbox}, el sistema debe de ejecutar el código en un entorno aislado para evitar problemas de seguridad o disponibilidad. Para ello, se optó por utilizar contenedores Docker en los que se ejecutarán los programas. De esta manera cualquier código malicioso no podrá acceder a los archivos del sistema ni atacar a la disponibilidad del servidor. Además se limitarán los recursos del contenedor para controlar el uso de los mismos.
 
+Para ello se tendrá una imagen base de Docker que contenga el código del depurador. Cada contenedor se creará a partir de esta imagen base, y se levantará por cada sesión de cada usuario. De esta manera, cada usuario tendrá su propio contenedor, y no podrá acceder a los contenedores de otros usuarios, además de si se ejecuta codigo malicioso, este no podrá afectar al servidor. 
+
+
 \subsection{Comunicación entre procesos} \label{sec:comunicacion-procesos}
 
+Dada la existencia de un cliente, un servidor y un contenedor, es necesario establecer una comunicación entre ellos. Esta comunicación se puede realizar de diferentes maneras, pero se han considerado las dos siguientes opciones: 
 
+\begin{itemize}
+    \item \textbf{REST}: Permite la comunicación entre procesos a través de peticiones HTTP. Esta comunicación es unidireccional, sin control de estados y se establece una conexión por cada petición. Es ideal para controlar una gran cantidad de comunicaciones y para servir unos recursos.
+    \item \textbf{Web Sockets}: Permiten la comunicación entre el cliente y el servidor a través de una conexión TCP/IP. Esta comunicación es bidireccional, y permite el envío de mensajes en tiempo real. Es ideal para aplicaciones que requieren una comunicación constante entre el cliente y el servidor.
+\end{itemize}
 
+Dadas las características de la aplicación, se optará por usar REST API únicamente para servir los ficheros estáticos y Web Sockets para la comunicación entre el cliente y el servidor, ya que permite gestionar sesiones con los clientes, lo que permitiría crear un contenedor por cada cliente. Por otro lado, la comunicación entre el servidor y el contendor se realizará a través de WebSocktets, ya que permite la comunicación en tiempo real y es más eficiente que REST. 
+Es por esto que el backend aceptará la comunicación con los clientes y redirigirá los mensajes recibidos al contenedor asociado a esa sesión. 
 
 \subsection{Lenguajes de Programación} \label{sec:programacion}
 
@@ -66,14 +76,14 @@ Dada la pequeña envergadura que tendrá la aplicación web, se optará por jQue
 
 \subsubsection{Tecnologías del lado servidor} \label{sec:tecnologias-servidor}
 
-En cuanto al lenguaje de programación del lado servidor es necesario elegir un lenguaje que permita la creación de un servidor web, que trabaje con ficheros para la creación de ficheros con el código del usuario, que permita la concurrencia para poder soportar varios usuarios al mismo tiempo, y que permita crear un proceso en el que ejecutar RR.
+En cuanto al lenguaje de programación del lado servidor es necesario elegir un lenguaje que permita la implementación de WebSockets para la comunicación en tiempo real, una API REST para servir los ficheros estáticos, que trabaje con ficheros para la creación de ficheros con el código del usuario, que permita la concurrencia para poder soportar varios usuarios al mismo tiempo, y que permita crear un proceso en el que ejecutar RR.
 Dentro de las opciones destacan Python, Go, Rust y NodeJS, por lo que vamos a analizar cada una de ellas.
 
 \begin{itemize}
-    \item \textbf{Python}: Un lenguaje de programación interpretado, muy versátil, aunque con un rendimiento moderado. Gracias al framework Flask, para crear un servidor web, y al módulo threading, para la concurrencia, es una opción viable. 
-    \item \textbf{Go}: Un lenguaje de programación compilado, con un buen rendimiento y orientado en la concurrencia y el procesamiento en la red. Gracias a al soporte nativo para concurrencia a través de las goroutines, y al framework net/http, para crear un servidor web, es una opción viable.
-    \item \textbf{Rust}: Un lenguaje de programación compilado, con un gran rendimiento, aunque con un curva de aprendizaje pronunciada. Si bien es una opción viable, no es la más recomendable. 
-    \item \textbf{NodeJS}: Un lenguaje de programación interpretado, cuya concurrencia se basa en un solo hilo utilizando un bucle de eventos y un modelo asíncrono; lo que no es un paralelismo real. Es por esta razón que no es una opción demasiado recomendable. 
+    \item \textbf{Python}: Un lenguaje de programación interpretado, muy versátil, aunque con un rendimiento moderado. Gracias a frameworks como Flask para implementar APIs REST, aiohttp o FastAPI para WebSockets, y al módulo threading, para la concurrencia, es una opción viable.
+    \item \textbf{Go}: Un lenguaje de programación compilado, con un buen rendimiento y orientado en la concurrencia y el procesamiento en la red. Su soporte nativo para WebSockets mediante goroutines, y frameworks como Gin o Echo para APIs REST lo hacen ideal para este tipo de comunicación.
+    \item \textbf{Rust}: Un lenguaje de programación compilado, con un gran rendimiento, aunque con una curva de aprendizaje pronunciada. Tiene bibliotecas como Actix-web para APIs REST y WebSockets, pero no es la más recomendable por su complejidad. 
+    \item \textbf{NodeJS}: Un lenguaje de programación interpretado con excelente soporte tanto para APIs REST (Express.js) como para WebSockets (Socket.io), aunque su concurrencia se basa en un solo hilo utilizando un bucle de eventos y un modelo asíncrono; lo que no es un paralelismo real. Su modelo no es ideal para operaciones intensivas en CPU.
 \end{itemize}
 
 Tanto Go como Python son lenguajes adecuados para el proyecto. Aunque Go ofrece un rendimiento superior, la disponibilidad de la biblioteca Python \textit{pygdbmi}, que facilita la gestión de una sesión RR/GDB y la obtención de la salida MI en formato JSON, convierte a Python en la opción más conveniente.
@@ -88,22 +98,20 @@ Tal y como se ha comentado en \sectionref{estudio-solucion-final}, el sistema co
 
     \begin{itemize}
         \item \textbf{Intefaz Gráfica}: Su responsabilidad es actulizar la información que se muestra por pantalla-
-        \item \textbf{Comunicación con el Servidor (Web Socket)}: Se encargará enviar y recibir mensajes del servidor.
+        \item \textbf{Comunicación con el Servidor (Web Socket)}: Se encarga enviar y recibir mensajes del servidor.
         \item \textbf{Editor de Código} Su responsabilidad es permitir al usuario escribir el código que se va a depurar.
-        \item \textbf{Depurador}: Gestionará la interacción del usuario con el depurador, permitiendo la ejecución de las funcionalidades de depuración.
     \end{itemize}
 
     \item \textbf{Servidor}: Se encargará de gestionar las peticiones de los clientes y ejecutar las funcionalidades solicitadas en los contenedores
     Este componente consta de tres componentes principales:
     \begin{itemize}
-        \item \textbf{Gestión de Clientes}: Aceptará las conexiones de los clientes y creará hilos para cada una de las sesiones
-        \item \textbf{Comunicación con el Cliente (Web Socket)}: Se encargará de recibir y enviar mensajes a los clientes. 
-        \item \textbf{Gestión de la Sesión de Depuración}: Se encargará de gestionar un contenedor docker para la sesión. Comunicará al contenedor las acciones que se realizan desde el cliente, y recibirá las respuestas del contenedor. 
+        \item \textbf{Comunicación con el Cliente (Web Socket)}: Se encarga de aceptar las conexiones de los clientes y gestionar la comunicación entre el cliente y el servidor a través de Web Sockets.
+        \item \textbf{Gestión de la Sesión de Depuración}: Se encarga de gestionar un contenedor docker para la sesión. Comunicará al contenedor las acciones que se realizan desde el cliente, y recibirá las respuestas del contenedor. 
     \end{itemize}
 
-    \item \textbf{Contenedor Docker}: Se encargará de ejecutar el código del usuario y gestionar la sesión de depuración. Este componente consta de dos componentes principales:
+    \item \textbf{Contenedor Docker}: Se encarga de ejecutar el código del usuario y gestionar la sesión de depuración. Este componente consta de dos componentes principales:
     \begin{itemize}
-        \item \textbf{Docker API}: El contenedor servirá una API REST para la comunicación con el exterior. Esta API permitirá realizar acciones asociadas a la depuración.
+        \item \textbf{Web Socket Docker}: El contenedor utilizará Web Socket para la comunicación con el servidor.
         \item \textbf{Funcionalidades de Depuración}: Este componente contendrá la implementación de las funcionalidades de depuración, las cuales serán llamadas a través de la API.
     \end{itemize}
 \end{itemize}
@@ -115,17 +123,73 @@ En la figura \ref{fig:componentes_TFG} se muestra el diagrama de componentes UML
 Para la especificación de los distintos componentes se ha usado la siguiente plantilla: 
 
 \printcomptemplate
-
+% ------- Lado Cliente -------
 \begin{component}{Interfaz Gráfica}
 {Mostrar la información actualizada al usuario por pantalla}
-{} % dependencias
+{COM-Editor de Código, COM-Web Socket Cliente} % dependencias
 {Estado actual del sistema} % in-data
 {NA} % out-data
-{FN-GUI} % relations
+{FN-GUI, FN-aviso-error-concurrencia, FN-visualizacion-hilos, FN-visualizacion-evolucion} % relations
 La Interfaz Gráfica debe de gestionar la interacción del usuario con la aplicación y mostrar la información de manera estructurada y clara. %description 
 \end{component}
 
+\begin{component}{Editor de Código}
+    {Permitir al usuario escribir el código que se va a depurar}
+    {\NA} % dependencias
+    {\NA} % in-data
+    {Código escrito, estado del editor de código} % out-data
+    {FN-GUI, FN-GUI, FN-editor} % relations
+    Este componente permitirá al usuario escribir código, colorear la sintaxis y gestionar de forma visual los breakpoints. %description
+\end{component}
 
+\begin{component}{Web Socket Cliente}
+{Punto de comunicación por Web Socket desde el cliente al servidor}
+{COM-Editor de Código, COM-Web Socket y REST API Servidor} % dependencias
+{Mensajes del servidor} % in-data
+{Cambios del sistema ,Mensajes del cliente} % out-data
+{} % relations
+La comunicación con el servidor se encargará de gestionar la comunicación entre el cliente y el servidor a través de Web Sockets. %description
+\end{component}
+
+% ------- Lado Servidor -------
+
+\begin{component}{Web Socket y REST API Servidor}
+{Punto de comunicación por Web Socket del servidor}
+{COM-Web Socket Cliente, COM-Web Socket Docker, COM-Gestion de la Sesión de Depuración} % dependencias
+{Mensajes del cliente, Mensajes del contenedor} % in-data
+{Mensajes del cliente, Mensajes del contenedor, Acción sobre el contenedor} % out-data
+{} % relations
+Este componente aceptará comunicaciones con clientes y comunicará cliente con contenedor. %description
+\end{component}
+
+\begin{component}{Gestión de la Sesión de Depuración}
+{Gestionar un contenedor docker para la sesión}
+{} % dependencias
+{Acción sobre el contenedor} % in-data
+{\NA} % out-data
+{} % relations
+Se encarga de gestionar un contenedor docker para la sesión. %description
+\end{component}
+
+% ------ Lado Contenedor -------
+
+\begin{component}{Web Socket Docker}
+{Gestionar la comunicación entre el contenedor y el servidor a través de Web Sockets}
+{COM-Web Socket y REST API Servidor} % dependencias
+{Mensajes del servidor} % in-data
+{Mensajes del contenedor} % out-data
+{} % relations
+La comunicación con el contenedor se encargará de gestionar la comunicación entre el contenedor y el servidor a través de Web Sockets. %description 
+\end{component}
+
+\begin{component}{Funcionalidades de Depuración}
+{Gestionar la ejecución de las funcionalidades de depuración}
+{} % dependencias
+{Funcionalidad} % in-data
+{Estado tras la ejecución de la funcionalidad} % out-data
+{FN-fichero-codigo, FN-compilacion, FN-ejecutar, FN-depurar, FN-aviso-error-concurrencia, FN-step-over, FN-step-into, FN-step-out, FN-continuar-ejecucion, FN-rebobinar} % relations
+Este componente ejecutará las funcionalidades del depurador y devolverá el resultado de aplicar esas funcionalidades %description
+\end{component}
 
 
 \FloatBarrier
