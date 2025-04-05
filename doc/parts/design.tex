@@ -6,25 +6,25 @@ En este capítulo se detalla el diseño que tendrá la solución propuesta. Para
 
 Para la realización del estudio de la solución final se han tenido en cuenta los requisitos especificados en \sectionref{requisitos} y las herramientas existentes descritas en \chapterref{estado-del-arte}. 
 
-\subsection{Monolítico vs Distribuido} \label{sec:monolitico-vs-distribuido}
+\subsection{Monolítico vs Distribuido} \label{subsec:monolitico-vs-distribuido}
 
 Durante la especificación de los requisitos se han descrito varios requisitos que influyen en la elección del sistema operativo y de la arquitectura del sistema. En concreto los requisitos \sreqref{NF-abstraccion-so} y \sreqref{NF-abstraccion-arch} especifican que la herramienta debe de tener el mismo funcionamiento aunque la arquitectura del sistema o el sistema operativo sean diferentes. Estos requisitos nos obligan a tomar una decisión respecto a la arquitectura del sistema. 
 
-\subsubsection{Monolítico} \label{sec:monolitico}
+\subsubsection{Monolítico} \label{subsubsec:monolitico}
 
 Una aplicación monolítica es aquella que se ejecuta en un único proceso y en un único sistema operativo. Este tipo de aplicaciones son más sencillas de desarrollar y de mantener, ya que no requieren de una comunicación entre procesos. Sin embargo, una aplicación monolítica no es capaz de ejecutarse en diferentes sistemas operativos, ya que el código fuente debe de ser compilado para cada sistema operativo. Dado que el requisito \sreqref{NF-multiplataforma} indica que el sistema debe de poder ejecutar en cualquier sistema operativo, el monolítico no es una opción viable.
 
-\subsubsection{Distribuido} \label{sec:distribuido}
+\subsubsection{Distribuido} \label{subsubsec:distribuido}
 
 Una aplicación distribuida es aquella que se ejecuta en múltiples procesos. Este tipo de aplicaciones tienen una mayor complejidad de desarrollar, debido a la comunicación entre procesos. Sin embargo, una aplicación distribuida que sirva un servicio web podría funcionar en cualquier sistema operativo, dado que solo ejecutaría el código del cliente, y además contemplaría el requisito \sreqref{NF-ejecucion-POSIX}, que indica que el sistema debe de ejecutarse en un sistema operativo UNIX para soportar la ejecución de hilos POSIX. Esta arquitectura permitiría tener una única aplicación web que se pueda ejecutar el lado cliente en cualquier sistema operativo y arquitectura, mientras se utiliza un servidor que ejecuta en un sistema operativo UNIX que permita la ejecución de hilos POSIX.
 
 Durante la sección \sectionref{arquitectura-sistema} se detallarán cómo se ha implementado este diseño distribuido. 
 
-\subsection{Depuración} \label{sec:depuracion}
+\subsection{Depuración} \label{subsec:depuracion}
 
 Para implementar la depuración concurrente existen varias alternativas. 
 
-\subsubsection{Almacenamiento de estados} \label{sec:almacenamiento-estados}
+\subsubsection{Almacenamiento de estados} \label{subsec:almacenamiento-estados}
 
 Para implementar las operaciones básicas de un depurador es necesario moverse por la ejecución del código. Es por esta razón que se evaluó la posibilidad de inyectar código en el programa cuyo propósito sea almacenar el estado de la ejecución en un momento determinado. Con estos estados almacenados el usuario podría moverse entre cada uno de ellos, facilitando el rebobinado de la ejecución.
 
@@ -32,20 +32,20 @@ Para almacenar estos estados sería necesario introducir código en el programa 
 
 Sin embargo, el desarrollo del \textit{\gls{parser}} supone una gran complejidad debido a las numerosas sentencias que tener en cuenta, por lo que se decidió explorar nuevas alternativas.
 
-\subsubsection{Uso de depuradores externos} \label{sec:depuradores-externos}
+\subsubsection{Uso de depuradores externos} \label{subsec:depuradores-externos}
 
 Dado que implementar un depurador desde 0 supone una gran complejidad, se ha evaluado la opción de utilizar un depurador externo. Durante el \chapterref{estado-del-arte} se analizaron los depuradores existentes, dentro de estos depuradores tan solo GDB (\subsectionref{gdb}), LLDB (\subsectionref{lldb}) y RR (\subsectionref{rr}) permitían construir una aplicación sobre ellos. Aunque LLDB tenga una API en Python que permita la interactividad con la sesión de depuración, carece de la capacidad de rebobinar durante la depuración, tal y como indica el requisito \sreqref {FN-rebobinar}. Por lo tanto, RR es una opción más viable, que aunque no ofrezca una API en Python que permita la interactividad, sí que ofrece una interfaz máquina que ofrece una salida formateada.
 
 No obstante, RR registra la ejecución del programa para reproducirla posteriormente, garantizando así una ejecución determinista. Esto limitaría la capacidad del usuario para modificar el flujo de ejecución a su conveniencia. Por ello, se ofrecerá la opción de elegir entre grabar la ejecución, permitiendo el rebobinado, o no grabarla (utilizando solo GDB), permitiendo una ejecución libre de los hilos.
 
-\subsection{Sandbox} \label{sec:sandbox}
+\subsection{Sandbox} \label{subsec:sandbox}
 
 Tal y como se indica en \sreqref{NF-sandbox}, el sistema debe de ejecutar el código en un entorno aislado para evitar problemas de seguridad o disponibilidad. Para ello, se optó por utilizar contenedores Docker en los que se ejecutarán los programas. De esta manera cualquier código malicioso no podrá acceder a los archivos del sistema ni atacar a la disponibilidad del servidor. Además se limitarán los recursos del contenedor para controlar el uso de los mismos.
 
 Para ello se tendrá una imagen base de Docker que contenga el código del depurador. Cada contenedor se creará a partir de esta imagen base, y se levantará por cada sesión de cada usuario. De esta manera, cada usuario tendrá su propio contenedor, y no podrá acceder a los contenedores de otros usuarios, además de si se ejecuta codigo malicioso, este no podrá afectar al servidor. 
 
 
-\subsection{Comunicación entre procesos} \label{sec:comunicacion-procesos}
+\subsection{Comunicación entre procesos} \label{subsec:comunicacion-procesos}
 
 Dada la existencia de un cliente, un servidor y un contenedor, es necesario establecer una comunicación entre ellos. Esta comunicación se puede realizar de diferentes maneras, pero se han considerado las dos siguientes opciones: 
 
@@ -61,7 +61,7 @@ Es por esto que el backend aceptará la comunicación con los clientes y redirig
 
 Dada la arquitectura distribuida del sistema, se necesita usar un lenguaje de programación para el lado cliente y otro para el lado servidor.
 
-\subsubsection{Tecnologías del lado cliente} \label{sec:tecnologias-cliente}
+\subsubsection{Tecnologías del lado cliente} \label{subsubsec:tecnologias-cliente}
 
 Para la construcción de la aplicación web se ha basará en HTML5 para dar estructura al código, CSS3 para dar estilos, sin embargo para implementar las distintas funcionalidades existen diferentes tecnologías.
 
@@ -191,5 +191,9 @@ La comunicación con el contenedor se encargará de gestionar la comunicación e
 Este componente ejecutará las funcionalidades del depurador y devolverá el resultado de aplicar esas funcionalidades %description
 \end{component}
 
-
 \FloatBarrier
+
+\subsubsection{Trazabilidad} {\label{subsubsec:trazabilidad-comp}}
+
+\traceabilityCompFN
+

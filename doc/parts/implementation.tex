@@ -1,13 +1,79 @@
 \chapter{Implementación y Despliegue}\label{chap:implementacion_y_despliegue}
-En este capítulo se describen los aspectos relacionados con la implementación y el despliegue del sistema. Se detallan las herramientas utilizadas (\subsectionref{uso_librearias_dependencias}), la estructura de ficheros del proyecto (\subsectionref{estructura_ficheros_proyecto}), la imagen docker desarrollada (\subsectionref{construccion_imagen_docker}) y el proceso de despliegue (\sectionref{despliegue}).
+En este capítulo se describen los aspectos relacionados con la implementación y el despliegue del sistema. Se detallan las herramientas utilizadas (\subsectionref{uso_librerias_dependencias}), la estructura de ficheros del proyecto (\subsectionref{estructura_ficheros_proyecto}), la imagen docker desarrollada (\subsectionref{construccion_imagen_docker}) y el proceso de despliegue (\sectionref{despliegue}).
 
 \section{Implementación} \label{sec:implementacion}
-Tal y como se mencionó en \subsection{programacion}, el lado cliente será desarrollado con JavaScript y el framework jQuery, mientras que el lado servidor se desarrollará en Python (RETOCAR CUANDO ESTÉ EL CODIGO TERMINADO). Además el lado servidor se comunicará con un contenedor docker para ejecutar de manera aislada el código desarrollado por el cliente (\subsectionref{sandbox}). Con esto en mente se explicará como se han organizado cada parte del proyecto, cómo se han integrado las librerías y cómo se ha construido la imagen docker. 
+Tal y como se mencionó en \sectionref{programacion}, el lado cliente será desarrollado con JavaScript y el framework jQuery, mientras que el lado servidor se desarrollará en Python (RETOCAR CUANDO ESTÉ EL CODIGO TERMINADO). Además el lado servidor se comunicará con un contenedor docker para ejecutar de manera aislada el código desarrollado por el cliente (\subsectionref{sandbox}). Con esto en mente se explicará como se han organizado cada parte del proyecto, cómo se han integrado las librerías y cómo se ha construido la imagen docker. 
 
 \subsection{Estructura de ficheros del proyecto}\label{subsec:estructura_ficheros_proyecto}
 
+Se ha decidido tener un primer nivel de directorios que separen las distintas partes del proyecto. La estructura se muestra en \figref{1-nivel-dir}.   
+
+\begin{figure}[H]
+    \ffigbox[\FBwidth]
+    {%
+    \caption{Primer nivel de directorios del proyecto}
+    \label{fig:1-nivel-dir}
+    }
+    {
+    \begin{tcolorbox}
+        \dirtree{%
+        .1 /. 
+            .2 src/. 
+            .2 examples/.
+            .2 test/.
+            .2 README.md.
+            .2 doc/.
+            .2 run\_proyect.py.       
+        }
+    \end{tcolorbox}
+    }
+\end{figure}
+
+En el directorio raíz del proyecto se encuentran los ficheros del código fuente en el directorio \texttt{src} y el directorio \texttt{examples} contiene ejemplos de códigos que podrían escribir los usuarios. En el directorio \texttt{test} se encuentran los ficheros necesarios para realizar las pruebas de integración y de unidad. El fichero \texttt{README.md} contiene la información necesaria para ejecutar el proyecto y el directorio \texttt{doc} se encuentra todo lo relacionado con la memoria sobre el proyecto.
+
+A partir de aquí exploraremos el directorio del código fuente. En el directorio \texttt{src} se encuentran los ficheros de código fuente del lado cliente, del lado servidor y del contenedor docker. La estructura de este directorio se muestra en \figref{src-dir}.
+
+\begin{figure}[htb]
+    \ffigbox[\FBwidth]
+    {%
+    \caption{Estructura del directorio src}
+    \label{fig:src-dir}
+    }
+    {
+    \begin{tcolorbox}
+        \dirtree{%
+        .1 src/. 
+            .2 frontend/. 
+                .3 js/.
+                    .4 script.js.
+                    .4 code\_editor.js.
+                    .4 client\_api.js.
+                .3 images/.
+                .3 css/. 
+                .3 index.html.
+                .3 package.json.
+            .2 backend/.
+                .3 backend.py.
+                .3 requirements.txt.
+            .2 docker/.
+                .3 compiler.py.
+                .3 debugger.py.
+                .3 Dockerfile.
+                .3 requirements.txt.
+        }
+    \end{tcolorbox}
+    }
+\end{figure}
+
+En el directorio del lado servidor \texttt{backend} se encuentran los ficheros \texttt{.py} que permiten la implementación de los componentes del \textit{backend}, además de un fichero \texttt{requirements.txt} para instalar las dependencias.
+En el directorio del lado cliente \texttt{frontend} se encuentra el fichero \texttt{index.html} que contiene la estructura de la página web, el fichero \texttt{package.json} que contiene las dependencias del lado cliente, y un directorio para cada tipo de recurso (imágenes, scripts y estilos). 
+En el directorio \texttt{docker} se encuentran los ficheros necesarios para construir la imagen docker. En este directorio se encuentra el fichero \texttt{Dockerfile} que contiene las instrucciones para construir la imagen, y un fichero \texttt{requirements.txt} que contiene las dependencias necesarias para ejecutar el código del contenedor, además de cada uno de los ficheros \texttt{.py} que contienen la implementación cada uno de los componentes de cada contenedor. 
+
 \subsection{Uso de librerías y dependencias} \label{subsec:uso_librerias_dependencias}
+
+
 
 \subsection{Construcción de imagen Docker} \label{subsec:construccion_imagen_docker}
 
 \section{Despliegue} \label{sec:despliegue}
+
