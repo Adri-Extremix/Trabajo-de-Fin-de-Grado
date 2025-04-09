@@ -4,34 +4,40 @@ FROM ubuntu:latest
 # Configuración inicial
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Instala dependencias principales
-RUN dpkg --add-architecture i386 && \
-    apt-get update && apt-get install -y \
-        git \
-        cmake \
-        gcc \
-        g++ \
-        gdb \
-        pkg-config \
-        capnproto \
-        libcapnp-dev \
-        zlib1g-dev \
-        libzstd-dev \
-        ninja-build \
-        gcc-multilib \
-        g++-multilib \
-        libc6-dev-i386 \
-        libc6-dev:i386 \  
-        python3-pexpect \
-        sudo \
-        curl \
-        rr \
+# Actualizar e instalar dependencias básicas
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    apt-utils \
+    build-essential \
+    python3.12 \
+    python3.12-dev \
+    python3-pip \
+    python3-venv \
+    python3.12-venv \
+    python3-full \
+    pkg-config \
+    zlib1g-dev \
+    libcapstone-dev \
+    libdw-dev \
+    rr \
+    && apt-get clean \ 
     && rm -rf /var/lib/apt/lists/*
 
-# Configura parámetros del kernel (se necesitan permisos --privileged al ejecutar el contenedor)
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-RUN ./entrypoint.sh
-CMD ["bash"]  # Shell interactiva como proceso principal
-# Directorio de trabajo
+# Cambiar al directorio de la aplicación
 WORKDIR /app
+
+# Copiar archivos necesarios
+COPY compiler.py debugger.py requirements.txt webSocket.py ./
+
+# Configurar Python e instalar dependencias en un entorno virtual
+RUN python3.12 -m venv venv && \
+    . venv/bin/activate && \
+    pip install --upgrade pip && \
+    pip install -r requirements.txt
+
+# Exponer el puerto 5000 para la comunicación
+EXPOSE 5000
+
+# Comando por defecto al iniciar el contenedor
+CMD ["/bin/bash", "-c", "venv/bin/python webSocket.py"]

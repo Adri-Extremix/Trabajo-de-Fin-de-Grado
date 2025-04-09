@@ -1,0 +1,81 @@
+services:
+  debugger1:
+    build:
+      dockerfile: Dockerfile
+    environment:
+      - PROXY_URL=http://${PROXY_IP:-localhost}:8080
+      - HOST=debugger1
+      - PORT=5000
+    ports:
+      - "5001:5000"
+    networks:
+      - debugger_network
+    volumes:
+      - .:/app
+    # Añadidas configuraciones necesarias para RR
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  debugger2:
+    build:
+      dockerfile: Dockerfile
+    environment:
+      - PROXY_URL=http://${PROXY_IP:-localhost}:8080
+      - HOST=debugger2
+      - PORT=5000
+    ports:
+      - "5002:5000"
+    networks:
+      - debugger_network
+    volumes:
+      - .:/app
+    # Añadidas configuraciones necesarias para RR
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  debugger3:
+    build:
+      dockerfile: Dockerfile
+    environment:
+      - PROXY_URL=http://${PROXY_IP:-localhost}:8080
+      - HOST=debugger3
+      - PORT=5000
+    ports:
+      - "5003:5000"
+    networks:
+      - debugger_network
+    volumes:
+      - .:/app
+    # Añadidas configuraciones necesarias para RR
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 256M
+        reservations:
+          memory: 128M
+
+networks:
+  debugger_network:
