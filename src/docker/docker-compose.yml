@@ -3,7 +3,7 @@ services:
     build:
       dockerfile: Dockerfile
     environment:
-      - PROXY_URL=http://${PROXY_IP:-localhost}:8080
+      - PROXY_URL=http://proxy:8080  # Usar el nombre del servicio en lugar de localhost
       - HOST=debugger1
       - PORT=5000
     ports:
@@ -11,7 +11,9 @@ services:
     networks:
       - debugger_network
     volumes:
-      - .:/app
+      - ./compiler.py:/app/compiler.py
+      - ./debugger.py:/app/debugger.py
+      - ./webSocket.py:/app/webSocket.py
     # Añadidas configuraciones necesarias para RR
     cap_add:
       - SYS_PTRACE
@@ -29,7 +31,7 @@ services:
     build:
       dockerfile: Dockerfile
     environment:
-      - PROXY_URL=http://${PROXY_IP:-localhost}:8080
+      - PROXY_URL=http://proxy:8080  # Usar el nombre del servicio en lugar de localhost
       - HOST=debugger2
       - PORT=5000
     ports:
@@ -37,7 +39,9 @@ services:
     networks:
       - debugger_network
     volumes:
-      - .:/app
+      - ./compiler.py:/app/compiler.py
+      - ./debugger.py:/app/debugger.py
+      - ./webSocket.py:/app/webSocket.py
     # Añadidas configuraciones necesarias para RR
     cap_add:
       - SYS_PTRACE
@@ -55,7 +59,7 @@ services:
     build:
       dockerfile: Dockerfile
     environment:
-      - PROXY_URL=http://${PROXY_IP:-localhost}:8080
+      - PROXY_URL=http://proxy:8080  # Usar el nombre del servicio en lugar de localhost
       - HOST=debugger3
       - PORT=5000
     ports:
@@ -63,7 +67,9 @@ services:
     networks:
       - debugger_network
     volumes:
-      - .:/app
+      - ./compiler.py:/app/compiler.py
+      - ./debugger.py:/app/debugger.py
+      - ./webSocket.py:/app/webSocket.py
     # Añadidas configuraciones necesarias para RR
     cap_add:
       - SYS_PTRACE
@@ -79,3 +85,4 @@ services:
 
 networks:
   debugger_network:
+    external: true  # Esta red debe crearse antes

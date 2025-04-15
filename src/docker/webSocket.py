@@ -7,6 +7,10 @@ import time
 import uuid
 import requests
 import os
+import logging
+
+# Configurar logging para silenciar Werkzeug
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 class WebSocketContainer:
     def __init__(self):
@@ -14,14 +18,23 @@ class WebSocketContainer:
         self.socketio = SocketIO(self.app, cors_allowed_origins="*")
         self.debugger = None
         self.compiler = Compiler()
-        self.docker_id = str(uuid.uuid4())  # Identificador único para este Docker
-        self.proxy_url = os.environ.get('PROXY_URL', 'http://localhost:8080')  # URL del proxy
-        self.heartbeat_thread = None
+        
+        # Configuración de identificación y comunicación
+        self.docker_id = str(uuid.uuid4())
+        self.proxy_url = os.environ.get('PROXY_URL', 'http://proxy:8080')
+        
+        # Configurar eventos de socketio
         self.setup_socketio_events()
+        
+        # Iniciar el hilo de latidos
+        print(f"Iniciando contenedor {self.docker_id} con proxy en {self.proxy_url}")
         self.heartbeat_thread = threading.Thread(target=self.send_heartbeat, daemon=True)
         self.heartbeat_thread.start()
 
     def send_heartbeat(self):
+        # Esperar a que el servidor esté completamente iniciado
+        time.sleep(5)
+        
         while True:
             try:
                 # Obtener la URL completa de este servicio
@@ -29,24 +42,34 @@ class WebSocketContainer:
                 service_port = os.environ.get('PORT', '5000')
                 service_url = f"http://{service_host}:{service_port}"
                 
-                # Enviar latido al proxy
-                response = requests.post(
-                    f"{self.proxy_url}/heartbeat",
-                    json={
-                        "docker_id": self.docker_id,
-                        "url": service_url
-                    }
-                )
-                if response.status_code == 200:
-                    print(f"Heartbeat sent successfully to {self.proxy_url}")
-                else:
-                    print(f"Failed to send heartbeat: {response.status_code}")
+                # Enviar latido al proxy con reintentos
+                max_retries = 3
+                retry_delay = 2
+                success = False
+                
+                for attempt in range(max_retries):
+                    try:
+                        response = requests.post(
+                            f"{self.proxy_url}/heartbeat",
+                            json={
+                                "docker_id": self.docker_id,
+                                "url": service_url
+                            },
+                            timeout=5  # Timeout para evitar bloqueos
+                        )
+                    except Exception as retry_error:
+                        print(f"Error en intento {attempt+1}: {str(retry_error)}")
+                        if attempt < max_retries - 1:
+                            time.sleep(retry_delay)
+                
+                if not success:
+                    print(f"Error: No se pudo enviar el latido después de {max_retries} intentos")
+                
             except Exception as e:
-                print(f"Error sending heartbeat: {str(e)}")
+                print(f"Error: Error general en heartbeat: {str(e)}")
             
             # Esperar antes del próximo latido
-            time.sleep(20)  # Enviar latido cada 10 segundos
-        
+            time.sleep(20)  # Enviar latido cada 20 segundos
 
     def setup_socketio_events(self):
 

@@ -4,6 +4,7 @@ FROM ubuntu:latest
 # Configuración inicial
 ENV DEBIAN_FRONTEND=noninteractive
 
+
 # Actualizar e instalar dependencias básicas
 RUN apt-get update && apt-get install -y \
     git \
@@ -21,6 +22,10 @@ RUN apt-get update && apt-get install -y \
     libcapstone-dev \
     libdw-dev \
     rr \
+    iputils-ping \
+    dnsutils \
+    net-tools \
+    curl \
     && apt-get clean \ 
     && rm -rf /var/lib/apt/lists/*
 
@@ -40,4 +45,4 @@ RUN python3.12 -m venv venv && \
 EXPOSE 5000
 
 # Comando por defecto al iniciar el contenedor
-CMD ["/bin/bash", "-c", "venv/bin/python webSocket.py"]
+CMD ["/app/venv/bin/python3", "webSocket.py"]

@@ -2,23 +2,32 @@ from flask import Flask, request, jsonify, redirect
 import time
 import threading
 import logging
+import os
 
 # Silenciar logs de Werkzeug
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)  # Solo muestra errores, no requests
 
-
 # Configuración de logging
-logging.basicConfig(level=logging.INFO, 
+log_level = os.environ.get('LOG_LEVEL', 'INFO')
+numeric_level = getattr(logging, log_level.upper(), None)
+if not isinstance(numeric_level, int):
+    numeric_level = logging.INFO
+
+logging.basicConfig(level=numeric_level, 
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('proxy')
 
 class DockerManager:
-    def __init__(self, heartbeat_timeout=30):
+    def __init__(self, heartbeat_timeout=None):
         self.app = Flask(__name__)
         self.available_dockers = {}  # {docker_id: {url, last_heartbeat}}
         self.client_mappings = {}    # {client_id: docker_id}
-        self.heartbeat_timeout = heartbeat_timeout  # segundos
+        
+        # Obtener valor del timeout de variables de entorno o usar valor predeterminado
+        self.heartbeat_timeout = heartbeat_timeout or int(os.environ.get('HEARTBEAT_TIMEOUT', 30))
+        logger.info(f"Configurado timeout de heartbeat: {self.heartbeat_timeout} segundos")
+        
         self.lock = threading.Lock()
         
         # Iniciar el hilo para limpiar contenedores inactivos
@@ -58,8 +67,11 @@ class DockerManager:
         def status():
             return jsonify(self.get_status())
     
-    def run(self, host='0.0.0.0', port=8080):
-        """Inicia el servidor Flask"""
+    def run(self, host=None, port=None):
+        """Inicia el servidor Flask utilizando variables de entorno"""
+        host = host or os.environ.get('HOST', '0.0.0.0')
+        port = port or int(os.environ.get('PORT', 8080))
+        logger.info(f"Iniciando servidor en {host}:{port}")
         self.app.run(host=host, port=port)
     
     def register_heartbeat(self, docker_id, docker_url):
@@ -140,4 +152,4 @@ class DockerManager:
 if __name__ == '__main__':
     # Crear instancia del gestor de Docker y ejecutar el servidor
     docker_manager = DockerManager()
-    docker_manager.run(host='0.0.0.0', port=8080)
+    docker_manager.run()
