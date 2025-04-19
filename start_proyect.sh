@@ -50,6 +50,13 @@ docker compose up -d --build
 echo -e "${GREEN}Proxy iniciado correctamente.${NC}"
 echo -e "- Proxy disponible en: ${BLUE}http://${PROXY_IP}:${PROXY_PORT}${NC}"
 
+# Ejecutando el lado del cliente
+cd ../frontend  
+npm install
+npm run build
+# npm run start
+echo -e "${GREEN}Cliente iniciado correctamente.${NC}"
+
 # Start Docker containers
 cd ../docker
 

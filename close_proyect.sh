@@ -52,19 +52,12 @@ if [ -n "$STILL_RUNNING" ]; then
     docker stop $(docker ps --filter name=proxy -q) 2>/dev/null
 fi
 
-# Opcional: Eliminar la red Docker
-echo -e "${YELLOW}¿Desea eliminar la red Docker 'debugger_network'? (s/N)${NC}"
-read -r response
-if [[ "$response" =~ ^([sS]|[sS][iI])$ ]]; then
-    echo -e "${GREEN}Eliminando la red Docker...${NC}"
-    docker network rm debugger_network 2>/dev/null
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}✅ Red Docker eliminada.${NC}"
-    else
-        echo -e "${YELLOW}No se pudo eliminar la red. Podría estar en uso por otros contenedores.${NC}"
-    fi
+echo -e "${GREEN}Eliminando la red Docker...${NC}"
+docker network rm debugger_network 2>/dev/null
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ Red Docker eliminada.${NC}"
 else
-    echo -e "${BLUE}La red Docker 'debugger_network' se mantiene.${NC}"
+    echo -e "${YELLOW}No se pudo eliminar la red. Podría estar en uso por otros contenedores.${NC}"
 fi
 
 echo -e "${GREEN}¡Proyecto detenido correctamente!${NC}"

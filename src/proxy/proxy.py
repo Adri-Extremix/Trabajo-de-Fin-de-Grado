@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify, redirect
+from flask import Flask, request, jsonify, redirect, make_response
 import time
 import threading
 import logging
 import os
+import uuid
 
 # Silenciar logs de Werkzeug
 log = logging.getLogger('werkzeug')
@@ -42,6 +43,7 @@ class DockerManager:
         
         @self.app.route('/heartbeat', methods=['POST'])
         def heartbeat():
+            # Este está bien, sin cambios
             data = request.get_json()
             if not data or 'docker_id' not in data or 'url' not in data:
                 return jsonify({'success': False, 'error': 'Missing required fields'}), 400
@@ -49,19 +51,34 @@ class DockerManager:
             self.register_heartbeat(data['docker_id'], data['url'])
             return jsonify({'success': True})
 
-        @self.app.route('/connect')
-        def connect_client(client_id):
+        @self.app.route('/')
+        def connect_client():
+            # Obtener o generar client_id desde cookie
+            client_id = request.cookies.get('client_id')
+            if not client_id:
+                client_id = str(uuid.uuid4())
+            # Asignar Docker al cliente
             docker_url = self.get_available_docker(client_id)
             if not docker_url:
                 return jsonify({'success': False, 'error': 'No Docker available'}), 503
-            
-            # Redirigir al cliente al Docker asignado
-            return redirect(docker_url)
+            # Redirigir y establecer cookie para futuras peticiones
+            resp = make_response(redirect(docker_url))
+            resp.set_cookie('client_id', client_id, max_age=300)
+            return resp
 
-        @self.app.route('/disconnect/')
-        def disconnect_client(client_id):
+        @self.app.route('/disconnect')
+        def disconnect_client():
+            # Obtener client_id desde la cookie
+            client_id = request.cookies.get('client_id')
+            if not client_id:
+                return jsonify({'success': False, 'error': 'Missing client_id cookie'}), 400
+
+            # Liberar Docker asignado
             success = self.release_docker(client_id)
-            return jsonify({'success': success})
+            # Eliminar cookie para cerrar la sesión
+            resp = make_response(jsonify({'success': success}))
+            resp.set_cookie('client_id', '', expires=0)
+            return resp
 
         @self.app.route('/status')
         def status():
@@ -88,7 +105,7 @@ class DockerManager:
         """Obtiene un Docker disponible y lo asigna al cliente"""
         with self.lock:
             # Si el cliente ya tiene un Docker asignado, retornar ese
-            if client_id in self.client_mappings:
+            if (client_id in self.client_mappings):
                 docker_id = self.client_mappings[client_id]
                 if docker_id in self.available_dockers:
                     return self.available_dockers[docker_id]['url']

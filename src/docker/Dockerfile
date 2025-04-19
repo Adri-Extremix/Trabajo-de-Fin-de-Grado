@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     libcapstone-dev \
     libdw-dev \
+    gdb \
     rr \
     iputils-ping \
     dnsutils \
@@ -31,9 +32,11 @@ RUN apt-get update && apt-get install -y \
 
 # Cambiar al directorio de la aplicación
 WORKDIR /app
+ENV PYTHONUNBUFFERED=1
 
 # Copiar archivos necesarios
-COPY compiler.py debugger.py requirements.txt webSocket.py ./
+COPY docker/compiler.py docker/debugger.py docker/requirements.txt docker/webSocket.py ./
+COPY ../frontend/dist ./frontend/dist
 
 # Configurar Python e instalar dependencias en un entorno virtual
 RUN python3.12 -m venv venv && \
