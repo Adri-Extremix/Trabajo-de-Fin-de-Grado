@@ -12,11 +12,11 @@ Durante la especificación de los requisitos se han descrito varios requisitos q
 
 \subsubsection{Monolítico} \label{subsubsec:monolitico}
 
-Una aplicación monolítica es aquella que se ejecuta en un único proceso y en un único sistema operativo. Este tipo de aplicaciones son más sencillas de desarrollar y de mantener, ya que no requieren de una comunicación entre procesos. Sin embargo, una aplicación monolítica no es capaz de ejecutarse en diferentes sistemas operativos, ya que el código fuente debe de ser compilado para cada sistema operativo. Dado que el requisito \sreqref{NF-multiplataforma} indica que el sistema debe de poder ejecutar en cualquier sistema operativo, el monolítico no es una opción viable.
+Una aplicación monolítica es aquella que se ejecuta en una única máquina y en un único sistema operativo. Este tipo de aplicaciones son más sencillas de desarrollar y de mantener, ya que no requieren de una comunicación entre diferentes máquinas. Sin embargo, una aplicación monolítica no es capaz de ejecutarse en diferentes sistemas operativos, ya que el código fuente debe de ser compilado para cada sistema operativo. Dado que el requisito \sreqref{NF-multiplataforma} indica que el sistema debe de poder ejecutar en cualquier sistema operativo, el monolítico no es una opción viable.
 
 \subsubsection{Distribuido} \label{subsubsec:distribuido}
 
-Una aplicación distribuida es aquella que se ejecuta en múltiples procesos. Este tipo de aplicaciones tienen una mayor complejidad de desarrollar, debido a la comunicación entre procesos. Sin embargo, una aplicación distribuida que sirva un servicio web podría funcionar en cualquier sistema operativo, dado que solo ejecutaría el código del cliente, y además contemplaría el requisito \sreqref{NF-ejecucion-POSIX}, que indica que el sistema debe de ejecutarse en un sistema operativo UNIX para soportar la ejecución de hilos POSIX. Esta arquitectura permitiría tener una única aplicación web que se pueda ejecutar el lado cliente en cualquier sistema operativo y arquitectura, mientras se utiliza un servidor que ejecuta en un sistema operativo UNIX que permita la ejecución de hilos POSIX.
+Una aplicación distribuida es aquella que se ejecuta en múltiples procesos. Este tipo de aplicaciones tienen una mayor complejidad de desarrollar, debido a la comunicación entre procesos. Sin embargo, una aplicación distribuida que sirva un servicio web podría funcionar en cualquier sistema operativo (\sreqref{NF-multiplataforma}, \sreqref{NF-abstraccion-so} y \sreqref{NF-abstraccion-arch}), dado que solo ejecutaría el código del cliente, y además contemplaría el requisito \sreqref{NF-ejecucion-POSIX}, que indica que el sistema debe de ejecutarse en un sistema operativo UNIX para soportar la ejecución de hilos POSIX. Esta arquitectura permitiría tener una única aplicación web que se pueda ejecutar el lado cliente en cualquier sistema operativo y arquitectura, mientras se utiliza un servidor que ejecuta en un sistema operativo UNIX que permita la ejecución de hilos POSIX.
 
 Durante la sección \sectionref{arquitectura-sistema} se detallarán cómo se ha implementado este diseño distribuido. 
 
@@ -117,6 +117,7 @@ Tal y como se ha comentado en \sectionref{estudio-solucion-final}, el sistema co
     \begin{itemize}
         \item \textbf{Servicio de ficheros estáticos}: El contendor servirá el html, css y JavaScript del cliente al recibir una petición GET por parte del cliente.
         \item \textbf{Web Socket Docker}: El contenedor utilizará Web Socket para la comunicación con el cliente.
+        \item \textbf{Funcionalidades de Compilación}
         \item \textbf{Funcionalidades de Depuración}: Este componente contendrá la implementación de las funcionalidades de depuración, las cuales serán llamadas a través de la API.
         \item \textbf{Envío de latidos}: El contenedor enviará latidos cada cierto tiempo.
     \end{itemize}
@@ -135,7 +136,7 @@ Para la especificación de los distintos componentes se ha usado la siguiente pl
 {COM-Editor de Código, COM-Web Socket Cliente} % dependencias
 {Estado actual del sistema} % in-data
 {NA} % out-data
-{FN-GUI, FN-aviso-error-concurrencia, FN-visualizacion-hilos, FN-visualizacion-evolucion} % relations
+{FN-GUI, FN-aviso-error-concurrencia, FN-visualizacion-variables, FN-visualizacion-hilos, FN-visualizacion-evolucion} % relations
 La Interfaz Gráfica debe de gestionar la interacción del usuario con la aplicación y mostrar la información de manera estructurada y clara. %description 
 \end{component}
 
@@ -144,7 +145,7 @@ La Interfaz Gráfica debe de gestionar la interacción del usuario con la aplica
     {\NA} % dependencias
     {\NA} % in-data
     {Código escrito, estado del editor de código} % out-data
-    {FN-GUI, FN-GUI, FN-editor} % relations
+    {FN-GUI, FN-editor, FN-editor-breakpoint} % relations
     Este componente permitirá al usuario escribir código, colorear la sintaxis y gestionar de forma visual los breakpoints. %description
 \end{component}
 
@@ -188,12 +189,20 @@ Registra cada uno de los latidos escuchados por cada contenedor, si tras 10 segu
 La comunicación con el contenedor se encargará de gestionar la comunicación entre el contenedor y el cliente a través de Web Sockets. %description 
 \end{component}
 
+\begin{component}{Funcionalidades Compilación}
+{Se encarga de compilar el codigo recibido y ejecutarlo sin modo depuración}
+{COM-Web Socket Docker}
+{Código}
+{Salida Estandar}
+{FN-fichero-codigo, FN-compilacion, FN-ejecutar, FN-aviso-error-concurrencia}
+Este componente 
+
 \begin{component}{Funcionalidades de Depuración}
 {Gestionar la ejecución de las funcionalidades de depuración}
 {COM-Web Socket Docker} % dependencias
-{Funcionalidad} % in-data
+{Funcionalidad a realizar} % in-data
 {Estado tras la ejecución de la funcionalidad} % out-data
-{FN-fichero-codigo, FN-compilacion, FN-ejecutar, FN-depurar, FN-aviso-error-concurrencia, FN-step-over, FN-step-into, FN-step-out, FN-continuar-ejecucion, FN-rebobinar} % relations
+{FN-depurar, FN-step-over, FN-step-into, FN-step-out, FN-continuar-ejecucion, FN-rebobinar} % relations
 Este componente ejecutará las funcionalidades del depurador y devolverá el resultado de aplicar esas funcionalidades %description
 \end{component}
 
@@ -205,7 +214,13 @@ Este componente ejecutará las funcionalidades del depurador y devolverá el res
 {} % relations
 Envío de latidos cada 5 segundos a la dirección del proxy
 \end{component}
-% ME FALTA UN COMPONTENTE
+
+\begin{component}{Servicio de Ficheros Estáticos}
+{Envío de ficheros estáticos al cliente}
+{}
+{Ficheros HTML, CSS y JavaScript}
+{} %relations
+{Se encarga de envíar ficheros estáticos tras recibir una petición GET por parte del cliente para que este pueda acceder a su aplicación web}
 
 
 \FloatBarrier
