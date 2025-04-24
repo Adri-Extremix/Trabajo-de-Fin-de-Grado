@@ -75,7 +75,7 @@ Dada la arquitectura distribuida del sistema, se necesita usar un lenguaje de pr
 
 \subsubsection{Tecnologías del lado cliente} \label{subsubsec:tecnologias-cliente}
 
-Para la construcción de la aplicación web se ha basará en HTML5 para dar estructura al código, CSS3 para dar estilos, y JavaScript para implementar las distintas funcionalidades. Se ha decidido elegir este \textit{Stack} por ser el más básico y el que más experiencia se tiene. Este \texit{Stack} será más que suficiente dado que el lado cliente no será de gran envergadura y no necesitará más que unos pocos botones, un editor de código y una comunicación a través de WebSockets.
+Para la construcción de la aplicación web se ha basará en HTML5 para dar estructura al código, CSS3 para dar estilos, y JavaScript para implementar las distintas funcionalidades. Se ha decidido elegir este \textit{Stack} por ser el más básico y el que más experiencia se tiene. Este \textit{Stack} será más que suficiente dado que el lado cliente no será de gran envergadura y no necesitará más que unos pocos botones, un editor de código y una comunicación a través de WebSockets.
 
 
 \subsubsection{Tecnologías del lado servidor} \label{sec:tecnologias-servidor}
@@ -195,7 +195,8 @@ La comunicación con el contenedor se encargará de gestionar la comunicación e
 {Código}
 {Salida Estandar}
 {FN-fichero-codigo, FN-compilacion, FN-ejecutar, FN-aviso-error-concurrencia}
-Este componente 
+Este componente se encarga de realizar acciones básicas que no están relacionadas directamente con la depuración, como compilar el código y ejecutarlo.
+\end{component}
 
 \begin{component}{Funcionalidades de Depuración}
 {Gestionar la ejecución de las funcionalidades de depuración}
@@ -221,7 +222,7 @@ Envío de latidos cada 5 segundos a la dirección del proxy
 {Ficheros HTML, CSS y JavaScript}
 {} %relations
 {Se encarga de envíar ficheros estáticos tras recibir una petición GET por parte del cliente para que este pueda acceder a su aplicación web}
-
+\end{component}
 
 \FloatBarrier
 
