@@ -3,6 +3,7 @@ En este capítulo se presentará una visión general del desarrollo y la logíst
 
 \section{Planificación}\label{sec:planificacion}
 
+\subsection{Metodología}\label{sec:metodologia}
 Dadas las características del proyecto se ha decidido elegir una metodología iterativa basada en el modelo en espiral de Bohem \cite{ModeloEspiral}. Este modelo es adecuado para proyectos de gran envergadura y complejidad, ya que divide el proyecto en iteraciones, y en cada una de esas iteraciones se realiza un ciclo completo de desarrollo, desde la planificación hasta la entrega del producto en forma de prototipo. Tras completar cada iteración se actualizan las iteraciones siguientes según los resultados obtenidos. Esto permite una mayor flexibilidad y adaptación a los cambios que puedan surgir durante el desarrollo del proyecto.
 
 Cada ciclo de desarrollo se divide en cuatro fases:
@@ -14,6 +15,240 @@ Cada ciclo de desarrollo se divide en cuatro fases:
     \item \textbf{Evaluación}: El cliente evalua el sistema aportado \textit{feedback}, que se usará como información valiosa en las siguientes iteraciones.
 \end{enumerate}
 
+Dada las características del proyecto se ha decidido dividir el desarrollo en 5 iteraciones:
+\begin{enumerate}
+    \item \textbf{Sesión de Depuración}: Se desarrolla el módulo que permite depurar código concurrente a través de GDB/RR, con cada una de las funcionalidades necesarias. 
+    \item \textbf{Depuración en Contenedores}: Se desarrolla la capacidad de levantar contenedores Docker para ejecutar las sesiones de depuración.
+    \item \textbf{Proxy}: Se desarrolla el proxy que permite la redirección del cliente a las sesiones de depuración, así como la gestión de sesiones de depuración.
+    \item \textbf{Comunicaciones}: Se desarrolla la comunicación entre el cliente y el servidor a través de WebSocket.
+    \item \textbf{Lado Cliente}: Se desarrolla la interfaz web que permite al usuario interactuar con el sistema.
+\end{enumerate} 
+
+\subsection{Estimación de tiempo y cronograma}\label{sec:cronograma}
+La estimación de tiempo se ha realizado diseñando un diagrama de Gantt (\figref{gantt}) que permite visualizar la planificación del proyecto. Este diagrama muestra las diferentes fases del proyecto, así como las tareas y sub-tareas que se llevarán a cabo en cada una de ellas. Además, se han establecido fechas de inicio y fin para cada tarea, lo que permite tener una visión clara del tiempo necesario para completar el proyecto.
+
+El proyecto tiene una duración estimada de 10 meses, donde cada mes se le ha dedicado en torno a 30 horas de trabajo, lo que se traduce en un total de 300 horas totales de trabajo. 
+
+\begin{landscape}
+    \begin{figure}
+      \ffigbox[\FBwidth]
+        {%
+          \caption{Diagram de Gantt del proyecto.}
+          \label{fig:gantt}
+        }%
+        {
+          \begin{ganttchart}[
+            hgrid,
+            % vgrid,
+            time slot format=isodate,
+            time slot unit=day,
+            x unit=.075cm,
+            y unit chart=.481cm,
+            y unit title=.7cm,
+            title label font=\footnotesize,
+            group label font=\bf\scriptsize,
+            bar label font=\scriptsize,
+            milestone label font=\it\scriptsize,
+            expand chart=\textwidth
+          ]{2024-08-08}{2025-06-18}
+  
+            \gantttitlecalendar{year, month=shortname} \\
+  
+            \ganttgroup{I. Sesión de Depuración}{2024-08-10}{2025-01-12} \\
+            \ganttbar{Planificación}{2024-08-10}{2024-08-17}\\
+            \ganttlinkedbar{Análisis}{2024-08-18}{2024-09-18}\\
+            \ganttlinkedbar{Desarrollo y Pruebas}{2024-09-19}{2025-01-06}\\
+            \ganttlinkedbar{Evaluación}{2025-01-07}{2025-01-12}\\
+  
+            \ganttgroup{II. Depuración en Contenedores}{2025-01-13}{2025-02-15} \\
+            \ganttbar{Planificación}{2025-01-13}{2025-01-16}\\
+            \ganttlinkedbar{Análisis}{2025-01-17}{2025-01-25}\\
+            \ganttlinkedbar{Desarrollo y Pruebas}{2025-01-26}{2025-02-10}\\
+            \ganttlinkedbar{Evaluación}{2025-02-11}{2025-02-15}\\
+  
+            \ganttgroup{III. Proxy}{2025-02-16}{2025-04-07} \\
+            \ganttbar{Planificación}{2025-02-16}{2025-02-28}\\
+            \ganttlinkedbar{Análisis}{2025-03-01}{2025-03-15}\\
+            \ganttlinkedbar{Desarrollo y Pruebas}{2025-03-16}{2025-04-04}\\
+            \ganttlinkedbar{Evaluación}{2025-04-05}{2025-04-07}\\
+  
+            \ganttgroup{IV. Comunicación}{2025-04-07}{2025-05-14} \\
+            \ganttbar{Planificación}{2025-04-07}{2025-04-12}\\
+            \ganttlinkedbar{Análisis}{2025-04-13}{2025-04-20}\\
+            \ganttlinkedbar{Desarrollo y Pruebas}{2025-04-21}{2025-05-10}\\
+            \ganttlinkedbar{Evaluación}{2025-05-11}{2025-05-14}\\
+
+            \ganttgroup{V. Lado Cliente}{2025-05-15}{2025-06-13} \\
+            \ganttbar{Planificación}{2025-05-15}{2025-05-17}\\
+            \ganttlinkedbar{Análisis}{2025-05-18}{2025-05-22}\\
+            \ganttlinkedbar{Desarrollo y Pruebas}{2025-05-23}{2025-06-10}\\
+            \ganttlinkedbar{Evaluación}{2025-06-11}{2025-06-13}\\
+  
+            \ganttgroup{Report}{2025-01-15}{2025-06-16} \\
+  
+  
+            % link iterations
+            \ganttlink{elem0}{elem5}
+            \ganttlink{elem5}{elem10}
+            \ganttlink{elem10}{elem15}
+            \ganttlink{elem15}{elem20}
+          \end{ganttchart}
+        }
+    \end{figure}
+  \end{landscape}
 
 
 \section{Presupuesto}\label{sec:presupuesto}
+
+En esta sección se presentará el presupuesto del proyecto, basado en la estimación de tiempo y planificación presentada en la sección \sectionref{cronograma}. 
+
+\begin{table}[htbp]
+    \centering
+    \caption{Resumen del presupuesto del proyecto}
+    \label{tab:resumen_presupuesto}
+    \begin{tabular}{@{}l|l@{}}
+    \toprule
+    \textbf{Titulo}          & Herramienta Didáctica pra la Programación Concurrente \\ \midrule
+    \textbf{Autor}           & Adrián Fernández Galán                                \\ \midrule
+    \textbf{Fecha de Inicio} & 10-08-2024                                            \\ \midrule
+    \textbf{Fecha Final}     & 16-06-2025                                            \\ \midrule
+    \textbf{Duración}        & 10 meses                                              \\ \midrule
+    \textbf{Presupuesto}     & 12.702,30\euro                                            \\ \bottomrule
+    \end{tabular}
+\end{table}
+
+El desglose de los costes se dividirá en dos costes: costes directos y costes indirectos. Estos costes no incluyen impuestos, sino que se incluirán en \subsectionref{oferta_propuesta}
+
+\subsection{Costes Directos}\label{subsec:costes_directos}
+
+Los costes directos son aquellos que están directamente relacionados con el desarrollo del proyecto. Estos se dividen en dos subgrupos: costes de personal y costes de equipamiento.
+\begin{itemize}
+    \item \textbf{Costes de personal}: Estos costes dependerán de los roles, las responsabilidades y el tiempo de desarrollo de cada uno de los miembros
+    \item \textbf{Costes de equipamiento}: Estos costes están relacionados con las herramientas usadas durante el desarrollo del proyecto
+\end{itemize}
+
+\subsubsection{Costes de Personal}
+Durante el desarrollo del proyecto han sido necesarios 4 roles diferentes:
+\begin{itemize}
+    \item \textbf{Jefe de Proyecto}: Su tarea principal es planificar y coordinar el proyecto.
+    \item \textbf{Analista}: Se encarga de analizar los requisitos de usuario y diseñar la arquitectura del proyecto.
+    \item \textbf{Desarrollador}: Su tarea es implementar las funcionalidades indicadas en los requisitos de software.
+    \item \textbf{Evaluador}: Se encarga de diseñar y ejecutar las pruebas del sistema, así como de evaluar el sistema y aportar \textit{feedback} al equipo de desarrollo.
+\end{itemize}
+
+En la tabla \tabref{costes_personal} se presenta el desglose de los costes de personal del proyecto. Estos costes se han calculado en base a las horas estimadas de trabajo y el coste por hora de cada uno de los roles. El coste total del personal del proyecto es de 10.650€.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Costes de personal del proyecto}
+    \label{tab:costes_personal}
+    \begin{tabular}{@{}lccc@{}}
+    \toprule
+    \textbf{Rol}     & \textbf{Horas} & \textbf{Coste por Hora} & \textbf{Total}   \\ \midrule
+    Jefe de Proyecto & 45h            & 60\euro                 & 2.700\euro       \\
+    Analista         & 70h            & 35\euro                 & 2.450\euro       \\
+    Desarrollador    & 150h           & 32\euro                 & 4.800\euro       \\
+    Evaluador        & 35h            & 20\euro                 & 700\euro         \\ \midrule
+    \textbf{Total}   & 300h           &                         & \textbf{10.650\euro} \\ \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsubsection{Costes de Equipamiento}
+Para el desarrollo del proyecto se han necesitado diferentes herramientas y recursos. \tabref{costes_equipamiento} muestran los costes de equipamiento del proyecto. Estos costes se han calculado en base a la \eqref{eq:amortizacion}. 
+
+\begin{equation}
+    C = \frac{c \cdot u \cdot t}{a}
+    \label{eq:amortizacion}
+\end{equation}
+
+
+Donde:
+\begin{itemize}
+    \item $C$: Coste de amortización del recurso
+    \item $c$: Coste del recurso
+    \item $u$: Uso del recurso (horas)
+    \item $t$: Tiempo de amortización del recurso (horas)
+    \item $a$: Amortización del recurso (horas)
+\end{itemize}
+
+\begin{table}[htbp]
+    \begin{adjustbox}{max width=\textwidth}
+    \centering
+    \caption{Costes de equipamiento del proyecto}
+    \label{tab:costes_equipamiento}
+    \begin{tabular}{@{}lccccc@{}}
+    \toprule
+    \textbf{Concepto} & \multicolumn{1}{l}{\textbf{Coste (c)}} & \multicolumn{1}{l}{\textbf{Uso (u)}} & \multicolumn{1}{l}{\textbf{Tiempo usado (t)}} & \multicolumn{1}{l}{\textbf{Amortización (a)}} & \multicolumn{1}{l}{\textbf{Coste Amortizado (C)}} \\ \midrule
+    Portátil          & 900,00\euro                                & 45\%                                 & 10 meses                                      & 48 meses                                      & 84,38\euro                                            \\
+    Monitor           & 125,95\euro                                & 60\%                                 & 10 meses                                      & 60 meses                                      & 12,60\euro                                            \\
+    Teclado           & 50,00\euro                                 & 60\%                                 & 10 meses                                      & 36 meses                                      & 8,33\euro                                             \\
+    Silla Oficina     & 120,00\euro                                & 40\%                                 & 10 meses                                      & 60 meses                                      & 8,00\euro                                             \\
+    Software          & 0,00\euro                                  & 40\%                                 & 10 meses                                      & 120 meses                                     & 0,00\euro                                             \\ \midrule
+    \textbf{Total}    & 1.195,95\euro                              &                                      &                                               &                                               & \textbf{113,30\euro}                                  \\ \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}
+
+
+\subsection{Costes Indirectos}\label{subsec:costes_indirectos}
+Los costes indirectos son aquellos que ocurren durante el proyecto, pero no pueden ser directamente relacionados con un producto o servicio específico.
+
+Para el consumo de electricidad, se ha revisado la factura de la vivienda durante los 10 meses de desarrollo del proyecto, la cual ha sido de 2,13\euro el día. Teniendo en cuenta que el proyecto ha durado 10 meses, y que se han trabajado 30 horas al mes, el coste total de electricidad es de 2,13\euro \textit{día} $\cdot$ 30 \textit{días} $\cdot$ 10 \textit{meses} = 639\euro. 
+
+En cuanto a los costes de internet, se tiene contratada en la vivienda una tarifa de 50\euro al mes. Y en cuanto al transporte, se ha estimado en torno a 80\euro al mes para los viajes realizados al centro educativo.
+
+El resultado de todos los costes indirectos se puede ver en la tabla \tabref{costes_indirectos}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Costes indirectos del proyecto}
+    \label{tab:costes_indirectos}
+    
+    \begin{tabular}{@{}lccc@{}}
+    \toprule
+    Recurso        & Coste Unitario & Tiempo   & \textbf{Total} \\ \midrule
+    Electricidad   & 2,13\euro/día      & 10 meses & 639\euro           \\
+    Internet       & 50\euro            & 10 meses & 500\euro           \\
+    Transporte     & 80\euro            & 10 meses & 800\euro           \\ \midrule
+    \textbf{Total} &                &          & 1.939\euro         \\ \bottomrule
+    \end{tabular}
+    \end{table}
+
+\subsection{Costes Totales}\label{subsec:costes_totales}
+
+Los costes totales del proyecto constan de la suma de los costes directos, tanto de los costes de personal como de los costes de equipamiento, y los costes indirectos. El resultado de la suma de todos los costes se puede ver en la tabla \tabref{costes_totales}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{Costes totales del proyecto}
+    \label{tab:costes_totales}
+    \begin{tabular}{@{}lc@{}}
+    \toprule
+    Personal                & 10.650,00\euro \\
+    Equipamiento            & 113,30\euro    \\
+    Indirecto               & 1.939,00\euro  \\ \midrule
+    \textbf{Total Proyecto} & \textbf{12.702,30\euro} \\ \bottomrule
+    \end{tabular}
+    \end{table}
+
+Es por esto que el coste total del proyecto es de \textbf{12.702,30\euro}.
+
+\subsection{Oferta Propuesta}\label{subsec:oferta_propuesta}
+
+Conociendo el coste total del proyecto, se ha decidido realizar una oferta al cliente. Esta oferta contempla un riesgo del 15\% sobre el coste total y un margen de beneficio del 20\%. Tras esto se le aplicará el IVA correspondiente del 21\%. El resultado de la oferta se puede ver en la tabla \tabref{oferta_propuesta}.
+
+
+\begin{table}[htbp]
+    \centering
+    \caption{Oferta propuesta al cliente}
+    \label{tab:oferta_propuesta}
+    \begin{tabular}{@{}lrcc@{}}
+    \toprule
+    \textbf{Concepto}  & \multicolumn{1}{l}{\textbf{Incremento}} & \multicolumn{1}{l}{\textbf{Coste Parcial}} & \multicolumn{1}{l}{\textbf{Coste Agregado}} \\ \midrule
+    Coste del Proyecto & -                                       & 12.702,30\euro                                 & 12.702,30\euro                                  \\
+    Riesgo             & 15\%                                    & 1.905,35\euro                                  & 14.607,65\euro                                  \\
+    Beneficio          & 20\%                                    & 2.921,53\euro                                  & 17.529,18\euro                                  \\
+    Impuestos          & 21\%                                    & 3.681,13\euro                                  & 21.210,31\euro                                  \\
+    \textbf{Total}     & 56\%                                    &                                            & \textbf{21.210,31\euro}                         \\ \bottomrule
+    \end{tabular}
+    \end{table}

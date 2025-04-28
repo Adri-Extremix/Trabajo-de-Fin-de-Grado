@@ -15,6 +15,9 @@
 \usepackage{dirtree}
 \usepackage{floatrow}
 
+\usepackage{pdflscape}  % Mejor opción para documentos PDF
+\usepackage{pgfgantt}  % gannt diagrams
+
 \usepackage[es,enableTraceability,enableCaptions]{srs}
 
 % silence ht warnings
@@ -38,7 +41,7 @@
 \author{Adrián Fernández Galán}
 \advisors{Alejandro Calderon Mateos}
 \place{Leganés, Madrid, Spain}
-\date{June 2025}
+\date{Junio 2025}
 
 \begin{document}
 
@@ -48,21 +51,35 @@
 
   % EPIGRAPH
   \makeepigraph
-    {Cacaaaaaaaaaaaaa}  % quote
-    {Uno que se cagaba}  % author
+    {Un gran poder conlleva una gran responsabilidad}  % quote
+    {El tío Ben}  % author
     {}  % source
 
 
   % ACKNOWLEDGEMENTS
   \begin{acknowledgements}
-    % 
+    Me gustaría comenzar agradeciendo a mis padres. Sin ellos no me encontraría terminando la carrera de Ingeniería Informática. Me han apoyado en todo momento y me han dado la libertad de elegir mi camino. Me han educado lo mejor que han podido y me han enseñado a esforzarme en todo lo que hago. Gracias a ellos soy la persona que soy hoy. 
+
+    También quiero agradecer a mis amigos, desde los que llevan acompañandome desde que no sabía andar como son Lorenzo o Raúl hasta los que he conocido en los últimos años como el grupo de \textit{Pan con Pan} o Paula, Calderón, Luis, Irene y muchos otros. He sido capaz de aprender de cada uno de ellos y me han hecho disfrutar cada momento. Sobre todo agradecer a Paula, que me ha hecho equivocarme mil y una veces y aprender de cada una de ellas.   
+    
+    Quería hacer especial énfasis en César. Es un amigo que no solo me ha apoyado en todo lo que ha podido, sino que he podido discutir con él todas aquellas ideas que no terminaba de encajar en este proyecto. Proporcionándome ideas originales y aportándome críticas constructivas constantemente. Sin él este proyecto no tendría la calidad que ha llegado a alcanzar.
+    
+    Otra persona que merece un agradecimiento es mi tutor Alejandro. Que aunque no ha sido necesario que nos reunamos con demasiada frecuencia, las veces que nos hemos reunido han sido muy proliferas. Siempre ha estado dispuesto a ayudarme, aportando ideas frescas y soluciones a problemas, además de guiarme en el desarrollo de la memoria que ahora mismo estás leyendo.
+
+    Para terminar, aunque no por ello menos importante, quería agradecer a Luis Daniel, Alvaro y Jose Antonio. Cada uno de ellos han propuesto soluciones a ciertos problemas que les he ido comentando durante el desarrollo del proyecto. Además Luis Daniel ha sido fundamental gracias a la plantilla que ahora mismo estoy usando para escribir esta memoria.
+    
   \end{acknowledgements}
 
 
   % ABSTRACT
   \begin{abstract}
-    \lipsum[1-3]
-    \keywords{Caca \sep culo \sep pedo \sep pis}
+    La concurrencia es una herramienta muy potente para mejorar el rendimiento de los programas desarrollados, sin embargo tiene una curva de aprendizaje muy pronunciada y su programación puede inducir a errores con facilidad.
+    
+    Es por esto que proponemos crear un depurador didáctico enfocado a la programación concurrente, que permita a estudiantes entender con más facilidad y desarrollar código más libre de errores.
+
+    Esta herramienta estará centrada en que hasta los programadores más primerizos sean capaces de desarrollar código C, centrándose en descubrir las características principales de los programas concurrentes. Para ello el estudiante podrá moverse por libremente por la ejecución del programa desarrollado y observar cómo el estado del sistema cambia durante la ejecución del mismo. 
+    
+    \keywords{Concurrencia \sep Herramienta didáctica \sep Depurador}
   \end{abstract}
 
 
@@ -101,10 +118,9 @@
 
 
   % APPENDICES
-  % \begin{appendices}
-  %   \chapter{My stuff}
-  %   \lipsum
-  % \end{appendices}
+   \begin{appendices}
+    \includefrom{parts/}{manual.tex}
+   \end{appendices}
 
 
 \end{document}

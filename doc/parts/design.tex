@@ -56,7 +56,7 @@ Es importante destacar, que como un contenedor puede dejar de estar disponible p
 Para conseguir todo esto se creará una imagen Docker que contenga el código correspondiente a la comunicación tanto con el cliente y con el proxy, el código de las funcionalidades del depurador y los ficheros estáticos a servir.
 Cada uno de estos contenedores se levantará a través de \textit{Docker Compose}, configurado con un \texttt{docker-compose.yml} en el que se indicarán los puertos que cada docker tiene que mapear y las variables de entorno para las comunicaciones. 
 
-Es por todo esto que la arquitectura distribuida final constará de uno o varios \textbf{clientes}, un único \textbf{proxy}, al que se conectarán los clientes para ser redirigidos, y varios \textbf{contenedores} que se encargarán de toda la lógica del sistema.
+Es por todo esto que la arquitectura distribuida final constará de uno o varios clientes, un único \textit{proxy}, al que se conectarán los clientes para ser redirigidos, y varios \textit{contenedores} que se encargarán de toda la lógica del sistema.
 
 \subsection{Comunicación entre procesos} \label{subsec:comunicacion-procesos}
 
@@ -165,7 +165,7 @@ La comunicación con el servidor se encargará de gestionar la comunicación ent
 {COM-Disponibilidad de Contenedores} % dependencias
 {Contenedores Disponibles} % in-data
 {URL para la conexión} % out-data
-{} % relations
+{\NA} % relations
 Este componente asignará a un nuevo cliente un contenedor libre hasta que se desconecte. Al asignar a un contenedor le redireccionará al contenedor correspondiente %description
 \end{component}
 
@@ -174,7 +174,7 @@ Este componente asignará a un nuevo cliente un contenedor libre hasta que se de
 {COM-Gestión de Contenedores, COM-Envío de Latidos} % dependencias
 {Latido} % in-data
 {Contenedores Disponibles} % out-data
-{} % relations
+{\NA} % relations
 Registra cada uno de los latidos escuchados por cada contenedor, si tras 10 segundos no ha recibido un latido dará por no disponible al contenedor %description
 \end{component}
 
@@ -185,7 +185,7 @@ Registra cada uno de los latidos escuchados por cada contenedor, si tras 10 segu
 {COM-Web Socket Cliente, COM-Funcionalidades Depuración} % dependencias
 {Mensajes del cliente} % in-data
 {Mensajes del contenedor} % out-data
-{} % relations
+{\NA} % relations
 La comunicación con el contenedor se encargará de gestionar la comunicación entre el contenedor y el cliente a través de Web Sockets. %description 
 \end{component}
 
@@ -211,16 +211,16 @@ Este componente ejecutará las funcionalidades del depurador y devolverá el res
 {Envío de latidos}
 {COM-Disponibilidad de Contenedores} % dependencias
 {Latido} % in-data
-{} %out-data
-{} % relations
+{\NA} %out-data
+{\NA} % relations
 Envío de latidos cada 5 segundos a la dirección del proxy
 \end{component}
 
 \begin{component}{Servicio de Ficheros Estáticos}
 {Envío de ficheros estáticos al cliente}
-{}
+{\NA}
 {Ficheros HTML, CSS y JavaScript}
-{} %relations
+{\NA} %relations
 {Se encarga de envíar ficheros estáticos tras recibir una petición GET por parte del cliente para que este pueda acceder a su aplicación web}
 \end{component}
 
@@ -228,5 +228,9 @@ Envío de latidos cada 5 segundos a la dirección del proxy
 
 \subsubsection{Trazabilidad} {\label{subsubsec:trazabilidad-comp}}
 
-\traceabilityCompFN
+\begin{table}[htb]
+    \ttabbox[\FBwidth]
+      {\caption{Trazabilidad de los componentes con los requisitos funcionales}\label{tab:trazabilidadCOM-FN}}
+      {\traceabilityCompFN}
+  \end{table}
 

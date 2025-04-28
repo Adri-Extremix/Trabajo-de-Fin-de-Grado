@@ -2,12 +2,14 @@
 En este capítulo se describen los aspectos relacionados con la implementación y el despliegue del sistema. Se detallan las herramientas utilizadas (\subsectionref{uso_librerias_dependencias}), la estructura de ficheros del proyecto (\subsectionref{estructura_ficheros_proyecto}), la imagen docker desarrollada (\subsectionref{construccion_imagen_docker}) y el proceso de despliegue (\sectionref{despliegue}).
 
 \section{Implementación} \label{sec:implementacion}
-Tal y como se mencionó en \sectionref{programacion}, el lado cliente será desarrollado con JavaScript, mientras que el lado servidor (proxy + contenedores) se desarrollará en Python. Además el lado servidor se comunicará con un contenedor docker para ejecutar de manera aislada el código desarrollado por el cliente (\subsectionref{sandbox}). Con esto en mente se explicará como se han organizado cada parte del proyecto, cómo se han integrado las librerías y cómo se ha construido la imagen docker y el archivo \texttt{docker-compose.yml} para la orquestación de los contenedores.  
+Tal y como se mencionó en \sectionref{programacion}, el lado cliente será desarrollado con JavaScript, mientras que el lado servidor (proxy + contenedores) se desarrollará en Python. Además el lado servidor se comunicará con un contenedor docker para ejecutar de manera aislada el código desarrollado por el cliente (\subsectionref{sandbox}). Con esto en mente se explicará como se han organizado cada parte del proyecto, cómo se han integrado las librerías y cómo se ha construido la imagen docker y el archivo \texttt{docker-compose.yml} para la orquestación de los contenedores.
+
+
+El código al completo se encuentra disponible en el repositorio de GitHub del proyecto \href{https://github.com/Adri-Extremix/Trabajo-de-Fin-de-Grado}.
 
 \subsection{Estructura de ficheros del proyecto}\label{subsec:estructura_ficheros_proyecto}
 
 Se ha decidido tener un primer nivel de directorios que separen las distintas partes del proyecto. La estructura se muestra en \figref{1-nivel-dir}.   
-
 \begin{figure}[H]
     \ffigbox[\FBwidth]
     {%
@@ -28,11 +30,9 @@ Se ha decidido tener un primer nivel de directorios que separen las distintas pa
     \end{tcolorbox}
     }
 \end{figure}
-
 En el directorio raíz del proyecto se encuentran los ficheros del código fuente en el directorio \texttt{src} y el directorio \texttt{examples} contiene ejemplos de códigos que podrían escribir los usuarios. En el directorio \texttt{test} se encuentran los ficheros necesarios para realizar las pruebas de integración y de unidad. El fichero \texttt{README.md} contiene la información necesaria para ejecutar el proyecto y el directorio \texttt{doc} se encuentra todo lo relacionado con la memoria sobre el proyecto.
 
 A partir de aquí exploraremos el directorio del código fuente. En el directorio \texttt{src} se encuentran los ficheros de código fuente del lado cliente, del lado servidor y del contenedor docker. La estructura de este directorio se muestra en \figref{src-dir}.
-
 
 \begin{figure}[htb]
     \ffigbox[\FBwidth]
@@ -70,7 +70,6 @@ A partir de aquí exploraremos el directorio del código fuente. En el directori
     \end{tcolorbox}
     }
 \end{figure}
-
 En el directorio \texttt{proxy} se encuentra el fichero \texttt{proxy.py} que contiene la implementación del proxy, el fichero \texttt{requirements.txt} que contiene las dependencias necesarias y los ficheros \texttt{Dockerfile} y \texttt{docker-compose.yml} que contienen la configuración del contenedor proxy.
 
 En el directorio del lado cliente \texttt{frontend} se encuentra el fichero \texttt{index.html} que contiene la estructura de la página web, el fichero \texttt{package.json} que contiene las dependencias del lado cliente, y un directorio para cada tipo de recurso (imágenes, scripts y estilos). 
@@ -107,9 +106,9 @@ Como se ha indicado con anterioridad, los contenedores se construyen a partir de
 
 \subsubsection{Proxy}
 
-La gestión del proxy es sencilla y tan solo es necesario crear un docker que soporte python, instalar las dependencias, abrir el puerto y ejecutar el proxy. El \texttt{Dockerfile} del proxy se muestra a continuación:
+La gestión del proxy es sencilla y tan solo es necesario crear un docker que soporte python, instalar las dependencias, abrir el puerto y ejecutar el proxy. El \texttt{Dockerfile} del proxy se muestra a continuación en la figura \ref{lst:dockerfile-proxy}. 
 
-\begin{lstlisting}[caption={Dockerfile para el proxy}]
+\begin{lstlisting}[caption={Dockerfile para el proxy}, label={lst:dockerfile-proxy}]
 FROM python:3.12
 
 WORKDIR /app
@@ -125,7 +124,7 @@ CMD ["python", "proxy.py"]
 
 Para comunicar el proxy con el resto de contenedores se ha indicado en el \texttt{docker-compose.yml} el nombre del contenedor y el nombre de la red en la que se encuentra, para facilitar la conexión cuando todos los contenedores se encuentran en la misma máquina.
 
-\begin{lstlisting}[caption={Docker-compose.yml para el contenedor del proxy}]
+\begin{lstlisting}[caption={Docker-compose.yml para el contenedor del proxy}, label={lst:docker-compose-proxy}]
     services:
   proxy:
     container_name: proxy  
@@ -152,7 +151,7 @@ En cuanto a los contenedores se encargan de las sesiones de depuración se parti
 
 Además se copiarán los archivos fuente relaciondos con las sesiones de depuración y los ficheros estáticos del lado cliente para servirlos.
 
-\begin{lstlisting}
+\begin{lstlisting}[caption={Dockerfile para el contenedor de depuración}, label={lst:dockerfile-debugger}]
 FROM ubuntu:latest
 
 RUN apt-get update && apt-get install -y \
@@ -179,9 +178,9 @@ CMD ["/app/venv/bin/python3", "webSocket.py"]
 \end{lstlisting}
 
 
-Con la imagen preparada solo es necesario indicar cómo se deben de desplegar 
+Con la imagen preparada solo es necesario indicar cómo se deben de desplegar. Para ello se usará el fichero \texttt{/src/docker/docker-compose.yml}. Este fichero tendrá la configuración de las variables de entorno que se usan en el código, con la información sobre los host y puertos, de la red a la que se tiene que contectar y del mapeo de puertos que tiene que realizar el contenedor. Además se indicarán los recursos que podrán usar cada docker, en este caso se ha decidido que solo puedan usar 4 hilos y 128MB reservados para ese contenedor, con hasta un máximo de 256MB de memoria dinámica. En la figura \ref{lst:docker-compose-debugger} se muestra un fragmento del \texttt{docker-compose.yml} que corresponde con la configuración de un contenedor de depuración llamado \texttt{debugger1}. 
 
-\begin{lstlisting}
+\begin{lstlisting}[caption={Docker-compose.yml para un contenedor de depuración}, label={lst:docker-compose-debugger}]
 services:
     debugger1:
         build:
@@ -206,10 +205,49 @@ services:
                 cpus: '4.0'
                 memory: 256M
                 reservations:
-                memory: 128M
+                    memory: 128M
 \end{lstlisting}
-
-
 
 \section{Despliegue} \label{sec:despliegue}
 
+El despligue del lado puede ser desplagado separando en distintas máquinas el proxy y los contenedores, o bien desplegando todo en la misma máquina. En este caso se ha decidido desplegar el proxy y los contenedores en la misma máquina, pero se puede desplegar de manera separada. Por esta razón las especificaciones técnicas se han separado en los 3 principales componentes aunque el despligue se realice en la misma máquina.
+
+Las especificaciones técnicas recomendadas para el despliegue del sistema son las siguientes:
+
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[htb]
+    \begin{adjustbox}{max width=\textwidth}  % permite que la tabla se desborde y quede centrada
+
+    \begin{tabular}{@{}lccc@{}}
+    \toprule
+    Especificación    & \textbf{Servicio de Sesiones de Depuración}                                                                & \textbf{Máquina Proxy}            & \textbf{Máquina de Lado Cliente}  \\ \midrule
+    CPU               & \begin{tabular}[c]{@{}c@{}}4 núcleos $\times$ (número de sesiones)\\ Intel Core i7-13700 or superior\end{tabular} & Intel® CoreTM i3 CPU 6300 & CPU con al menos 2 núcleos \\
+    RAM               & \begin{tabular}[c]{@{}c@{}}512 Mb $\times$ (número de sesiones) \\ 4 GB o superior\end{tabular}                   & 2 GB o superior                   & 2GB o superior                    \\
+        Almacenamiento    & 2 GB $\times$ (número de sesiones)                                                                                & 2 GB o superior                   & 100 MB                            \\
+        Sistema Operativo & Ubuntu 24.04 LTS                                                                                           & Ubuntu 24.04 LTS                  & Cualquiera                        \\ \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+
+    \end{table}
+
+Todas las máquinas deben de estar conectadas a Internet y tener acceso a los puertos usados en los contenedores. 
+
+El software necesario debe de ser el siguiente:
+\begin{itemize}
+    \item \textbf{Lado Servidor} (Proxy + Contenedores):
+    \begin{itemize}
+        \item Docker
+        \item Docker Compose
+    \end{itemize}
+    \item \textbf{Lado Cliente}:
+    \begin{itemize}
+        \item Navegador web moderno (Chrome, Firefox, Edge, etc.)
+        \item NodeJS
+        \item npm
+    \end{itemize}   
+\end{itemize}
+
+Para poder desplegar el proyecto se debe de seguir la guía indicada en \appref{manual}.
+En resumen, para realizar un despligue de prueba se debe de ejecutar el script \texttt{start\_proyect.sh} que se encuentra en el directorio raiz. Sin embargo, si se quiere hacer un despligue más específico, se puede desplegar solo el lado servidor a través del script \texttt{run\_back\_docker.sh} que se encuentra en el directorio \texttt{src}. Este script ejecutará el proxy y los contenedores de depuración.

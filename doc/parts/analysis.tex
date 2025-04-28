@@ -46,7 +46,7 @@ Para la especificación los requisitos se usará la siguiente plantilla:
 \printureqtemplate{}
 
 \begin{userReq}{CA}{sistema}
-    {pc=h,pd=ha,s=c,v=m}
+    {pc=h,pd=h,s=c,v=m}
     % pc: Client priority
       %  - h: high, m: medium, l: low
       % pd: Developer priority
@@ -78,7 +78,6 @@ Para la especificación los requisitos se usará la siguiente plantilla:
     {pc=l,pd=m,s=i,v=m}
     El usuario debe ser capaz de ejecutar el código compilado.
 \end{userReq}
-
 
 \begin{userReq}{CA}{depurar-codigo}
     {pc=h,pd=h,s=i,v=l}
@@ -346,7 +345,7 @@ Cada requisito tiene un identificador único que sigue el siguiente formato: SR-
 
 \section{Casos de uso}\label{sec:casos-de-uso}
 
-En esta sección se describirán los casos de uso del cliente a través de un modelo de casos de uso UML \cite{UML-UseCases}. Los casos de uso son una técnica que se utiliza para capturar los requisitos funcionales de un sistema y se representan como un conjunto de acciones que un sistema realiza en colaboración con uno o más actores. Los actores son entidades que interactúan con el sistema y pueden ser tanto humanos como sistemas externos \cite{UseCases-Wikipedia}.
+En esta sección se describirán los casos de uso del cliente a través de un modelo de casos de uso UML \cite{Cook2017}. Los casos de uso son una técnica que se utiliza para capturar los requisitos funcionales de un sistema y se representan como un conjunto de acciones que un sistema realiza en colaboración con uno o más actores. Los actores son entidades que interactúan con el sistema y pueden ser tanto humanos como sistemas externos \cite{UseCases-Wikipedia}.
 
 Cada caso de uso está identificado por un identificador único. Este identificador sigue el siguiente formato: CU-XX, donde XX es un número secuencial que identifica el caso de uso y comienza en 01.
 
@@ -414,22 +413,19 @@ Para la especificación de los casos de uso se usará la siguiente plantilla:
 
 En esta sección se detallará la trazabilidad de los requisitos de usuario y sistema, donde los requisitos funcionales deben de cubrir todos los requisitos de capacidad (\tabref{trazabilidadFN-CA}) y los requisitos no funcionales deben de cubrir todos los requisitos de restricción (\tabref{trazabilidadNF-RE}), y con los casos de uso (\tabref{trazabilidad-req-casos}). La trazabilidad es la capacidad de seguir y documentar la vida de un requisito, desde su origen hasta su implementación y pruebas. La trazabilidad es una parte importante de la gestión de requisitos, ya que permite a los desarrolladores y a los interesados comprender la historia y el propósito de un requisito, así como evaluar el impacto de los cambios en los requisitos \cite{IEEE-Requirements}.
 
-\begin{figure}[htbp]
-    \centering
-    \traceabilityFNCA
-    \caption{Trazabilidad de los requisitos funcionales con los requisitos de capacidad}
-    \label{tab:trazabilidadFN-CA}
-\end{figure}
+\begin{table}[htb]
+    \ttabbox[\FBwidth]
+      {\caption{Trazabilidad de los requisitos funcionales con los requisitos de capacidad}\label{tab:trazabilidadFN-CA}}
+      {\traceabilityFNCA}
+  \end{table}
 
+\begin{table}[htb]
+    \ttabbox[\FBwidth]
+      {\caption{Trazabilidad de los requisitos no funcionales con los requisitos de restricción}\label{tab:trazabilidadNF-RE}}
+      {\traceabilityNFRE}
+  \end{table}
 
-\begin{figure}[htbp]
-    \centering
-    \traceabilityNFRE
-    \caption{Trazabilidad de los requisitos no funcionales con los requisitos de restricción}
-    \label{tab:trazabilidadNF-RE}
-\end{figure}
-
-\begin{figure}[htbp]
+\begin{table}[htbp]
     \begin{tabular}{c|cccc}
         \multicolumn{1}{l|}{} & \multicolumn{1}{l}{CU-01} & \multicolumn{1}{l}{CU-02} & \multicolumn{1}{l}{CU-03} & \multicolumn{1}{l}{CU-04} \\ \hline
         RU-CA-01              & \multicolumn{1}{c|}{\textbullet}    & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     & \multicolumn{1}{c|}{}     \\ \hline
@@ -458,7 +454,7 @@ En esta sección se detallará la trazabilidad de los requisitos de usuario y si
     \end{tabular}
     \caption{Trazabilidad de requisitos de usuario con casos de uso}
     \label{tab:trazabilidad-req-casos}
-\end{figure}
+\end{table}
 
 
 

@@ -1,12 +1,60 @@
 \chapter{Conclusiones y Trabajo Futuro}\label{chap:conclusiones}
-\section{Conclusiones}
+En este capitulo se prensentan las conclusiones del proyecto (\sectionref{conclusiones_proyecto}) y las conclusiones personales (\sectionref{conclusiones_personales}). También se describirán posibles mejoras al proyecto y diferentes frentes en los que se podría avanzar en próximos proyectos.
 
-\section{Trabajo Futuro}
+\section{Conclusiones del Proyecto}\label{sec:conclusiones_proyecto}
+
+Este documento ha presentado el desarrollo de una herramienta didáctica para la programación concurrente. Para ello se han ido describiendo las diferentes etapas del proyecto, desde el análsis, pasando por el diseño y la implementación, hasta la validación del mismo.
+
+El objetivo principal era crear una herramienta que permitiese a estudiantes interiorizar los conceptos característicos de la concurrencia de manera práctica. Recuperando los objetivos planteados en la \sectionref{objetivos} podemos observar que todos los objetivos, tanto los principales como los secundarios, han sido cumplidos.
+
 \begin{itemize}
-    \item Frontend Responive
-    \item Comunicaciones Cifradas
-    \item Desacoplamiento total entre proxy y contenendores
-    \item Depurar codigo ensamblador
-    \item Configurar planificador
-    \item Control del Proxy sobre los contenedores para volver a levantar contenedores caidos
+    \item \textbf{Obj.1}: La herramienta compila, ejecuta y depura código concurrente en \textit{C}.
+    \begin{itemize}
+        \item \textbf{1.1}: La depuración permite al usuario controlar la ejecución de los hilos.
+        \item \textbf{1.2}: La depuración permite al usuario observar el estado de los hilos.
+        \item \textbf{1.3}: La herramienta permite realizar las acciones básicas de un depurador, tales como \textit{step over}, \textit{step into}, \textit{step out}, \textit{continue}, \textit{breakpoint}, etc.
+    \end{itemize}
+    
+    \item \textbf{Obj.2}: La herramienta tiene un enfoque didáctico\label{obj:didactico}
+    \begin{itemize}
+        \item \textbf{2.1}: Se abstrae de la complejidades en la compilación, memoria de los procesos y llamadas al sistema, arquitectura de la máquina o sistema operativo.
+        \item \textbf{2.2}: Tiene una interfaz gráfica que permite al usuario interactuar con la herramienta.
+        \item \textbf{2.3}: Tiene las funcionalidadades básicas para permitir al usuario entender cómo se comportan los hilos.
+    \end{itemize}
+\end{itemize}
+
+Los principales problemas que se han encontrado durante el desarrollo del proyecto han sido encontrar las diferentes herramientas y librerías que permitieran no tener que implementar todo el código desde cero, finalmente decantandose por el uso de un depurador externo como es \textit{gdb} y \textit{RR} y la librería \textit{pygdbMI}, y encontrar una solución que cumpla los requisitos de utilizar un entorno \textit{sandbox} (\sreqref{NF-sandbox}) y sea capaz de alojar varios clientes.
+
+\section{Conclusiones Personales}\label{sec:conclusiones_personales}
+
+Este proyecto ha sido una experiencia muy enriquecedora, ya que me ha permitido aprender a utilizar herramientas y librerías que no conocía, así como mejorar mis conocimientos sobre depuración y programación concurrente. También he aprendido a trabajar con \textit{Docker} y a utilizarlo como herramienta de desarrollo, lo que me ha permitido entender mejor cómo funcionan los contenedores y cómo se pueden utilizar para crear entornos de desarrollo aislados.
+
+He adquirido muchos conocimientos sobre sistemas distribuidos, sobre todo enfocado en servicios web, debido al uso de API REST y WebSockets. Adicionalmente, ha sido necesario aprender a implementar un servicio de monitoreo de disponibilidad basado en latidos (\textit{heartbeat}) y a utilizar herramientas de orquestación como \textit{Docker Compose}.
+
+El hecho de enfrentarme a un proyecto de estas dimensiones sin tener un conocimiento previo y unos objetivos claros ha sido un reto, pero también una oportunidad para mejorar mis capacidades de investigación, análisis y diseño, para poder tomar las mejores decisiones. Características como la escalabilidad, la reutilización y la modularidad han sido puntos clave que se han tenido que tener en cuenta para afrontar un proyecto de esta magnitud.
+
+\section{Trabajo Futuro}\label{sec:trabajo_futuro}
+
+Aunque durante el desarrollo del proyecto se han cumplido con todos los objetivos planteados y se ha tratado de abarcar todos los frentes posibles, siempre hay margen de mejora y nuevas funcionalidades que se pueden implementar. A continuación se presentan los diferentes frentes que se podrían explorar en el futuro y de qué manera se podrían implementar:
+
+\begin{itemize}
+    \item \textbf{Mejorar la calidad de la intefaz gráfica}
+    \begin{itemize}
+        \item Tener un diseño \textit{responsive} que se adapte a diferentes tamaños de pantalla.
+        \item Buscar soluciones para mejorar la accesibilidad de la herramienta.
+        \item Mejorar la experiencia de usuario, añádiendo \textit{drag and drop} para seleccionar los hilos a visualizar.
+    \end{itemize}
+    \item \textbf{Aumentar las capacidades distribuidas}
+    \begin{itemize}
+        \item Tener un sistema DNS que permita acceder a los diferentes servicios de forma más sencilla.
+        \item Utilizar TLS para cifrar las comunicaciones entre el cliente y las sesiones de depuración.
+        \item Implementar un sistema de monitoreo y alertas para detectar problemas en el sistema.
+        \item Implementar un sistema para que el proxy pueda reiniciar los contenedores que se caen.
+    \end{itemize}
+    \item \textbf{Nuevas funcionalidades para la depuración}
+    \begin{itemize}
+        \item Añadir una opción para añadir un planificador de hilos, que permita simular diferentes políticas de planificación.
+        \item Tener soporte para un proyecto completo, en vez de un único archivo.
+        \item Añadir la opción de depurar código ensamblador.
+    \end{itemize}
 \end{itemize}
