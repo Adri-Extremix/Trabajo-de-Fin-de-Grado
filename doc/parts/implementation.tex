@@ -73,7 +73,7 @@ A partir de aquí exploraremos el directorio del código fuente. En el directori
 En el directorio \texttt{proxy} se encuentra el fichero \texttt{proxy.py} que contiene la implementación del proxy, el fichero \texttt{requirements.txt} que contiene las dependencias necesarias y los ficheros \texttt{Dockerfile} y \texttt{docker-compose.yml} que contienen la configuración del contenedor proxy.
 
 En el directorio del lado cliente \texttt{frontend} se encuentra el fichero \texttt{index.html} que contiene la estructura de la página web, el fichero \texttt{package.json} que contiene las dependencias del lado cliente, y un directorio para cada tipo de recurso (imágenes, scripts y estilos). 
-En el directorio \texttt{docker} se encuentran los ficheros necesarios para construir la imagen docker. En este directorio se encuentran los ficheros \texttt{Dockerfile} y \texttt{docker-compose.yml} que contiene las instrucciones para construir la imagen, y un fichero \texttt{requirements.txt} que contiene las dependencias necesarias para ejecutar el código del contenedor, además de cada uno de los ficheros \texttt{.py} que contienen la implementación de cada uno de los componentes de cada contenedor.  
+En el directorio \texttt{docker} se encuentran los ficheros necesarios para construir la imagen docker. En este directorio se encuentran los ficheros \texttt{Dockerfile} y \texttt{docker-compose.yml} que contiene las instrucciones para construir la imagen. También se incluye un fichero \texttt{requirements.txt} que contiene las dependencias necesarias para ejecutar el código del contenedor, además de cada uno de los ficheros \texttt{.py} que contienen la implementación de cada uno de los componentes de cada contenedor.  
 
 Por último, en el directiorio \texttt{src} se encuentra el fichero \texttt{run\_proyect.sh} que permite desplegar la parte correspondiente al lado servidor. 
 
@@ -250,4 +250,4 @@ El software necesario debe de ser el siguiente:
 \end{itemize}
 
 Para poder desplegar el proyecto se debe de seguir la guía indicada en \appref{manual}.
-En resumen, para realizar un despligue de prueba se debe de ejecutar el script \texttt{start\_proyect.sh} que se encuentra en el directorio raiz. Sin embargo, si se quiere hacer un despligue más específico, se puede desplegar solo el lado servidor a través del script \texttt{run\_back\_docker.sh} que se encuentra en el directorio \texttt{src}. Este script ejecutará el proxy y los contenedores de depuración.
+En resumen, para realizar un despligue de prueba se debe de ejecutar el script que se encuentra en la raíz del proyecto \texttt{start\_proyect.sh}. Sin embargo, si se quiere hacer un despligue más específico, se puede desplegar solo el lado servidor a través del script \texttt{run\_back\_docker.sh} que se encuentra en el directorio \texttt{src}. Este script ejecutará el proxy y los contenedores de depuración.

@@ -2,7 +2,7 @@
 En este capítulo se detallará el sistema a desarrollar describiendo brevemente la propuesta a desarrollar, sus requisitos y los casos de uso que se han identificado.
 
 \section{Descripción del proyecto}\label{sec:descripcion}
-Este proyecto tiene como objetivo construir una herramienta que permita a los estudiantes que comienzan a crear programas concurrentes depurar su código abstrayendose de ciertas complejidades ajenas a la programación concurrente y enfocandose en la sincronización de los hilos y procesos.
+Este proyecto tiene como objetivo construir una herramienta que permita a los estudiantes que comienzan a crear \glspl{programa concurrente} depurar su código abstrayendose de ciertas complejidades ajenas a la programación concurrente y enfocandose en la sincronización de los hilos y procesos.
 
 Como se mencionó durante el \chapterref{estado-del-arte}, los depuradores que permiten la depuración concurrente no están enfocados en el aprendizaje ni la abstracción, sino en ofrecer todo tipo de funcionalidades al usuario para que él, que entiende al completo todos los factores que pueden inducir a un error, encuentre el problema. Es por esto que se propone una herramienta que permita a los estudiantes entender cómo se comportan los hilos y procesos de forma sencilla y visual.
 
@@ -56,7 +56,7 @@ Para la especificación los requisitos se usará la siguiente plantilla:
       % v: Verifiability
       %  - h: high, m: medium, l: low
     % description
-    El sistema debe de mostrar información sobre la ejecución de un programa concurrente escrito en C.
+    El sistema debe de mostrar información sobre la ejecución de un \gls{programa concurrente} escrito en C.
 \end{userReq}
 
 \begin{userReq}{CA}{escribir-codigo}
@@ -81,12 +81,12 @@ Para la especificación los requisitos se usará la siguiente plantilla:
 
 \begin{userReq}{CA}{depurar-codigo}
     {pc=h,pd=h,s=i,v=l}
-    El usuario debe ser capaz de depurar el código escrito.
+    El usuario debe ser capaz de \gls{depurar} el código escrito.
 \end{userReq}
 
 \begin{userReq}{CA}{aviso-error-concurrencia}
     {pc=m,pd=l,s=i,v=m}
-    El sistema debe de avisar al usuario si se encuentran errores de concurrencia.
+    El sistema debe de avisar al usuario si se encuentran errores de \gls{concurrencia}.
 \end{userReq}
 
 \begin{userReq}{CA}{depurar-parar-ejecucion}
@@ -96,7 +96,7 @@ Para la especificación los requisitos se usará la siguiente plantilla:
 
 \begin{userReq}{CA}{depurar-paso}
     {pc=m,pd=m,s=i,v=h}
-    El usuario debe ser capaz de depurar paso a paso.
+    El usuario debe ser capaz de \gls{depurar} paso a paso.
 \end{userReq}
 
 \begin{userReq}{CA}{depurar-rebobinar}
@@ -106,17 +106,17 @@ Para la especificación los requisitos se usará la siguiente plantilla:
 
 \begin{userReq}{CA}{visibilidad-hilos}
     {pc=h,pd=h,s=c,v=h}
-    El usuario debe ser capaz de ver los hilos y procesos en ejecución.
+    El usuario debe ser capaz de ver los \glspl{hilo} y procesos en ejecución.
 \end{userReq}
 
 \begin{userReq}{CA}{visibilidad-variables}
     {pc=h,pd=h,s=c,v=h}
-    El usuario debe ser capaz de ver el estado de las variables de cada uno de los hilos.
+    El usuario debe ser capaz de ver el estado de las variables de cada uno de los \glspl{hilo}.
 \end{userReq}
 
 \begin{userReq}{CA}{evolucion-hilos}
     {pc=h,pd=m,s=i,v=h}
-    El usuario debe ser capaz de ver la evolución de los hilos y procesos.
+    El usuario debe ser capaz de ver la evolución de los \glspl{hilo} y procesos.
 \end{userReq}
 
 \begin{userReq}{RE}{compilar-c}
@@ -131,7 +131,7 @@ Para la especificación los requisitos se usará la siguiente plantilla:
 
 \begin{userReq}{RE}{depurar-c}
     {pc=h,pd=h,s=c,v=l}
-    El sistema debe ser capaz de depurar código C.
+    El sistema debe ser capaz de \gls{depurar} código C.
 \end{userReq}
 
 \begin{userReq}{RE}{abstraccion-so}
@@ -151,7 +151,7 @@ Para la especificación los requisitos se usará la siguiente plantilla:
 
 \begin{userReq}{RE}{abstraccion-memoria}
     {pc=h,pd=m,s=c,v=h}
-    El sistema debe de abstraerse de direcciones de memoria de las variables, hilos y procesos.
+    El sistema debe de abstraerse de direcciones de memoria de las variables, \glspl{hilo} y procesos.
 \end{userReq}
 
 \begin{userReq}{RE}{abstraccion-codigo-no-propio}
@@ -200,7 +200,7 @@ Cada requisito tiene un identificador único que sigue el siguiente formato: SR-
 \begin{softwareReq}{FN}{editor-breakpoint}
     {pc=m,pd=h,s=c,v=h}
     {CA-escribir-codigo, CA-c-highlight, CA-depurar-parar-ejecucion}
-    El editor debe de permitir al usuario poner breakpoints en el código, donde se parará la ejecución del programa al depurar
+    El editor debe de permitir al usuario poner \glspl{breakpoint} en el código, donde se parará la ejecución del programa al depurar
 \end{softwareReq}
 
 \begin{softwareReq}{FN}{fichero-codigo}
@@ -230,7 +230,7 @@ Cada requisito tiene un identificador único que sigue el siguiente formato: SR-
 \begin{softwareReq}{FN}{aviso-error-concurrencia}
     {pc=m,pd=m,s=c,v=h}
     {CA-aviso-error-concurrencia}
-    El sistema debe de utilizar Helgrind o ThreadSanitizer para detectar errores de concurrencia
+    El sistema debe de utilizar Helgrind o ThreadSanitizer para detectar errores de \gls{concurrencia}
 \end{softwareReq}
 
 \begin{softwareReq}{FN}{step-over}
@@ -254,7 +254,7 @@ Cada requisito tiene un identificador único que sigue el siguiente formato: SR-
 \begin{softwareReq}{FN}{continuar-ejecucion}
     {pc=m,pd=m,s=c,v=h}
     {CA-depurar-parar-ejecucion, CA-depurar-paso}
-    El sistema debe permitir moverse entre los breakpoints y continuar la ejecución del programa
+    El sistema debe permitir moverse entre los \glspl{breakpoint} y continuar la ejecución del programa
 \end{softwareReq}
 
 \begin{softwareReq}{FN}{rebobinar}
@@ -266,19 +266,19 @@ Cada requisito tiene un identificador único que sigue el siguiente formato: SR-
 \begin{softwareReq}{FN}{visualizacion-hilos}
     {pc=h,pd=m,s=c,v=h}
     {CA-visibilidad-hilos}
-    El sistema debe de mostrar durante la depuración los hilos que se encuentran en ejecución en el punto actual
+    El sistema debe de mostrar durante la depuración los \glspl{hilo} que se encuentran en ejecución en el punto actual
 \end{softwareReq}
 
 \begin{softwareReq}{FN}{visualizacion-variables}
     {pc=h,pd=m,s=c,v=h}
     {CA-visibilidad-variables}
-    El sistema debe de mostrar durante la depuración el estado de las variables de cada uno de los hilos
+    El sistema debe de mostrar durante la depuración el estado de las variables de cada uno de los \glspl{hilo}
 \end{softwareReq}   
 
 \begin{softwareReq}{FN}{visualizacion-evolucion}
     {pc=m,pd=l,s=c,v=l}
     {CA-evolucion-hilos}
-    El sistema debe de mostrar durante la depuración la evolución de los hilos y procesos a través de un diagrama temporal
+    El sistema debe de mostrar durante la depuración la evolución de los \glspl{hilo} y procesos a través de un diagrama temporal
 \end{softwareReq}
 
 \begin{softwareReq}{NF}{compilador}
@@ -296,13 +296,13 @@ Cada requisito tiene un identificador único que sigue el siguiente formato: SR-
 \begin{softwareReq}{NF}{ejecucion-POSIX}
     {pc=m,pd=h,s=c,v=h}
     {CA-ejecutar-codigo, RE-ejecutar-c}
-    El sistema debe de ejecutar en un sistema operativo UNIX para soportar la ejecución de hilos POSIX 
+    El sistema debe de ejecutar en un sistema operativo UNIX para soportar la ejecución de \glspl{hilo} POSIX 
 \end{softwareReq}
 
 \begin{softwareReq}{NF}{depuracion-c}
     {pc=h,pd=h,s=c,v=l}
     {RE-depurar-c}
-    El sistema debe de depurar código C
+    El sistema debe de \gls{depurar} código C
 \end{softwareReq}
 
 \begin{softwareReq}{NF}{abstraccion-so}
@@ -338,7 +338,7 @@ Cada requisito tiene un identificador único que sigue el siguiente formato: SR-
 \begin{softwareReq}{NF}{multiplataforma}
     {pc=m,pd=h,s=c,v=h}
     {RE-multiplataforma}
-    El sistema debe de ser multiplataforma
+    El sistema debe de ser \gls{multiplataforma}
 \end{softwareReq}
 
 \FloatBarrier
@@ -401,9 +401,9 @@ Para la especificación de los casos de uso se usará la siguiente plantilla:
     {Se inicia una sesión de depuración respecto al fichero ejecutable en el backend}
     \begin{enumerate}
         \item Desde la sección de edición se selecciona la opción de depuración
-        \item El usuario elige de qué forma quiere depurar el código
+        \item El usuario elige de qué forma quiere \gls{depurar} el código
         \item Se ejecuta el código paso a paso
-        \item Se muestra el estado de los hilos y procesos
+        \item Se muestra el estado de los \glspl{hilo} y procesos
     \end{enumerate}
 \end{useCase}
 
@@ -411,7 +411,7 @@ Para la especificación de los casos de uso se usará la siguiente plantilla:
 
 \section{Trazabilidad}\label{sec:trazabilidad}
 
-En esta sección se detallará la trazabilidad de los requisitos de usuario y sistema, donde los requisitos funcionales deben de cubrir todos los requisitos de capacidad (\tabref{trazabilidadFN-CA}) y los requisitos no funcionales deben de cubrir todos los requisitos de restricción (\tabref{trazabilidadNF-RE}), y con los casos de uso (\tabref{trazabilidad-req-casos}). La trazabilidad es la capacidad de seguir y documentar la vida de un requisito, desde su origen hasta su implementación y pruebas. La trazabilidad es una parte importante de la gestión de requisitos, ya que permite a los desarrolladores y a los interesados comprender la historia y el propósito de un requisito, así como evaluar el impacto de los cambios en los requisitos \cite{IEEE-Requirements}.
+En esta sección se detallará la Trazabilidad de los requisitos de usuario y sistema, donde los requisitos funcionales deben de cubrir todos los requisitos de capacidad (\tabref{trazabilidadFN-CA}) y los requisitos no funcionales deben de cubrir todos los requisitos de restricción (\tabref{trazabilidadNF-RE}), y con los casos de uso (\tabref{trazabilidad-req-casos}). La Trazabilidad es la capacidad de seguir y documentar la vida de un requisito, desde su origen hasta su implementación y pruebas. La Trazabilidad es una parte importante de la gestión de requisitos, ya que permite a los desarrolladores y a los interesados comprender la historia y el propósito de un requisito, así como evaluar el impacto de los cambios en los requisitos \cite{IEEE-Requirements}.
 
 \begin{table}[htb]
     \ttabbox[\FBwidth]

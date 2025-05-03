@@ -1,3 +1,55 @@
-\chapter{Marco Regulatorio}\label{chap:marco-regulador}
+\chapter{Marco Regulatorio Y Entorno Socio-Económico}\label{chap:marco-regulador}
 
-En este capítulo se describirá cómo el proyecto se ve afectado por el marco regulatorio.
+En este capítulo se describirá cómo el proyecto se ve afectado por el marco regulatorio y el entorno socio-económico.
+
+\section{Marco Regulatorio}\label{sec:marco-regulador}
+
+En esta sección se van a exponer las licencias bajo las que se distribuyen los distintos softwares utilizados en el proyecto, así como las normativas que afectan al mismo. 
+
+\subsection{Licencias de Software}\label{subsec:licencias-software}
+
+Tal y como se ha mencionado en las secciones \section{programacion} y \subsectionref{uso_librerias_dependencias}, el proyecto principalmente en Python, JavaScript y Docker.
+
+Las principales librerías que se han usado en Python son:
+\begin{itemize}
+    \item Flask: Es un módulo de Python que usa la licencia la licencia \textit{3-Clause BSD} \cite{flask}.
+    \item PyGDBMI: Es un módulo de Python que usa la licencia \textit{MIT} \cite{pygdbmi}.
+\end{itemize}
+
+La principal librería que se ha usado en JavaScript son:
+\begin{itemize}
+    \item Parcel: Es una herramienta que usa la licencia MIT \cite{parcel}.
+    \item CodeMirror: Esta librería usa la licencia MIT \cite{codemirror}. 
+    \item Socket.io: Esta librería usa la licencia MIT \cite{socket.io}.
+\end{itemize}
+
+Además, docker es un software que usa la licencia Apache 2.0 \cite{docker}. El depurador \textit{GDB} es un software que usa la licencia GPLv3 \cite{GDB} y el depurador \textit{RR} usa una combinación de varias licencias, pero la mayor parte del código tiene la licencia MIT \cite{RR-Github}.
+
+Dado que todas las librerías y softwares usados en el proyecto tienen licencias permisivas, a excepción de \textit{GDB} (que al no integrar parte del código fuente en el proyecto no se considera obra derivada), no es necesario incluir ninguna mención especial en el proyecto.
+
+El proyecto se distribuye bajo la licencia \textit{MIT} \cite{mit}, que es una licencia permisiva que permite a los usuarios usar, copiar, modificar y distribuir el software bajo ciertas condiciones. Esta licencia es ampliamente utilizada en la comunidad de software libre y de código abierto.
+
+\subsection{Normativas}\label{subsec:normativas}
+
+En este apartado se van a exponer las normativas que afectan al proyecto. En este caso, dado que el proyecto se tiene un alcance reducido estará sujeto al \textit{Reglamento General de Protección de Datos} (RGPD) \cite{rgpd}.
+
+Dado el carácter intrínseco del proyecto, debe de existir una vinculación entre el usuario y las sesiones de depuración. Para ello, el navegador busca una cookie de sesión y en el caso de no existir se crea un nuevo identificador unívoco. Este identificador se almacena en el navegador y se envía al servidor cada vez que se realiza una petición \texttt{GET} al proxy. Este proxy utiliza el identificador para conocer la sesión de depuración a la que pertenece la petición. En el caso de que el usuario cierre el navegador, la cookie de sesión se elimina tras 10 min, lo que hará que el identificador de sesión se vuelva inválido. En el caso de que el usuario cierre la sesión, la cookie de sesión se elimina inmediatamente y el identificador de sesión se vuelve inválido.
+
+Este proceso encaja con el artículo 6.1.b del RGPD, que establece que el tratamiento de datos personales es lícito si es necesario para la ejecución de un contrato en el que el interesado es parte o para la aplicación a petición de este de medidas precontractuales \cite{rgpd_art6}. 
+
+Además, el artículo 5.1 del RGPD establece que los datos personales deben ser tratados de manera lícita, leal y transparente en relación con el interesado \cite{rgpd_art5}. En este caso, el tratamiento de datos personales se realiza de manera lícita y transparente, ya que el usuario es informado de la creación de la cookie de sesión y del uso del identificador de sesión para la gestión de la depuración.
+
+\section{Entorno Socio-Económico}\label{sec:entorno-socio-economico}
+
+Para estructurar el análisis de este entorno y destacar la relevancia del proyecto, se emplearán los Objetivos de Desarrollo Sostenible (ODS) de las Naciones Unidas \cite{ods} como marco de referencia. Estos objetivos representan un llamamiento universal a la acción para poner fin a la pobreza, proteger el planeta y mejorar las vidas y las perspectivas de las personas en todo el mundo.
+
+Dentro de este marco global, este proyecto se alinea con varios ODS, entre los que destacan:
+
+\subsection*{ODS 4: Educación de Calidad \cite{ods_4}}
+Este objetivo busca garantizar una educación inclusiva, equitativa y de calidad y promover oportunidades de aprendizaje para todos a lo largo de la vida. El proyecto contribuye directamente a este fin al centrarse en mejorar la enseñanza y el aprendizaje de la programación concurrente. Mediante una aproximación práctica y visual, se facilita la comprensión de conceptos complejos y se potencia la capacidad de los estudiantes para desarrollar software concurrente de manera más efectiva y robusta, lo cual es fundamental en el desarrollo tecnológico actual.
+
+\subsection*{ODS 8: Trabajo Decente y Crecimiento Económico \cite{ods_8}}
+Este objetivo promueve el crecimiento económico sostenido, inclusivo y sostenible, el empleo pleno y productivo y el trabajo decente para todos. La programación concurrente es un área de conocimiento y una habilidad técnica con una demanda creciente en el mercado laboral. El constante aumento en el número de núcleos de procesamiento en los dispositivos informáticos subraya la necesidad de profesionales capacitados en el desarrollo de aplicaciones que puedan explotar el paralelismo. Al fortalecer la formación en esta disciplina, el proyecto contribuye a preparar a los futuros profesionales para acceder a empleos de calidad en sectores tecnológicos clave y fomenta la productividad en la economía digital.
+
+\subsection*{ODS 9: Industria, Innovación e Infraestructura \cite{ods_9}}
+Este objetivo persigue construir infraestructuras resilientes, promover la industrialización inclusiva y sostenible y fomentar la innovación. Las competencias en programación concurrente son esenciales para el desarrollo de sistemas de software de alto rendimiento y escalabilidad, necesarios para la construcción y operación de infraestructuras digitales modernas (como la computación en la nube o los sistemas de gestión de grandes datos) y para la modernización de procesos industriales. Asimismo, son fundamentales para impulsar la innovación en campos emergentes como la inteligencia artificial, el análisis de big data y la computación científica. Por tanto, al mejorar la capacitación en esta área, el proyecto sienta las bases para el avance tecnológico y la innovación futura.

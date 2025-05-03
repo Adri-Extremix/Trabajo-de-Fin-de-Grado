@@ -12,11 +12,11 @@ Durante la especificación de los requisitos se han descrito varios requisitos q
 
 \subsubsection{Monolítico} \label{subsubsec:monolitico}
 
-Una aplicación monolítica es aquella que se ejecuta en una única máquina y en un único sistema operativo. Este tipo de aplicaciones son más sencillas de desarrollar y de mantener, ya que no requieren de una comunicación entre diferentes máquinas. Sin embargo, una aplicación monolítica no es capaz de ejecutarse en diferentes sistemas operativos, ya que el código fuente debe de ser compilado para cada sistema operativo. Dado que el requisito \sreqref{NF-multiplataforma} indica que el sistema debe de poder ejecutar en cualquier sistema operativo, el monolítico no es una opción viable.
+Una \gls{aplicación monolítica} es aquella que se ejecuta en una única máquina y en un único sistema operativo. Este tipo de aplicaciones son más sencillas de desarrollar y de mantener, ya que no requieren de una comunicación entre diferentes máquinas. Sin embargo, una \gls{aplicación monolítica} no es capaz de ejecutarse en diferentes sistemas operativos, ya que el código fuente debe de ser compilado para cada sistema operativo. Dado que el requisito \sreqref{NF-multiplataforma} indica que el sistema debe de poder ejecutar en cualquier sistema operativo, la \gls{aplicación monolítica} no es una opción viable.
 
 \subsubsection{Distribuido} \label{subsubsec:distribuido}
 
-Una aplicación distribuida es aquella que se ejecuta en múltiples procesos. Este tipo de aplicaciones tienen una mayor complejidad de desarrollar, debido a la comunicación entre procesos. Sin embargo, una aplicación distribuida que sirva un servicio web podría funcionar en cualquier sistema operativo (\sreqref{NF-multiplataforma}, \sreqref{NF-abstraccion-so} y \sreqref{NF-abstraccion-arch}), dado que solo ejecutaría el código del cliente, y además contemplaría el requisito \sreqref{NF-ejecucion-POSIX}, que indica que el sistema debe de ejecutarse en un sistema operativo UNIX para soportar la ejecución de hilos POSIX. Esta arquitectura permitiría tener una única aplicación web que se pueda ejecutar el lado cliente en cualquier sistema operativo y arquitectura, mientras se utiliza un servidor que ejecuta en un sistema operativo UNIX que permita la ejecución de hilos POSIX.
+Una \gls{aplicación distribuida} es aquella que se ejecuta en múltiples procesos. Este tipo de aplicaciones tienen una mayor complejidad de desarrollar, debido a la comunicación entre procesos. Sin embargo, una \gls{aplicación distribuida} que sirva un \gls{servicio web} podría funcionar en cualquier sistema operativo (\sreqref{NF-multiplataforma}, \sreqref{NF-abstraccion-so} y \sreqref{NF-abstraccion-arch}), dado que solo ejecutaría el código del cliente, y además contemplaría el requisito \sreqref{NF-ejecucion-POSIX}, que indica que el sistema debe de ejecutarse en un sistema operativo UNIX para soportar la ejecución de \glspl{hilo} POSIX. Esta arquitectura permitiría tener una única \gls{aplicación web} que se pueda ejecutar el lado cliente en cualquier sistema operativo y arquitectura, mientras se utiliza un servidor que ejecuta en un sistema operativo UNIX que permita la ejecución de \glspl{hilo} POSIX.
 
 Durante la sección \sectionref{arquitectura-sistema} se detallarán cómo se ha implementado este diseño distribuido. 
 
@@ -26,52 +26,52 @@ Para implementar la depuración concurrente existen varias alternativas.
 
 \subsubsection{Almacenamiento de estados} \label{subsec:almacenamiento-estados}
 
-Para implementar las operaciones básicas de un depurador es necesario moverse por la ejecución del código. Es por esta razón que se evaluó la posibilidad de inyectar código en el programa cuyo propósito sea almacenar el estado de la ejecución en un momento determinado. Con estos estados almacenados el usuario podría moverse entre cada uno de ellos, facilitando el rebobinado de la ejecución.
+Para implementar las operaciones básicas de un depurador es necesario moverse por la ejecución del código. Es por esta razón que se evaluó la posibilidad de \gls{inyectar código} en el programa cuyo propósito sea almacenar el estado de la ejecución en un momento determinado. Con estos estados almacenados el usuario podría moverse entre cada uno de ellos, facilitando el rebobinado de la ejecución.
 
-Para almacenar estos estados sería necesario introducir código en el programa tras cada sentencia que modifique el estado de la ejecución, es decir, creación de variables, modificación de variables o llamadas al sistema que generasen nuevos hilos. Lo que supone crear un \textit{\gls{parser}} para encontrar estas sentencias y añadir a continuación una función que almacene la variable y su valor en la función e hilo correspondiente. 
+Para almacenar estos estados sería necesario introducir código en el programa tras cada \gls{sentencia} que modifique el estado de la ejecución, es decir, creación de variables, modificación de variables o \glspl{llamada al sistema} que generasen nuevos \glspl{hilo}. Lo que supone crear un \textit{\gls{parser}} para encontrar estas \glspl{sentencia} y añadir a continuación una función que almacene la variable y su valor en la función e \gls{hilo} correspondiente. 
 
-Sin embargo, el desarrollo del \textit{\gls{parser}} supone una gran complejidad debido a las numerosas sentencias que tener en cuenta, por lo que se decidió explorar nuevas alternativas.
+Sin embargo, el desarrollo del \textit{\gls{parser}} supone una gran complejidad debido a las numerosas \glspl{sentencia} que tener en cuenta, por lo que se decidió explorar nuevas alternativas.
 
 \subsubsection{Uso de depuradores externos} \label{subsec:depuradores-externos}
 
-Dado que implementar un depurador desde 0 supone una gran complejidad, se ha evaluado la opción de utilizar un depurador externo. Durante el \chapterref{estado-del-arte} se analizaron los depuradores existentes, dentro de estos depuradores tan solo GDB (\subsectionref{gdb}), LLDB (\subsectionref{lldb}) y RR (\subsectionref{rr}) permitían construir una aplicación sobre ellos. Aunque LLDB tenga una API en Python que permita la interactividad con la sesión de depuración, carece de la capacidad de rebobinar durante la depuración, tal y como indica el requisito \sreqref {FN-rebobinar}. Por lo tanto, RR es una opción más viable, que aunque no ofrezca una API en Python que permita la interactividad, sí que ofrece una interfaz máquina que ofrece una salida formateada.
+Dado que implementar un depurador desde 0 supone una gran complejidad, se ha evaluado la opción de utilizar un depurador externo. Durante el \chapterref{estado-del-arte} se analizaron los depuradores existentes, dentro de estos depuradores tan solo GDB (\subsectionref{gdb}), LLDB (\subsectionref{lldb}) y RR (\subsectionref{rr}) permitían construir una aplicación sobre ellos. Aunque LLDB tenga una \gls{API} en Python que permita la interactividad con la sesión de depuración, carece de la capacidad de rebobinar durante la depuración, tal y como indica el requisito \sreqref {FN-rebobinar}. Por lo tanto, RR es una opción más viable, que aunque no ofrezca una \gls{API} en Python que permita la interactividad, sí que ofrece una interfaz máquina que ofrece una salida formateada.
 
-No obstante, RR registra la ejecución del programa para reproducirla posteriormente, garantizando así una ejecución determinista. Esto limitaría la capacidad del usuario para modificar el flujo de ejecución a su conveniencia. Por ello, se ofrecerá la opción de elegir entre grabar la ejecución, permitiendo el rebobinado, o no grabarla (utilizando solo GDB), permitiendo una ejecución libre de los hilos.
-
+No obstante, RR registra la ejecución del programa para reproducirla posteriormente, garantizando así una ejecución determinista. Esto limitaría la capacidad del usuario para modificar el flujo de ejecución a su conveniencia. Por ello, se ofrecerá la opción de elegir entre grabar la ejecución, permitiendo el rebobinado, o no grabarla (utilizando solo GDB), permitiendo una ejecución libre de los \glspl{hilo}.
+    
 \subsection{Sandbox} \label{subsec:sandbox}
 
-Tal y como se indica en \sreqref{NF-sandbox}, el sistema debe de ejecutar el código en un entorno aislado para evitar problemas de seguridad o disponibilidad. Para ello, se optó por utilizar contenedores Docker en los que se ejecutarán los programas. De esta manera cualquier código malicioso no podrá acceder a los archivos del sistema ni atacar a la disponibilidad del servidor. Además se limitarán los recursos del contenedor para controlar el uso de los mismos.
+Tal y como se indica en \sreqref{NF-sandbox}, el sistema debe de ejecutar el código en un entorno aislado para evitar problemas de seguridad o disponibilidad. Para ello, se optó por utilizar \glspl{contenedor} Docker en los que se ejecutarán los programas. De esta manera cualquier código malicioso no podrá acceder a los archivos del sistema ni atacar a la disponibilidad del servidor. Además se limitarán los recursos de los \glspl{contenedor} para controlar el uso de los mismos.
 
-La principal dificultad que supone incorporar contenedores es controlar la disponibilidad de cada uno de ellos. Las características del proyecto nos obligan a que la comunicación entre cliente y docker sea por sesión, lo que implica que durante la sesión el docker no estará disponible para servir a ningún otro cliente. Una posible solución es que la responsabilidad del servidor sea servir los ficheros estáticos del cliente y redirigir los mensajes del cliente al contenedor asociado a la sessión correspondiente y gestionar las comunicaciones entre clientes y contenedores. Esta solución podría generar un cuello de botella en el componente servidor en el caso de tener muchos clientes activos, dado que todas las comunicaciones pasarían por el servidor.
+La principal dificultad que supone incorporar \glspl{contenedor} es controlar la disponibilidad de cada uno de ellos. Las características del proyecto nos obligan a que la comunicación entre cliente y docker sea por sesión, lo que implica que durante la sesión el docker no estará disponible para servir a ningún otro cliente. Una posible solución es que la responsabilidad del servidor sea servir los ficheros estáticos del cliente y redirigir los mensajes del cliente al contenedor asociado a la sesión correspondiente y gestionar las comunicaciones entre clientes y \glspl{contenedor}. Esta solución podría generar un cuello de botella en el componente servidor en el caso de tener muchos clientes activos, dado que todas las comunicaciones pasarían por el servidor.
 
-<IMAGEN DE PRIMERA APROXIMACION>
+\drawiosvgfigure[0.9]{propuesta1_sandbox}{Primera propuesta de arquitectura del sistema}
 
-Es por esta razón que se ha tomado la decisión de quitar responsabilidad al servidor e incorporarla en los contenedores. El servidor se convertirá en un \textit{proxy} y se encargará de redirigir la conexión de un cliente a un docker disponible, es decir, solo tendrá información sobre a qué contenedor está conectado cada cliente. 
+
+Es por esta razón que se ha tomado la decisión de quitar responsabilidad al servidor e incorporarla en los \glspl{contenedor}. El servidor se convertirá en un \textit{\gls{proxy}} y se encargará de redirigir la conexión de un cliente a un docker disponible, es decir, solo tendrá información sobre a qué \gls{contenedor} está conectado cada cliente. 
 Cada docker alojará un pequeño servidor que sirva los ficheros estáticos y las funcionalidades de los requisitos.
 
-<IMAGEN DE LA SOLUCION FINAL>
+\drawiosvgfigure[0.9]{propuestaFinal_sandbox}{Propuesta final de arquitectura del sistema}
 
-Es importante destacar, que como un contenedor puede dejar de estar disponible por un uso malicioso desde el lado cliente, el proxy debe de conocer la disponibilidad de cada uno de los contenedores. Para ello cada uno de los contenedores mandará latidos, de manera que el proxy pueda conocer qué dockers están disponibles.
+Es importante destacar, que como un \gls{contenedor} puede dejar de estar disponible por un uso malicioso desde el lado cliente, el \gls{proxy} debe de conocer la disponibilidad de cada uno de los \glspl{contenedor}. Para ello cada uno de los \glspl{contenedor} mandará latidos, de manera que el \gls{proxy} pueda conocer qué dockers están disponibles.
 
-Para conseguir todo esto se creará una imagen Docker que contenga el código correspondiente a la comunicación tanto con el cliente y con el proxy, el código de las funcionalidades del depurador y los ficheros estáticos a servir.
-Cada uno de estos contenedores se levantará a través de \textit{Docker Compose}, configurado con un \texttt{docker-compose.yml} en el que se indicarán los puertos que cada docker tiene que mapear y las variables de entorno para las comunicaciones. 
+Para conseguir todo esto se creará una \gls{imagen Docker} que contenga el código correspondiente a la comunicación tanto con el cliente como con el \gls{proxy}, el código de las funcionalidades del depurador y los ficheros estáticos a servir. Cada uno de estos \glspl{contenedor} se levantará a través de \textit{Docker Compose}, configurado con un \texttt{docker-compose.yml} en el que se indicarán los puertos que cada docker tiene que mapear y las variables de entorno para las comunicaciones. 
 
-Es por todo esto que la arquitectura distribuida final constará de uno o varios clientes, un único \textit{proxy}, al que se conectarán los clientes para ser redirigidos, y varios \textit{contenedores} que se encargarán de toda la lógica del sistema.
+Es por esto que la arquitectura distribuida final constará de uno o varios clientes, un único \textit{proxy}, al que se conectarán los clientes para ser redirigidos, y varios \textit{\glspl{contenedor}} que se encargarán de toda la lógica del sistema.
 
 \subsection{Comunicación entre procesos} \label{subsec:comunicacion-procesos}
 
-Dada la existencia de un cliente, un proxy y un contenedor, es necesario establecer una comunicación entre ellos. Esta comunicación se puede realizar de diferentes maneras, pero se han considerado las dos siguientes opciones: 
+Dada la existencia de un cliente, un \gls{proxy} y varios \glspl{contenedor}, es necesario establecer una comunicación entre ellos. Esta comunicación se puede realizar de diferentes maneras, pero se han considerado las dos siguientes opciones: 
 
 \begin{itemize}
-    \item \textbf{REST}: Permite la comunicación entre procesos a través de peticiones HTTP. Esta comunicación es unidireccional, sin control de estados y se establece una conexión por cada petición. Es ideal para controlar una gran cantidad de comunicaciones y para servir unos recursos.
+    \item \textbf{REST}: Permite la comunicación entre procesos a través de peticiones \gls{HTTP}. Esta comunicación es unidireccional, sin control de estados y se establece una conexión por cada petición. Es ideal para controlar una gran cantidad de comunicaciones y para servir unos recursos.
     \item \textbf{Web Sockets}: Esta comunicación es bidireccional, y permite el envío de mensajes en tiempo real. Es ideal para aplicaciones que requieren una comunicación constante.
 \end{itemize}
 
-Dadas las características de la aplicación, se optará por usar REST API para servir los ficheros estáticos y para enviar los latidos de los contenedores, se usará Web Sockets para la comunicación entre el cliente y su correspondiente contenedor, permitiendo entablar la sesión y que exista una comunicación bidireccional. 
+Dadas las características de la aplicación, se optará por usar REST API para servir los ficheros estáticos y para enviar los latidos de los \glspl{contenedor}, se usará Web Sockets para la comunicación entre el cliente y su correspondiente contenedor, permitiendo entablar la sesión y que exista una comunicación bidireccional. 
 
 \subsection{Lenguajes de Programación} \label{sec:programacion}
 
-Dada la arquitectura distribuida del sistema, se necesita usar un lenguaje de programación para el lado cliente y otro para el lado servidor, correspondiente al proxy y los contenedores.
+Dada la arquitectura distribuida del sistema, se necesita usar un lenguaje de programación para el lado cliente y otro para el lado servidor, correspondiente al proxy y los \glspl{contenedor}.
 
 \subsubsection{Tecnologías del lado cliente} \label{subsubsec:tecnologias-cliente}
 
@@ -106,11 +106,11 @@ Tal y como se ha comentado en \sectionref{estudio-solucion-final}, el sistema co
         \item \textbf{Editor de Código} Su responsabilidad es permitir al usuario escribir el código que se va a depurar.
     \end{itemize}
 
-    \item \textbf{Proxy}: Se encargará de gestionar la disponibilidad de los contenedores y los contenedores libres. Además redirigirá los clientes a los contenedores correspondientes.
+    \item \textbf{Proxy}: Se encargará de gestionar la disponibilidad de los \glspl{contenedor} y los \glspl{contenedor} libres. Además redirigirá los clientes a los \glspl{contenedor} correspondientes.
     Este componente consta de dos componentes:
     \begin{itemize}
-        \item \textbf{Gestión de Contenedores}: Al recibir una petición de un cliente se le redirigirá a un contenedor libre, este contenedor será asociado a este cliente hasta que se desconecte, por lo que dejará de estar libre.
-        \item \textbf{Disponibilidad de Contenedores}: Alojará un servicio para escuchar los contenedores disponibles. Si tras cierto tiempo deja de recibir latidos de un contendor lo dará por muerto, por lo que no podrá ser asociado a nuevos clientes.  
+        \item \textbf{Gestión de \glspl{contenedor}}: Al recibir una petición de un cliente se le redirigirá a un contenedor libre, este contenedor será asociado a este cliente hasta que se desconecte, por lo que dejará de estar libre.
+        \item \textbf{Disponibilidad de \glspl{contenedor}}: Alojará un servicio para escuchar los \glspl{contenedor} disponibles. Si tras cierto tiempo deja de recibir latidos de un contendor lo dará por muerto, por lo que no podrá ser asociado a nuevos clientes.  
     \end{itemize}
 
     \item \textbf{Contenedor Docker}: Se encarga de servir los ficheros estáticos al cliente y de ejecutar las funcionalidades pedidas por este.
@@ -125,7 +125,7 @@ Tal y como se ha comentado en \sectionref{estudio-solucion-final}, el sistema co
 
 En la figura \ref{fig:componentes_TFG} se muestra el diagrama de componentes UML \cite{Cook2017} donde se pueden observar los distintos componentes y sus diferentes interfaces.
 
-\drawiosvgfigure[0.7]{componentes_TFG}{Diagrama de componentes del sistema}
+\drawiosvgfigure[0.9]{componentes_TFG}{Diagrama de componentes del sistema}
 
 Para la especificación de los distintos componentes se ha usado la siguiente plantilla: 
 
@@ -160,40 +160,40 @@ La comunicación con el servidor se encargará de gestionar la comunicación ent
 
 % ------- Lado Proxy -------
 
-\begin{component}{Gestión de Contenedores}
-{Asignar clientes a contenedores libres}
-{COM-Disponibilidad de Contenedores} % dependencias
+\begin{component}{Gestión de contenedores}
+{Asignar clientes a contenedor libres}
+{COM-Disponibilidad de contenedores} % dependencias
 {Contenedores Disponibles} % in-data
 {URL para la conexión} % out-data
 {\NA} % relations
 Este componente asignará a un nuevo cliente un contenedor libre hasta que se desconecte. Al asignar a un contenedor le redireccionará al contenedor correspondiente %description
 \end{component}
 
-\begin{component}{Disponibilidad de Contenedores}
+\begin{component}{Disponibilidad de contenedores}
 {Escucha latidos de los contenedores para comprobar su disponibilidad }
-{COM-Gestión de Contenedores, COM-Envío de Latidos} % dependencias
+{COM-Gestión de contenedores, COM-Envío de Latidos} % dependencias
 {Latido} % in-data
 {Contenedores Disponibles} % out-data
 {\NA} % relations
-Registra cada uno de los latidos escuchados por cada contenedor, si tras 10 segundos no ha recibido un latido dará por no disponible al contenedor %description
+Registra cada uno de los latidos escuchados por cada contenedor, si tras 10 segundos no ha recibido un latido dará por no disponible al contenedor. %description
 \end{component}
 
 % ------ Lado Contenedor -------
 
 \begin{component}{Web Socket Docker}
-{Gestión de comunicación entre el contenedor y el cliente a través de Web Sockets}
+{Gestión de comunicación entre los contenedores y el cliente a través de Web Sockets}
 {COM-Web Socket Cliente, COM-Funcionalidades Depuración} % dependencias
 {Mensajes del cliente} % in-data
 {Mensajes del contenedor} % out-data
 {\NA} % relations
-La comunicación con el contenedor se encargará de gestionar la comunicación entre el contenedor y el cliente a través de Web Sockets. %description 
+La comunicación con los contenedores se encargará de gestionar la comunicación entre el contenedor y el cliente a través de Web Sockets. %description 
 \end{component}
 
 \begin{component}{Funcionalidades Compilación}
-{Se encarga de compilar el codigo recibido y ejecutarlo sin modo depuración}
+{Se encarga de compilar el código recibido y ejecutarlo sin modo depuración}
 {COM-Web Socket Docker}
 {Código}
-{Salida Estandar}
+{Salida Estándar}
 {FN-fichero-codigo, FN-compilacion, FN-ejecutar, FN-aviso-error-concurrencia}
 Este componente se encarga de realizar acciones básicas que no están relacionadas directamente con la depuración, como compilar el código y ejecutarlo.
 \end{component}
@@ -204,14 +204,14 @@ Este componente se encarga de realizar acciones básicas que no están relaciona
 {Funcionalidad a realizar} % in-data
 {Estado tras la ejecución de la funcionalidad} % out-data
 {FN-depurar, FN-step-over, FN-step-into, FN-step-out, FN-continuar-ejecucion, FN-rebobinar} % relations
-Este componente ejecutará las funcionalidades del depurador y devolverá el resultado de aplicar esas funcionalidades %description
+Este componente ejecutará las funcionalidades del depurador y devolverá el resultado de aplicar esas funcionalidades. %description
 \end{component}
 
 \begin{component}{Envío de Latidos}
 {Envío de latidos}
-{COM-Disponibilidad de Contenedores} % dependencias
-{Latido} % in-data
-{\NA} %out-data
+{COM-Disponibilidad de contenedores} % dependencias
+{\NA} % in-data
+{Latido} %out-data
 {\NA} % relations
 Envío de latidos cada 5 segundos a la dirección del proxy
 \end{component}
@@ -221,7 +221,7 @@ Envío de latidos cada 5 segundos a la dirección del proxy
 {\NA}
 {Ficheros HTML, CSS y JavaScript}
 {\NA} %relations
-{Se encarga de envíar ficheros estáticos tras recibir una petición GET por parte del cliente para que este pueda acceder a su aplicación web}
+{Se encarga de enviar ficheros estáticos tras recibir una petición GET por parte del cliente para que este pueda acceder a su aplicación web.}
 \end{component}
 
 \FloatBarrier
