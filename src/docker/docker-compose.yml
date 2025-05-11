@@ -4,7 +4,7 @@ services:
       context: ../ # Cambiar el contexto a un nivel superior
       dockerfile: docker/Dockerfile
     environment:
-      - PROXY_URL=http://proxy:8080  # Usar el nombre del servicio en lugar de localhost
+      - PROXY_URL=http://proxy:8080 # Usar el nombre del servicio en lugar de localhost
       - HOST=debugger1
       - PORT=5000
     ports:
@@ -15,7 +15,7 @@ services:
       - ./compiler.py:/app/compiler.py
       - ./debugger.py:/app/debugger.py
       - ./webSocket.py:/app/webSocket.py
-      - ../frontend/dist:/app/dist  
+      - ../frontend/dist:/app/dist
     # Añadidas configuraciones necesarias para RR
     cap_add:
       - SYS_PTRACE
@@ -24,7 +24,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.0'
+          cpus: "4.0"
           memory: 256M
         reservations:
           memory: 128M
@@ -34,7 +34,7 @@ services:
       context: ../ # Cambiar el contexto a un nivel superior
       dockerfile: docker/Dockerfile
     environment:
-      - PROXY_URL=http://proxy:8080  # Usar el nombre del servicio en lugar de localhost
+      - PROXY_URL=http://proxy:8080 # Usar el nombre del servicio en lugar de localhost
       - HOST=debugger2
       - PORT=5000
     ports:
@@ -45,6 +45,7 @@ services:
       - ./compiler.py:/app/compiler.py
       - ./debugger.py:/app/debugger.py
       - ./webSocket.py:/app/webSocket.py
+      - ../frontend/dist:/app/dist
     # Añadidas configuraciones necesarias para RR
     cap_add:
       - SYS_PTRACE
@@ -53,7 +54,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.0'
+          cpus: "4.0"
           memory: 256M
         reservations:
           memory: 128M
@@ -63,7 +64,7 @@ services:
       context: ../ # Cambiar el contexto a un nivel superior
       dockerfile: docker/Dockerfile
     environment:
-      - PROXY_URL=http://proxy:8080  # Usar el nombre del servicio en lugar de localhost
+      - PROXY_URL=http://proxy:8080 # Usar el nombre del servicio en lugar de localhost
       - HOST=debugger3
       - PORT=5000
     ports:
@@ -74,6 +75,7 @@ services:
       - ./compiler.py:/app/compiler.py
       - ./debugger.py:/app/debugger.py
       - ./webSocket.py:/app/webSocket.py
+      - ../frontend/dist:/app/dist
     # Añadidas configuraciones necesarias para RR
     cap_add:
       - SYS_PTRACE
@@ -82,11 +84,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.0'
+          cpus: "4.0"
           memory: 256M
         reservations:
           memory: 128M
 
 networks:
   debugger_network:
-    external: true  # Esta red debe crearse antes
+    external: true # Esta red debe crearse antes

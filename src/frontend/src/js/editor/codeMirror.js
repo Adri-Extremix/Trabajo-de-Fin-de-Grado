@@ -1,9 +1,9 @@
+import $ from "jquery";
 import { EditorState, StateEffect, StateField } from "@codemirror/state";
 import { cpp } from "@codemirror/lang-cpp";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView, basicSetup } from "codemirror";
 import { Decoration, gutter } from "@codemirror/view";
-import $ from "jquery";
 
 // Definir los efectos de estado para añadir y eliminar breakpoints
 const addBreakpoint = StateEffect.define();
