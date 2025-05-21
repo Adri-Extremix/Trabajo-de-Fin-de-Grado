@@ -1,9 +1,9 @@
 \chapter{Estado del arte}\label{chap:estado-del-arte}
 En este capítulo se describirá el estado actual de las tecnologías y herramientas relacionadas con el proyecto. Se explorará la importancia de la concurrencia y las distintas herramientas de \glsdisp{depurar}{depuración} de código que permitan analizar el comportamiento de \gls{programa concurrente} y cómo sus características casan con los objetivos del proyecto (\sectionref{objetivos}).
 
-\section{Concurrencia y su Importancia}\label{sec:concurrencia-importancia}
+\section{Concurrencia y su importancia}\label{sec:concurrencia-importancia}
 
-La \gls{concurrencia} se define como la capacidad de un sistema para ejecutar múltiples \glspl{proceso} de forma simultánea o intercalada, según lo determine el \gls{planificador} del sistema operativo. Gracias a este mecanismo, un programa puede gestionar diversas tareas como la interacción con el usuario, el procesamiento de datos y la comunicación en red sin que el bloqueo de una impida el progreso de las demás, lo que optimiza el rendimiento general y reduce el tiempo de respuesta.
+La \gls{concurrencia} \cite{ParallelismComputerArchitecture} se define como la capacidad de un sistema para ejecutar múltiples \glspl{proceso} de forma simultánea o intercalada, según lo determine el \gls{planificador} del sistema operativo. Gracias a este mecanismo, un programa puede gestionar diversas tareas como la interacción con el usuario, el procesamiento de datos y la comunicación en red sin que el bloqueo de una impida el progreso de las demás, lo que optimiza el rendimiento general y reduce el tiempo de respuesta.
 
 Este enfoque no solo mejora la eficiencia en la ejecución, sino que también incrementa la escalabilidad, especialmente en entornos distribuidos, y contribuye a disminuir el consumo energético mediante una distribución adecuada de las tareas y la reducción de las frecuencias de reloj \cite{EnergyEfficiencyParallelAplications}. Además, la desaceleración en el avance de la Ley de Moore \cite{LeyMoore} ha subrayado la necesidad de explorar otros medios para aumentar el rendimiento y la eficiencia de los sistemas \cite{ParallelProgramming}.
 
@@ -12,7 +12,9 @@ Sin embargo, diversas investigaciones sobre la paralelización en \gls{tiempo de
 En este contexto, formar nuevos profesionales con conocimientos profundos en \gls{concurrencia} se presenta como una estrategia clave para mejorar el rendimiento de las aplicaciones y reducir los costes energéticos, consolidándose como un factor competitivo esencial en el desarrollo de \gls{software} actual y futuro.
 
 
-\section{Depuradores de Programas Concurrentes}\label{sec:depuradores-programas-concurrentes}
+\section{Depuradores de programas concurrentes}\label{sec:depuradores-programas-concurrentes}
+
+El paralelismo presenta nuevos desafíos a la hora de desarrollar programas, ya que la ejecución de múltiples \glspl{proceso} puede dar lugar a errores difíciles de detectar y reproducir. Estos errores pueden incluir \glspl{condición de carrera}, \glspl{interbloqueo} y otros problemas relacionados con la sincronización de \glspl{hilo}. Por tanto, es fundamental comprender exactamente qué está ocurriendo en el programa para poder identificar y corregir estos errores. Para esto existen herramientas que permiten analizar el comportamiento de los programas como lo son los \glspl{depurador}. 
 
 Un \gls{depurador} \cite{WikipediaDebugger} es un programa usado para probar y \gls{depurar} otros programas. Los \glspl{depurador} suelen permitir colocar puntos de interrupción, saltar a través de distintas partes del código e inspeccionar el estado de la memoria, registros de la \gls{CPU} y la pila de llamadas.
 Estos \glspl{depurador} suelen ser integrados en los entornos de desarrollo, como \textit{Visual Studio} \cite{DebuggerVisualStudio} o \textit{Eclipse} \cite{DebuggerEclipse}, aunque también existen \glspl{depurador} basados en línea de comandos (\gls{CLI}) como \textit{GDB} \cite{GDB} o \textit{LLDB} \cite{LLDB}. 
