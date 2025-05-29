@@ -1,4 +1,5 @@
 \documentclass[es]{uc3mthesisIEEE}
+%\pdfminorversion=5
 
 
 \usepackage{import}
@@ -9,7 +10,7 @@
 \usepackage{mymacros}  % report-specific macros
 
 \usepackage[utf8]{inputenc}
-\usepackage{textcomp} % para el símbolo €
+\usepackage{textcomp} % para el símbolo \euro
 
 \usepackage{tcolorbox}
 \usepackage{dirtree}
@@ -26,7 +27,6 @@
 
 
 \graphicspath{{img/}}  % Images folder
-
 
 % REFERENCES
 \addbibresource{references.bib}  % bibliography file
@@ -114,7 +114,7 @@
   \cleardoublepage
   \label{glossary}
   \printglossaries
-  \printnoidxglossaries[type=\acronymtype]  % slower, but no need to do $ makeglossaries report
+  %\printnoidxglossaries[type=\acronymtype]  % slower, but no need to do $ makeglossaries report
 
 
   % APPENDICES

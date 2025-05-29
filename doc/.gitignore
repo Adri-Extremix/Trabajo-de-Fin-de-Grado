@@ -1,6 +1,5 @@
 .vscode/
 svg-inkscape/
-
 *.aux
 *.bcf
 *.fdb_latexmk
@@ -30,6 +29,8 @@ svg-inkscape/
 *.gls
 creationdate.timestamp
 *.xmpdata
+build/
+
 
 svg-inkscape/
 _markdown_report

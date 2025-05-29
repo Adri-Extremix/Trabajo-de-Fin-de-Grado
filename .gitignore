@@ -1,7 +1,7 @@
 # Archivos que no quiero
 .vscode
 __pycache__
-
+.DS_Store
 # Ignorar todos los archivos de salida de compilación de LaTeX excepto el .tex
 
 # Archivos auxiliares comunes de LaTeX
@@ -28,7 +28,6 @@ __pycache__
 
 # Archivos intermedios de compilación
 *.dvi
-*.pdf
 *.ps
 *.xdv
 

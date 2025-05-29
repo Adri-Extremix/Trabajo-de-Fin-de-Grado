@@ -20,6 +20,11 @@ $(BUILD_DIR)/parts:
 # Limpia solo el PDF y los auxiliares en el directorio de build
 clean: clear_build
 
+glosar: 
+	cd $(BUILD_DIR) && \
+	makeglossaries report
+	make -B
+
 clear_build:
 	rm -f $(BUILD_DIR)/$(obj).pdf
 	# Eliminar los archivos auxiliares en el directorio de build

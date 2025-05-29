@@ -1,8 +1,8 @@
 \chapter{Implementación y Despliegue}\label{chap:implementacion_y_despliegue}
-En este capítulo se describen los aspectos relacionados con la implementación y el despliegue del sistema. Se detallan las herramientas utilizadas (\subsectionref{uso_librerias_dependencias}), la estructura de ficheros del proyecto (\subsectionref{estructura_ficheros_proyecto}), la imagen docker desarrollada (\subsectionref{construccion_imagen_docker}) y el proceso de despliegue (\sectionref{despliegue}).
+En este capítulo se describen los aspectos relacionados con la implementación y el despliegue del sistema. Se detallan las herramientas utilizadas (\subsectionref{uso_librerias_dependencias}), la estructura de ficheros del proyecto (\subsectionref{estructura_ficheros_proyecto}), la \gls{imagen Docker} desarrollada (\subsectionref{construccion_imagen_docker}) y el proceso de despliegue (\sectionref{despliegue}).
 
 \section{Implementación} \label{sec:implementacion}
-Tal y como se mencionó en \sectionref{programacion}, el lado cliente será desarrollado con JavaScript, mientras que el lado servidor (proxy + contenedores) se desarrollará en Python. Además el lado servidor se comunicará con un contenedor docker para ejecutar de manera aislada el código desarrollado por el cliente (\subsectionref{sandbox}). Con esto en mente se explicará como se han organizado cada parte del proyecto, cómo se han integrado las librerías y cómo se ha construido la imagen docker y el archivo \texttt{docker-compose.yml} para la orquestación de los contenedores.
+Tal y como se mencionó en \subsectionref{programacion}, el lado cliente será desarrollado con JavaScript, mientras que el lado servidor (\textit{\gls{proxy}} + \glspl{contenedor}) se desarrollará en Python. Además el lado servidor se comunicará con un \gls{contenedor} docker para ejecutar de manera aislada el código desarrollado por el cliente (\subsectionref{sandbox}). Con esto en mente se explicará como se han organizado cada parte del proyecto, cómo se han integrado las librerías y cómo se ha construido la \gls{imagen Docker} y el archivo \texttt{docker-compose.yml} para la orquestación de los \glspl{contenedor}.
 
 
 El código al completo se encuentra disponible en el repositorio de GitHub del proyecto \href{https://github.com/Adri-Extremix/Trabajo-de-Fin-de-Grado}.
@@ -30,9 +30,9 @@ Se ha decidido tener un primer nivel de directorios que separen las distintas pa
     \end{tcolorbox}
     }
 \end{figure}
-En el directorio raíz del proyecto se encuentran los ficheros del código fuente en el directorio \texttt{src} y el directorio \texttt{examples} contiene ejemplos de códigos que podrían escribir los usuarios. En el directorio \texttt{test} se encuentran los ficheros necesarios para realizar las pruebas de integración y de unidad. El fichero \texttt{README.md} contiene la información necesaria para ejecutar el proyecto y el directorio \texttt{doc} se encuentra todo lo relacionado con la memoria sobre el proyecto.
+En el directorio raíz del proyecto se encuentran los ficheros del \gls{código fuente} en el directorio \texttt{src} y el directorio \texttt{examples} contiene ejemplos de códigos que podrían escribir los usuarios. En el directorio \texttt{test} se encuentran los ficheros necesarios para realizar las pruebas de integración y de unidad. El fichero \texttt{README.md} contiene la información necesaria para ejecutar el proyecto y el directorio \texttt{doc} se encuentra todo lo relacionado con la memoria sobre el proyecto.
 
-A partir de aquí exploraremos el directorio del código fuente. En el directorio \texttt{src} se encuentran los ficheros de código fuente del lado cliente, del lado servidor y del contenedor docker. La estructura de este directorio se muestra en \figref{src-dir}.
+A partir de aquí exploraremos el directorio del \gls{código fuente}. En el directorio \texttt{src} se encuentran los ficheros de \gls{código fuente} del lado cliente, del lado servidor y del \gls{contenedor} docker. La estructura de este directorio se muestra en \figref{src-dir}.
 
 \begin{figure}[htb]
     \ffigbox[\FBwidth]
@@ -70,10 +70,10 @@ A partir de aquí exploraremos el directorio del código fuente. En el directori
     \end{tcolorbox}
     }
 \end{figure}
-En el directorio \texttt{proxy} se encuentra el fichero \texttt{proxy.py} que contiene la implementación del proxy, el fichero \texttt{requirements.txt} que contiene las dependencias necesarias y los ficheros \texttt{Dockerfile} y \texttt{docker-compose.yml} que contienen la configuración del contenedor proxy.
+En el directorio \texttt{proxy} se encuentra el fichero \texttt{proxy.py} que contiene la implementación del \textit{\gls{proxy}}, el fichero \texttt{requirements.txt} que contiene las dependencias necesarias y los ficheros \texttt{Dockerfile} y \texttt{docker-compose.yml} que contienen la configuración del \gls{contenedor} \textit{\gls{proxy}}.
 
 En el directorio del lado cliente \texttt{frontend} se encuentra el fichero \texttt{index.html} que contiene la estructura de la página web, el fichero \texttt{package.json} que contiene las dependencias del lado cliente, y un directorio para cada tipo de recurso (imágenes, scripts y estilos). 
-En el directorio \texttt{docker} se encuentran los ficheros necesarios para construir la imagen docker. En este directorio se encuentran los ficheros \texttt{Dockerfile} y \texttt{docker-compose.yml} que contiene las instrucciones para construir la imagen. También se incluye un fichero \texttt{requirements.txt} que contiene las dependencias necesarias para ejecutar el código del contenedor, además de cada uno de los ficheros \texttt{.py} que contienen la implementación de cada uno de los componentes de cada contenedor.  
+En el directorio \texttt{docker} se encuentran los ficheros necesarios para construir la \gls{imagen Docker}. En este directorio se encuentran los ficheros \texttt{Dockerfile} y \texttt{docker-compose.yml} que contiene las instrucciones para construir la imagen. También se incluye un fichero \texttt{requirements.txt} que contiene las dependencias necesarias para ejecutar el código del \gls{contenedor}, además de cada uno de los ficheros \texttt{.py} que contienen la implementación de cada uno de los componentes de cada \gls{contenedor}.  
 
 Por último, en el directiorio \texttt{src} se encuentra el fichero \texttt{run\_proyect.sh} que permite desplegar la parte correspondiente al lado servidor. 
 
@@ -85,28 +85,28 @@ En esta sección se describen las librerías y dependencias utilizadas en el pro
 Dado que el lado cliente se desarrolla en JavaScript, se ha usado NodeJS como entorno de ejecución y gestor de paquetes. Para la gestión de dependencias se ha utilizado \texttt{npm} y \texttt{package.json} para definir las dependencias necesarias.
 Las principales dependencias utilizadas son:
 \begin{itemize}
-    \item \textbf{Parcel}: Parcel me permite empaquetar el código JavaScript y sus dependencias en un solo archivo, facilitando la carga y ejecución en el navegador.Permitiendo que se puedan servir los ficheros desde el lado servidor a los navegadores.
-    \item \textbf{CodeMirror}: CodeMirror es una librería que proporciona un editor de código enriquecido, que permite resaltar la sintaxis y ofrece funcionalidades avanzadas.
-    \item \textbf{Socket.io}: Socket.io es una librería que permite la comunicación en tiempo real entre el cliente y el servidor a través de WebSockets. Es una librería fundamental para permitir comunicar el lado cliente con la sesión de depuración que se ejecuta en los diferentes contenedores. 
+    \item \textbf{Parcel} \cite{parcel}: Parcel me permite empaquetar el código JavaScript y sus dependencias en un solo archivo, facilitando la carga y ejecución en el navegador.Permitiendo que se puedan servir los ficheros desde el lado servidor a los navegadores.
+    \item \textbf{CodeMirror} \cite{codemirror}: CodeMirror es una librería que proporciona un editor de código enriquecido, que permite resaltar la sintaxis y ofrece funcionalidades avanzadas.
+    \item \textbf{Socket.io} \cite{socket.io}: Socket.io es una librería que permite la comunicación en tiempo real entre el cliente y el servidor a través de WebSockets. Es una librería fundamental para permitir comunicar el lado cliente con la sesión de depuración que se ejecuta en los diferentes \glspl{contenedor}.
 \end{itemize}
 
 \subsubsection{Lado servidor}
-El lado servidor se desarrolla en Python y está conformado por el proxy y los contenedores. Tal y como se ha desarrollado en \subsectionref{sandbox}, el proxy se encarga de gestionar la comunicación entre el cliente y los contenedores, mientras que los contenedores se encargan de ejecutar el código del cliente. 
-Para la construcción de los contenedores se ha usado Docker y Docker Compose, que permiten levantar unos sistemas aislados con una serie de características predefinas.
+El lado servidor se desarrolla en Python y está conformado por el \textit{\gls{proxy}} y los \glspl{contenedor}. Tal y como se ha desarrollado en \subsectionref{sandbox}, el \textit{\gls{proxy}} se encarga de gestionar la comunicación entre el cliente y los \glspl{contenedor}, mientras que los \glspl{contenedor} se encargan de ejecutar el código del cliente. 
+Para la construcción de los \glspl{contenedor} se ha usado Docker y Docker Compose, que permiten levantar unos sistemas aislados con una serie de características predefinas.
 Para la gestión de dependencias se ha utilizado \texttt{pip} y \texttt{requirements.txt} para definir las dependencias necesarias. 
 Como principales librerías utizadas:
 \begin{itemize}
-    \item \textbf{Flask}: Flask es un microframework para Python que permite crear aplicaciones web de manera sencilla y rápida. Flask permite crear endpoints para la comunicación entre cliente, proxy y contenedores, tanto con \textit{API REST}, como con \textit{Web Socket} a través de la extensión \texttt{Flask-SocketIO}.
-    \item \textbf{PyGDBMI}: PyGDBMI es una librería que facilita el uso y la comunicación con un subproceso que ejecuta GDB. De esta manera se puede usar GDB para depurar la comunicación a través de un método \texttt{write}, donde se indica qué acción debe de realizar GDB y se obtien como resultado del método un diccionario con la salida. 
+    \item \textbf{Flask} \cite{flask}: Flask es un microframework para Python que permite crear aplicaciones web de manera sencilla y rápida. Flask permite crear endpoints para la comunicación entre cliente, \textit{\gls{proxy}} y \glspl{contenedor}, tanto con \textit{API REST}, como con \textit{Web Socket} a través de la extensión \texttt{Flask-SocketIO}.
+    \item \textbf{PyGDBMI} \cite{pygdbmi}: PyGDBMI es una librería que facilita el uso y la comunicación con un subproceso que ejecuta GDB. De esta manera se puede usar GDB para depurar la comunicación a través de un método \texttt{write}, donde se indica qué acción debe de realizar GDB y se obtien como resultado del método un diccionario con la salida. 
 \end{itemize}
 
 \subsection{Construcción de imagen Docker y Docker-compose} \label{subsec:construccion_imagen_docker}
 
-Como se ha indicado con anterioridad, los contenedores se construyen a partir de una imagen Docker, que se define en el fichero \texttt{Dockerfile}. Y los diferentes contenedores se orquestan a través de un fichero \texttt{docker-compose.yml}. Tanto el proxy como los contenedores tienen su propio \texttt{Dockerfile} y \texttt{docker-compose.yml}. En esta sección se explicará cómo se construyen las imágenes y cómo se orquestan los contenedores.
+Como se ha indicado con anterioridad, los \glspl{contenedor} se construyen a partir de una imagen Docker, que se define en el fichero \texttt{Dockerfile}. Y los diferentes \glspl{contenedor} se orquestan a través de un fichero \texttt{docker-compose.yml}. Tanto el \textit{\gls{proxy}} como los \glspl{contenedor} tienen su propio \texttt{Dockerfile} y \texttt{docker-compose.yml}. En esta sección se explicará cómo se construyen las imágenes y cómo se orquestan los \glspl{contenedor}.
 
 \subsubsection{Proxy}
 
-La gestión del proxy es sencilla y tan solo es necesario crear un docker que soporte python, instalar las dependencias, abrir el puerto y ejecutar el proxy. El \texttt{Dockerfile} del proxy se muestra a continuación en la figura \ref{lst:dockerfile-proxy}. 
+La gestión del \textit{\gls{proxy}} es sencilla y tan solo es necesario crear un docker que soporte python, instalar las dependencias, abrir el puerto y ejecutar el \textit{\gls{proxy}}. El \texttt{Dockerfile} del \textit{\gls{proxy}} se muestra a continuación en la figura \ref{lst:dockerfile-proxy}. 
 
 \begin{lstlisting}[caption={Dockerfile para el proxy}, label={lst:dockerfile-proxy}]
 FROM python:3.12
@@ -122,7 +122,7 @@ EXPOSE 8080
 CMD ["python", "proxy.py"]
 \end{lstlisting}
 
-Para comunicar el proxy con el resto de contenedores se ha indicado en el \texttt{docker-compose.yml} el nombre del contenedor y el nombre de la red en la que se encuentra, para facilitar la conexión cuando todos los contenedores se encuentran en la misma máquina.
+Para comunicar el \textit{\gls{proxy}} con el resto de \glspl{contenedor} se ha indicado en el \texttt{docker-compose.yml} el nombre del \gls{contenedor} y el nombre de la red en la que se encuentra, para facilitar la conexión cuando todos los \glspl{contenedor} se encuentran en la misma máquina.
 
 \begin{lstlisting}[caption={Docker-compose.yml para el contenedor del proxy}, label={lst:docker-compose-proxy}]
     services:
@@ -147,9 +147,9 @@ networks:
 
 \subsubsection{Contendores de Depuración}
 
-En cuanto a los contenedores se encargan de las sesiones de depuración se partirá de un único \texttt{Dockerfile}. Este \texttt{Dockerfile} se basará en una imagen de Ubuntu y se instalará todo lo necesario para poder ejecutar python y subprocesos con gdb y rr.
+En cuanto a los \glspl{contenedor} que se encargan de las sesiones de depuración se partirá de un único \texttt{Dockerfile}. Este \texttt{Dockerfile} se basará en una imagen de Ubuntu y se instalará todo lo necesario para poder ejecutar python y subprocesos con gdb y rr.
 
-Además se copiarán los archivos fuente relaciondos con las sesiones de depuración y los ficheros estáticos del lado cliente para servirlos.
+Además se copiarán los archivos fuente relacionados con las sesiones de depuración y los ficheros estáticos del lado cliente para servirlos.
 
 \begin{lstlisting}[caption={Dockerfile para el contenedor de depuración}, label={lst:dockerfile-debugger}]
 FROM ubuntu:latest
@@ -178,7 +178,7 @@ CMD ["/app/venv/bin/python3", "webSocket.py"]
 \end{lstlisting}
 
 
-Con la imagen preparada solo es necesario indicar cómo se deben de desplegar. Para ello se usará el fichero \texttt{/src/docker/docker-compose.yml}. Este fichero tendrá la configuración de las variables de entorno que se usan en el código, con la información sobre los host y puertos, de la red a la que se tiene que contectar y del mapeo de puertos que tiene que realizar el contenedor. Además se indicarán los recursos que podrán usar cada docker, en este caso se ha decidido que solo puedan usar 4 hilos y 128MB reservados para ese contenedor, con hasta un máximo de 256MB de memoria dinámica. En la figura \ref{lst:docker-compose-debugger} se muestra un fragmento del \texttt{docker-compose.yml} que corresponde con la configuración de un contenedor de depuración llamado \texttt{debugger1}. 
+Con la imagen preparada solo es necesario indicar cómo se deben de desplegar. Para ello se usará el fichero \texttt{/src/docker/docker-compose.yml}. Este fichero tendrá la configuración de las \gls{variables de entorno} que se usan en el código, con la información sobre los host y puertos, de la red a la que se tiene que contectar y del mapeo de puertos que tiene que realizar el \gls{contenedor}. Además se indicarán los recursos que podrán usar cada docker, en este caso se ha decidido que solo puedan usar 4 \glspl{hilo} y 128MB reservados para ese \gls{contenedor}, con hasta un máximo de 256MB de memoria dinámica. En la figura \ref{lst:docker-compose-debugger} se muestra un fragmento del \texttt{docker-compose.yml} que corresponde con la configuración de un \gls{contenedor} de depuración llamado \texttt{debugger1}. 
 
 \begin{lstlisting}[caption={Docker-compose.yml para un contenedor de depuración}, label={lst:docker-compose-debugger}]
 services:
@@ -210,10 +210,14 @@ services:
 
 \section{Despliegue} \label{sec:despliegue}
 
-El despligue del lado puede ser desplagado separando en distintas máquinas el proxy y los contenedores, o bien desplegando todo en la misma máquina. En este caso se ha decidido desplegar el proxy y los contenedores en la misma máquina, pero se puede desplegar de manera separada. Por esta razón las especificaciones técnicas se han separado en los 3 principales componentes aunque el despligue se realice en la misma máquina.
+En el siguiente diagrama \figref{diagrama_despliegue} se muestra el diagrama de despliegue del sistema siguiendo el estándar UML \cite{Cook2017}.
+
+
+\drawiosvgfigure[0.8]{diagrama_despliegue}{Diagrama de despliegue del sistema}
+
+El despliegue del lado puede ser desplagado separando en distintas máquinas el \textit{\gls{proxy}} y los \glspl{contenedor}, o bien desplegando todo en la misma máquina. En este caso se ha decidido desplegar el \textit{\gls{proxy}} y los \glspl{contenedor} en la misma máquina, pero se puede desplegar de manera separada. Por esta razón las especificaciones técnicas se han separado en los 3 principales componentes aunque el despliegue se realice en la misma máquina.
 
 Las especificaciones técnicas recomendadas para el despliegue del sistema son las siguientes:
-
 
 % Please add the following required packages to your document preamble:
 % \usepackage{booktabs}
@@ -232,7 +236,7 @@ Las especificaciones técnicas recomendadas para el despliegue del sistema son l
 
     \end{table}
 
-Todas las máquinas deben de estar conectadas a Internet y tener acceso a los puertos usados en los contenedores. 
+Todas las máquinas deben de estar conectadas a Internet y tener acceso a los puertos usados en los \glspl{contenedor}.
 
 El software necesario debe de ser el siguiente:
 \begin{itemize}
@@ -250,4 +254,4 @@ El software necesario debe de ser el siguiente:
 \end{itemize}
 
 Para poder desplegar el proyecto se debe de seguir la guía indicada en \appref{manual}.
-En resumen, para realizar un despligue de prueba se debe de ejecutar el script que se encuentra en la raíz del proyecto \texttt{start\_proyect.sh}. Sin embargo, si se quiere hacer un despligue más específico, se puede desplegar solo el lado servidor a través del script \texttt{run\_back\_docker.sh} que se encuentra en el directorio \texttt{src}. Este script ejecutará el proxy y los contenedores de depuración.
+En resumen, para realizar un despligue de prueba se debe de ejecutar el script que se encuentra en la raíz del proyecto \texttt{start\_proyect.sh}. Sin embargo, si se quiere hacer un despligue más específico, se puede desplegar solo el lado servidor a través del script \texttt{run\_back\_docker.sh} que se encuentra en el directorio \texttt{src}. Este script ejecutará el \textit{\gls{proxy}} y los \glspl{contenedor} de depuración.

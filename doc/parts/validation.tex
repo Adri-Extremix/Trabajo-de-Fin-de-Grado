@@ -18,7 +18,7 @@ Para conseguir verificar que el sistema cumple con los requisitos establecidos s
     {El editor debe de mostrar el código escrito con resaltado de sintaxis}
     {Escribir código en C en el editor}
     {OK}
-    {FN-GUI, FN-editor, FN-editor-breakpoint, NF-multiplataforma}
+    {FN-GUI, FN-editor, FN-editor-breakpoint, FN-aplicacion-web, NF-multiplataforma}
     \begin{enumerate}
         \item Acceder a la URL del sistema desde el navegador
         \item Escribir código en C
@@ -31,7 +31,7 @@ Para conseguir verificar que el sistema cumple con los requisitos establecidos s
         {El sistema debe de crear un fichero que contenga el código escrito compilado y un fichero ejecutable}
         {Compilar y ejecutar código en C}
         {OK}
-        {FN-fichero-codigo, FN-compilacion, FN-ejecutar, FN-aviso-error-concurrencia, NF-compilador, NF-ejecucion, NF-ejecucion-POSIX, NF-abstraccion-so, NF-abstraccion-arch, NF-sandbox, NF-multiplataforma}
+        {FN-fichero-codigo, FN-compilacion, FN-ejecutar, FN-aviso-error-concurrencia, FN-aplicacion-web, FN-arquitectura-distribuida, FN-comunicacion-websockets, NF-compilador, NF-ejecucion, NF-ejecucion-POSIX, NF-abstraccion-so, NF-abstraccion-arch, NF-sandbox, NF-multiplataforma, NF-docker}
         \begin{enumerate}
             \item Escribir código en C
             \item Compilar el código
@@ -46,7 +46,7 @@ Para conseguir verificar que el sistema cumple con los requisitos establecidos s
         {\NA}
         {Depuración con breakpoints}
         {OK}
-        {FN-editor-breakpoint, FN-depurar, FN-continuar-ejecucion, FN-visualizacion-hilos, FN-visualizacion-variables, NF-ejecucion-POSIX, NF-depuracion-c, NF-abstraccion-so, NF-abstraccion-arch, NF-informacion-depuracion, NF-estabilidad, NF-sandbox, NF-multiplataformama}
+        {FN-editor-breakpoint, FN-depurar, FN-continuar-ejecucion, FN-visualizacion-hilos, FN-visualizacion-variables, FN-arquitectura-distribuida, FN-comunicacion-websockets, NF-ejecucion-POSIX, NF-depuracion-c, NF-abstraccion-so, NF-abstraccion-arch, NF-informacion-depuracion, NF-estabilidad, NF-sandbox, NF-multiplataformama, NF-docker}
         \begin{enumerate}
             \item Colocar un breakpoint en el código
             \item Compilar el código
@@ -64,8 +64,8 @@ Para conseguir verificar que el sistema cumple con los requisitos establecidos s
         {\NA}
         {Depuración con paso a paso}
         {OK}
-        {FN-editor-breakpoint, FN-depurar, FN-step-over, FN-step-into, FN-step-out, FN-visualizacion-hilos, FN-visualizacion-variables, NF-ejecucion-POSIX, NF-depuracion-c, NF-abstraccion-so, NF-abstraccion-arch, NF-informacion-depuracion, NF-estabilidad, NF-sandbox, NF-multiplataforma}
-        
+        {FN-editor-breakpoint, FN-depurar, FN-step-over, FN-step-into, FN-step-out, FN-visualizacion-hilos, FN-visualizacion-variables, FN-arquitectura-distribuida, FN-comunicacion-websockets, NF-ejecucion-POSIX, NF-depuracion-c, NF-abstraccion-so, NF-abstraccion-arch, NF-informacion-depuracion, NF-estabilidad, NF-sandbox, NF-multiplataforma, NF-docker}
+
         \begin{enumerate}
             \item Comenzar la depuración
             \item Observar que el programa se ha detenido en el breakpoint
@@ -83,7 +83,7 @@ Para conseguir verificar que el sistema cumple con los requisitos establecidos s
         {\NA}
         {Depuración con breakpoints con rebobinado}
         {OK}
-        {FN-editor-breakpoint, FN-depurar, FN-rebobinar, FN-visualizacion-hilos, FN-visualizacion-variables, NF-ejecucion-POSIX, NF-depuracion-c, NF-abstraccion-so, NF-abstraccion-arch, NF-informacion-depuracion, NF-estabilidad, NF-sandbox, NF-multiplataforma}
+        {FN-editor-breakpoint, FN-depurar, FN-rebobinar, FN-visualizacion-hilos, FN-visualizacion-variables, FN-arquitectura-distribuida, FN-comunicacion-websockets, NF-ejecucion-POSIX, NF-depuracion-c, NF-abstraccion-so, NF-abstraccion-arch, NF-informacion-depuracion, NF-estabilidad, NF-sandbox, NF-multiplataforma, NF-docker}
         \begin{enumerate}
             \item Iniciar la depuración
             \item Observar que el programa se ha detenido en el breakpoint
@@ -101,7 +101,7 @@ Para conseguir verificar que el sistema cumple con los requisitos establecidos s
         {\NA}
         {Depuración paso a paso con rebobinado}
         {OK}
-        {FN-editor-breakpoint, FN-depurar, FN-rebobinar, FN-visualizacion-hilos, FN-visualizacion-variables, NF-ejecucion-POSIX, NF-depuracion-c, NF-abstraccion-so, NF-abstraccion-arch, NF-informacion-depuracion, NF-estabilidad, NF-sandbox, NF-multiplataforma}
+        {FN-editor-breakpoint, FN-depurar, FN-rebobinar, FN-visualizacion-hilos, FN-visualizacion-variables, FN-arquitectura-distribuida, FN-comunicacion-websockets, NF-ejecucion-POSIX, NF-depuracion-c, NF-abstraccion-so, NF-abstraccion-arch, NF-informacion-depuracion, NF-estabilidad, NF-sandbox, NF-multiplataforma, NF-docker}
         \begin{enumerate}
             \item Iniciar la depuración
             \item Avanzar la ejecución del programa con un step-over
@@ -121,7 +121,7 @@ Para conseguir verificar que el sistema cumple con los requisitos establecidos s
         {\NA}
         {Evolución de las variables globales durante la ejecución del programa}
         {OK}
-        {FN-depurar, FN-visualizacion-hilos, FN-visualizacion-variables, FN-visualizacion-evolucion, NF-ejecucion-POSIX, NF-depuracion-c, NF-abstraccion-so, NF-abstraccion-arch, NF-informacion-depuracion, NF-estabilidad, NF-sandbox, NF-multiplataforma}
+        {FN-depurar, FN-visualizacion-hilos, FN-visualizacion-variables, FN-visualizacion-evolucion, FN-aplicacion-web, NF-ejecucion-POSIX, NF-depuracion-c, NF-abstraccion-so, NF-abstraccion-arch, NF-informacion-depuracion, NF-estabilidad, NF-sandbox, NF-multiplataforma}
         \begin{enumerate}
             \item Tener un código en C donde varios hilos accedan a una variable global
             \item Colocar varios breakpoints en el código
@@ -152,7 +152,7 @@ Para conseguir validar que el sistema cumple con las expectativas del cliente se
     {\NA}
     {La herramienta debe de permitir la edición de código en C}
     {OK}
-    {CA-escribir-codigo, CA-c-highlight, RE-multiplataforma}
+    {CA-escribir-codigo, CA-c-highlight, RE-depurar-c, RE-multiplataforma}
     \begin{enumerate}
         \item Acceder a la URL del sistema desde el navegador de cualquier dispositivo
         \item Escribir código en C
@@ -227,7 +227,7 @@ Para conseguir validar que el sistema cumple con las expectativas del cliente se
     {\NA}
     {La herramienta debe de permitir retroceder la ejecución del programa durante la depuración}
     {OK}
-    {CA-sistema, CA-depurar-codigo, CA-visibilidad-hilos, CA-visibilidad-variables, RE-depuracion-c, RE-abstraccion-so, RE-abstraccion-arch, RE-abstraccion-memoria, RE-abstraccion-codigo-no-propio}
+    {CA-sistema, CA-depurar-codigo, CA-visibilidad-hilos, CA-visibilidad-variables, CA-depurar-rebobinar, RE-depuracion-c, RE-abstraccion-so, RE-abstraccion-arch, RE-abstraccion-memoria, RE-abstraccion-codigo-no-propio}
     \begin{enumerate}
         \item Iniciar la depuración
         \item Observar que el programa se ha detenido en el primer breakpoint
@@ -268,7 +268,6 @@ Para conseguir validar que el sistema cumple con las expectativas del cliente se
     \end{enumerate}
 \end{testCase}
     
-
 
 En la tabla \tabref{trazabilidadVAT-UR} se presenta la tabla de trazabilidad entre los casos de prueba de validación y los requisitos de usuario del sistema. Esta tabla permite comprobar que todos los requisitos de usuario han sido cubiertos por al menos un caso de prueba.
 \FloatBarrier

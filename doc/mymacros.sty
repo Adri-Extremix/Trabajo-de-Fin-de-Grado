@@ -57,7 +57,7 @@
 
 % \svgfigure[width]{filename}{caption}
 \newcommand{\svgfigure}[3][.7] {
-  \begin{figure}[htb]
+  \begin{figure}[H]
     \ffigbox[\FBwidth]
       {%
         \caption{#3}
@@ -66,4 +66,3 @@
       {\includesvg[inkscapelatex=false,width=#1\textwidth]{#2.svg}}
   \end{figure}
 }
-

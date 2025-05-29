@@ -2,13 +2,13 @@
 En este capítulo se detallará el sistema a desarrollar describiendo brevemente la propuesta a desarrollar, sus requisitos y los casos de uso que se han identificado.
 
 \section{Descripción del proyecto}\label{sec:descripcion}
-Este proyecto tiene como objetivo construir una herramienta que permita a los estudiantes que comienzan a crear \glspl{programa concurrente} depurar su código abstrayendose de ciertas complejidades ajenas a la programación concurrente y enfocandose en la sincronización de los hilos y procesos.
+Este proyecto tiene como objetivo construir una herramienta que permita a los estudiantes que comienzan a crear \glspl{programa concurrente} depurar su código abstrayendose de ciertas complejidades ajenas a la programación concurrente y enfocandose en la sincronización de los \glspl{hilo} y \glspl{proceso}.
 
-Como se mencionó durante el \chapterref{estado-del-arte}, los depuradores que permiten la depuración concurrente no están enfocados en el aprendizaje ni la abstracción, sino en ofrecer todo tipo de funcionalidades al usuario para que él, que entiende al completo todos los factores que pueden inducir a un error, encuentre el problema. Es por esto que se propone una herramienta que permita a los estudiantes entender cómo se comportan los hilos y procesos de forma sencilla y visual.
+Como se mencionó durante el \chapterref{estado-del-arte}, los \glspl{depurador} que permiten la depuración concurrente no están enfocados en el aprendizaje ni la abstracción, sino en ofrecer todo tipo de funcionalidades al usuario para que él, que entiende al completo todos los factores que pueden inducir a un error, encuentre el problema. Es por esto que se propone una herramienta que permita a los estudiantes entender cómo se comportan los \glspl{hilo} y \glspl{proceso} de forma sencilla y visual.
 
 \section{Requisitos}\label{sec:requisitos}
 
-En esta sección se describirán los requisitos del sistema. Para la tarea de la especificación de los requisitos se ha seguido el estándar de IEEE \cite{IEEE-Requirements} y la guía práctica sobre la redacción de requisitos de COSEC \cite{INCOSE-Requirements}. Estas prácticas describen que una buena especificación de requisitos de software debe explicar la funcionalidad del software, rendimiento del sistema, interfaces con otros sistemas y otras características no funcionales.
+En esta sección se describirán los requisitos del sistema. Para la tarea de la especificación de los requisitos se ha seguido el estándar de IEEE \cite{IEEE-Requirements} y la guía práctica sobre la redacción de requisitos de COSEC \cite{INCOSE-Requirements}. Estas prácticas describen que una buena especificación de requisitos de \gls{software} debe explicar la funcionalidad del \gls{software}, rendimiento del sistema, interfaces con otros sistemas y otras características no funcionales.
 
 Para tranformar una necesidad a un requisito se han seguido las siguientes características:
 
@@ -27,13 +27,13 @@ Para tranformar una necesidad a un requisito se han seguido las siguientes carac
 \end{itemize}
 
 Para comenzar con la especificación de los requisitos se parte de las necesidades de los usuarios, que se transforman a requisitos, de la manera antes mencionada, para convertirlos en requisitos de usuario, que se detallan en \subsectionref{requisitos-usuario}.
-Tras especificar los requistos de usuario se derivarán los requisitos de sistema, que se detallarán en \subsectionref{requisitos-sistema}, que proporcionan una información más concisa sobre el funcionamiento y las diferentes características del sistema.
+Tras especificar los requisitos de usuario se derivarán los requisitos de sistema, que se detallarán en \subsectionref{requisitos-sistema}, que proporcionan una información más concisa sobre el funcionamiento y las diferentes características del sistema.
 Estos requisitos serán la base para la construcción del sistema y servirán como guía para el desarrollo del mismo.
 
 
 \subsection{Requisitos de usuario}\label{subsec:requisitos-usuario}
 
-En esta sección se detalla la descripción de cada uno de los requisitos de usuario de este proyecto. Estos requisitos reflejan las necesidades y restricciones impuestas por los usuarios finales. Estos requisios pueden clasificarse en dos tipos:
+En esta sección se detalla la descripción de cada uno de los requisitos de usuario de este proyecto. Estos requisitos reflejan las necesidades y restricciones impuestas por los usuarios finales. Estos requisitos pueden clasificarse en dos tipos:
 \begin{itemize}
     \item \textbf{Capacidades}: Representan las funcionalidades que el usuario necesita para lograr un objetivo o resolver un problema.
     \item \textbf{Restricciones}: Representan las limitaciones impuestas por el usuario o el entorno en el que se desarrolla el sistema.
@@ -166,7 +166,7 @@ Para la especificación los requisitos se usará la siguiente plantilla:
 
 \begin{userReq}{RE}{multiplataforma}
     {pc=m,pd=h,s=c,v=h}
-    El sistema debe de ser multiplataforma.
+    El sistema debe de ser \gls{multiplataforma}.
 \end{userReq}
 
 \FloatBarrier
@@ -212,7 +212,7 @@ Cada requisito tiene un identificador único que sigue el siguiente formato: SR-
 \begin{softwareReq}{FN}{compilacion}
     {pc=l,pd=h,s=c,v=h}
     {CA-compilar-codigo, RE-compilar-c}
-    El sistema debe de generar un archivo ejecutable a partir del código escrito a través del compilador
+    El sistema debe de generar un archivo ejecutable a partir del código escrito a través del \gls{compilador}
 \end{softwareReq}
 
 \begin{softwareReq}{FN}{ejecutar}
