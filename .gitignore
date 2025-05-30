@@ -2,6 +2,7 @@
 .vscode
 __pycache__
 venv
+.DS_Store
 
 # Ignorar todos los archivos de salida de compilación de LaTeX excepto el .tex
 
