@@ -61,7 +61,7 @@ class Debugger:
         code = lines[start_line - 1:end_line]
         code = '\n'.join(code)
 
-        return code
+        return code, start_line
 
     def get_stack_depth(self):
         """Method to get the stack depth"""
@@ -113,11 +113,13 @@ class Debugger:
     def _update_thread_data(self, thread_id, thread_name, frame_info):
         """Actualiza los datos del hilo de forma eficiente"""
         thread_key = self.correspondence.setdefault(thread_name, thread_id)
-        
+        code, start_line = self.get_code_function(frame_info["func"])
+
         self.threads[thread_key] = {
             "function": frame_info["func"],
             "line": frame_info["line"],
-            "code": self.get_code_function(frame_info["func"])
+            "code": code,
+            "start_line": start_line,
         }
 
     def run(self):

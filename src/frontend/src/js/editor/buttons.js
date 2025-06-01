@@ -1,6 +1,6 @@
 import  $  from "jquery";
 import { updateTerminal } from "./outputTerminal.js";
-import { getBreakpoints } from "./codeMirror.js";
+import { getBreakpoints } from "./editor.js";
 import { getSocket, getCompiled } from "../utils/webSocket.js";
 
 

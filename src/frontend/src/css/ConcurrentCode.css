@@ -19,9 +19,22 @@ header {
     grid-template-columns: 55% 44% 2%;
     align-items: center;
     justify-items: end;
-    padding: 0 20px;
+    padding: 0px 20px;
+        /* Aumentamos el padding vertical */
     font-size: calc(5px + 0.8vmin);
     color: var(--text-color);
+    height: 60px;
+        /* Aumentamos la altura */
+        max-height: 60px;
+        overflow: visible;
+        /* Cambiamos a visible para evitar que se corte */
+    }
+    
+    header h1 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        grid-column: 1;
 }
 .large-letter {
     font-size: calc(10px + 4vmin);
@@ -29,6 +42,14 @@ header {
 }
 #Screen {
     height: 100vh;
+    overflow: hidden;
+    }
+    
+    #MainContent {
+        height: calc(100vh - 60px);
+        /* Ajustamos para la nueva altura del header */
+        overflow: hidden;
+        /* Evitar desbordamiento */
 }
 
 /* ******************** Slicer ******************** */
@@ -226,12 +247,17 @@ line-height: 0.8;
     background-color: var(--primary-color-debugger);
     border-color: var(--secondary-color-debugger);
     width: 6%;
-    height: auto;
-    padding:0.5%;
+    height: 40px;
+        /* Altura fija en lugar de auto */
+        padding: 0.5%;
+        min-height: 30px;
+        max-height: 40px;
 }
 .Button img {
     width: auto;  /* Define el ancho deseado */
-    height: 3vh; /* Ajusta la altura manteniendo la proporción */
+    height: 24px;
+        /* Altura fija en lugar de vh para evitar desbordamiento */
+        max-height: 70%;
 }
 
 #Debugger .Reverse-Button {
@@ -248,16 +274,24 @@ line-height: 0.8;
 #Debugger {
     height: 100%;
     display: grid;
-    grid-template-rows: 25% 75%;
-
+    grid-template-rows: auto 1fr;
+        overflow: hidden;
+        /* Evitar que desborde */
+        max-height: calc(100vh - 70px);
+        /* Altura máxima ajustada al nuevo header */
 }
 
 .Debugger-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1%;
-    height: 75vh;
-    padding: 17px;
+    height: calc(100vh - 160px);
+        /* Altura calculada para evitar desbordamiento, ajustada al nuevo header */
+        padding: 10px;
+        overflow: hidden;
+        /* Evitar que desborde */
+        max-height: calc(100vh - 160px);
+        /* Altura máxima */
 }
 
 .Debugg {
@@ -265,14 +299,20 @@ line-height: 0.8;
     padding: 15px;
     border-radius: 5px;
     height: 100%;
+    overflow: hidden;
+        /* Contenedor no desborda */
+        display: flex;
+        flex-direction: column;
 }
 
 .Visual {
     background-color: var(--background-color-focus);
-    padding: 15px;
-    border-radius: 5px;
+    overflow: hidden;
+        /* Contenedor no desborda */
     display: flex;
     flex-direction: column;
+    padding: 15px;
+        border-radius: 5px;
     height: 100%;
 }
 
@@ -281,6 +321,8 @@ line-height: 0.8;
     font-weight: bold;
     margin-bottom: 15px;
     color: var(--primary-color-debugger);
+    flex-shrink: 0;
+        /* El título no se reduce */
 }
 
 .VerticalContainer {
@@ -288,7 +330,11 @@ line-height: 0.8;
     flex-direction: column;
     gap: 10px;
     overflow-y: auto;
-    max-height: 80%;
+        /* Scroll vertical interno */
+            flex-grow: 1;
+            /* Ocupa el espacio disponible */
+            flex-shrink: 1;
+            /* Se puede reducir si es necesario */
 }
 
 .CodeShard {
@@ -296,6 +342,240 @@ line-height: 0.8;
     padding: 10px;
     border-radius: 5px;
     border-left: 4px solid var(--primary-color-debugger);
+    margin-bottom: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .CodeShard.highlighted {
+        background-color: rgba(58, 177, 80, 0.1);
+        box-shadow: 0 0 8px rgba(58, 177, 80, 0.5);
+        transform: translateX(3px);
+    }
+    
+    .CodeShard-Header {
+        font-weight: bold;
+        font-size: 1.1rem;
+        color: var(--primary-color-debugger);
+        margin-bottom: 8px;
+    }
+    
+    .CodeShard-Content {
+        background-color: var(--background-color-focus);
+        border-radius: 4px;
+        margin: 0;
+        overflow: hidden;
+        /* Para que el editor se ajuste correctamente */
+        min-height: 100px;
+        /* Altura mínima para el editor */
+        height: auto;
+    }
+    
+    /* Estilos específicos para el editor CodeMirror dentro del contenedor */
+    .CodeShard-Content .cm-editor {
+        height: 100%;
+        font-family: monospace;
+    }
+    
+    /* Mantener compatibilidad con la visualización anterior por si acaso */
+    .CodeLine {
+        padding: 2px 0;
+        display: flex;
+    }
+    
+    .LineNumber {
+        color: #888;
+        margin-right: 10px;
+        user-select: none;
+        min-width: 20px;
+        text-align: right;
+    }
+    
+    /* Estilo para la línea activa en formato no-CodeMirror (para compatibilidad) */
+    .CurrentLine {
+        background-color: rgba(58, 177, 80, 0.2);
+        font-weight: bold;
+    }
+    
+    /* Estilo específico para la línea de parada en CodeMirror */
+    .cm-breakpointLine {
+        background-color: rgba(58, 177, 80, 0.15);
+        border-left: 3px solid var(--primary-color-debugger);
+    }
+    
+    /* Estilo para el fallback de código cuando CodeMirror no se puede cargar */
+    .CodeShard-Content-Fallback {
+        background-color: var(--background-color-focus);
+        padding: 8px;
+        border-radius: 4px;
+        font-family: monospace;
+        margin: 0;
+        white-space: pre;
+        overflow-x: auto;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .CodeShard-Variables {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #444;
+    }
+    
+    .CodeShard-Variables h4 {
+        margin: 0 0 5px 0;
+        color: var(--primary-color-debugger);
+    }
+    
+    .VarTable {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .VarTable tr {
+        border-bottom: 1px solid #444;
+    }
+    
+    .VarTable td {
+        padding: 3px 8px;
+    }
+    
+    .VarName {
+        font-weight: bold;
+        color: var(--secondary-color-debugger);
+        width: 40%;
+    }
+    
+    .VarValue {
+        font-family: monospace;
+        color: #ddd;
+    }
+    
+    .ThreadVisual {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .ThreadCount {
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+    
+    .ThreadList {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .ThreadItem {
+        display: flex;
+        align-items: center;
+        background-color: var(--background-color-focus);
+        padding: 12px;
+        border-radius: 5px;
+        border-left: 3px solid var(--primary-color-debugger);
+    }
+    
+    .ThreadIcon {
+        font-size: 1.5rem;
+        margin-right: 12px;
+        color: var(--primary-color-debugger);
+    }
+    
+    .ThreadName {
+        font-weight: bold;
+        margin-bottom: 3px;
+    }
+    
+    .ThreadFunction {
+        font-size: 0.9rem;
+        color: #bbbbbb;
+    }
+    
+    .ThreadList.empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100px;
+    }
+    
+    .EmptyThreadMessage {
+        color: #888;
+        font-style: italic;
+    }
+    
+    /* Estilos para el indicador de carga */
+    .LoadingIndicator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 120px;
+        width: 100%;
+    }
+    
+    .LoadingSpinner {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 15px;
+        border: 4px solid rgba(58, 177, 80, 0.2);
+        border-radius: 50%;
+        border-top: 4px solid var(--primary-color-debugger);
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+    
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+    
+    .LoadingMessage {
+        font-size: 1.1rem;
+        color: var(--primary-color-debugger);
+    }
+    
+    .CodeShard.loading {
+        border-left-color: #3885cc;
+    }
+    
+    .CodeShard.loading .CodeShard-Header {
+        color: #3885cc;
+    }
+    
+    .ThreadVisual.loading {
+        border-left: 3px solid #3885cc;
+        padding: 10px;
+        background-color: rgba(56, 133, 204, 0.05);
+        animation: pulseLoading 2s infinite;
+    }
+    
+    @keyframes pulseLoading {
+        0% {
+            background-color: rgba(56, 133, 204, 0.05);
+        }
+    
+        50% {
+            background-color: rgba(56, 133, 204, 0.1);
+        }
+    
+        100% {
+            background-color: rgba(56, 133, 204, 0.05);
+        }
+    }
+    
+    .LoadingContent {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        min-height: 120px;
 }
 
 .ThreadContent {
@@ -304,9 +584,20 @@ line-height: 0.8;
     border-radius: 5px;
     padding: 10px;
     overflow-y: auto;
+    max-height: calc(100% - 50px);
+        /* altura calculada restando el espacio del título */
 }
 
 #Debugger .Buttons{
-    margin-top: 1%;
-    gap: 1%
+    margin-top: 5px;
+        margin-bottom: 5px;
+        gap: 1%;
+        height: 50px;
+        max-height: 50px;
+        /* Altura máxima para los botones */
+        overflow: hidden;
+        /* Evitar que desborde */
+        padding: 5px 0;
+        display: flex;
+        align-items: center;
 }

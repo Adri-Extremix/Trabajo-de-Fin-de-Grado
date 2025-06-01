@@ -1,6 +1,6 @@
 import $ from "jquery";
 import {initializeSocket, bindingComunicactions} from "./utils/webSocket.js"
-import { crearEditor } from "./editor/codeMirror.js";
+import { crearEditor } from "./editor/editor.js";
 import "../css/variables.css";
 import { setupButtonEvents } from "./editor/buttons.js";
 import { updateSlicer, RunColorManager } from "./utils/uiManager.js";
