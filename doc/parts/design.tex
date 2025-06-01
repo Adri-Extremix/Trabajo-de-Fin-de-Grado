@@ -128,7 +128,7 @@ Tras las decisiones tomadas durante la construcción de la solución final, se h
 
 \begin{softwareReq}{NF}{docker}
     {pc=h,pd=h,s=c,v=h}
-    {RE-sandbox}
+    {RE-seguridad}
     El sistema debe ejecutarse en un entorno aislado utilizando contenedores Docker, garantizando la seguridad y el control de recursos durante la ejecución del código del usuario.
 \end{softwareReq}
 
@@ -247,8 +247,8 @@ Registra cada uno de los latidos escuchados por cada contenedor, si tras 10 segu
 {COM-Web Socket Cliente, COM-Funcionalidades Depuración} % dependencias
 {Mensajes del cliente} % in-data
 {Mensajes del contenedor} % out-data
-{\NA} % relations
-La comunicación con los contenedores se encargará de gestionar la comunicación entre el contenedor y el cliente a través de Web Sockets. %description 
+{FN-comunicacion-websockets, FN-arquitectura-distribuida} % relations
+La comunicación con los contenedores se encargará de gestionar la comunicación entre el contenedor y el cliente a través de Web Sockets. %description
 \end{component}
 
 \begin{component}{Funcionalidades Compilación}
@@ -281,9 +281,10 @@ Envío de latidos cada 5 segundos a la dirección del \textit{\gls{proxy}}
 \begin{component}{Servicio de Ficheros Estáticos}
 {Envío de ficheros estáticos al cliente}
 {\NA}
+{Petición GET del cliente} % in-data
 {Ficheros HTML, CSS y JavaScript}
 {FN-aplicacion-web, NF-docker} %relations
-{Se encarga de enviar ficheros estáticos tras recibir una petición GET por parte del cliente para que este pueda acceder a su aplicación web.}
+Se encarga de enviar ficheros estáticos tras recibir una petición GET por parte del cliente para que este pueda acceder a su aplicación web.
 \end{component}
 
 \FloatBarrier
@@ -325,21 +326,21 @@ Con el objetivo de visualizar la interacción entre los distintos componentes de
 
 En la figura \ref{fig:Conexion_contenedor} se muestra cómo el cliente realiza una petición \texttt{GET} al \textit{\gls{proxy}}, el cual le redirige a un \gls{contenedor} libre, devolviendo este los ficheros estáticos al cliente.
 
-\svgfigure[0.6]{Conexion_contenedor}{Diagrama de secuencia de la conexión del cliente al contenedor}
+\svgfigure[1]{Conexion_contenedor}{Diagrama de secuencia de la conexión del cliente al contenedor}
 
 \FloatBarrier
 
 \subsubsection{Diagrama de secuencia de la gestion de contenedores} \label{subsec:diagrama-secuencia-gestion-contenedores}
 
 En la figura \ref{fig:Gestion_contenedores} se muestra cómo los \glspl{contenedor} envían latidos al \textit{\gls{proxy}} con cierta frecuencia, y cómo el \textit{\gls{proxy}} gestiona la disponibilidad de los \glspl{contenedor}. Si un \gls{contenedor} deja de enviar latidos durante un tiempo determinado, el \textit{\gls{proxy}} lo marca como no disponible.
-\svgfigure[0.55]{Gestion_contenedores}{Diagrama de secuencia de la gestión de contenedores}
+\svgfigure[0.65]{Gestion_contenedores}{Diagrama de secuencia de la gestión de contenedores}
 
 \FloatBarrier
 
 \subsubsection{Diagrama de secuencia de la compilación y ejecución} \label{subsec:diagrama-secuencia-compilacion-ejecucion}
 En la figura \ref{fig:Compilacion_ejecucion} se muestra cómo el cliente envía una petición de \gls{compilación} al \gls{contenedor}, enviando el código a compilar. El \gls{contenedor} compila el código y devuelve la salida estándar de esa \gls{compilación} al cliente.
 Tras esto el cliente envía una petición de ejecución al \gls{contenedor}, el cual ejecuta el código y devuelve la salida estándar de esa ejecución al cliente.
-\svgfigure[0.55]{Compilacion_ejecucion}{Diagrama de secuencia de la \gls{compilación} y ejecución del código}
+\svgfigure[0.65]{Compilacion_ejecucion}{Diagrama de secuencia de la \gls{compilación} y ejecución del código}
 
 \FloatBarrier
 
@@ -348,7 +349,7 @@ En la figura \ref{fig:Depuracion} se muestra un posible flujo de depuración. El
 Tras esto el cliente envía una petición de inicio de depuración al \gls{contenedor}, y el \gls{contenedor} inicia la depuración hasta el primer breakpoint. El cliente recibe la información de los \glspl{hilo} y las variables, y muestra la información al usuario.
 Tras esto el cliente manda un \texttt{step} y el \gls{contenedor} ejecuta la siguiente instrucción, actualizando la información de los \glspl{hilo} y las variables.
 Para finalizar la depuración, el cliente envía una petición de finalización de depuración al \gls{contenedor}, el cual finaliza la sesión de depuración y devuelve la información final al cliente.
-\svgfigure[0.6]{Depuracion}{Diagrama de secuencia de la depuración del código}
+\svgfigure[0.7]{Depuracion}{Diagrama de secuencia de la depuración del código}
 
 \FloatBarrier
 

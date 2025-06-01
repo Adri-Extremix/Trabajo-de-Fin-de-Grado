@@ -1,3 +1,175 @@
 \chapter{Manual de Usuario}\label{app:manual}
 
-\lipsum[1]
+Este apéndice contiene el manual de usuario para la herramienta de depuración de programas concurrentes desarrollada como parte de este Trabajo de Fin de Grado.
+
+La \textit{Herramienta Didáctica para la Programación Concurrente} es una aplicación web que facilita el aprendizaje y comprensión de los conceptos de concurrencia, permitiendo a estudiantes y profesores visualizar el comportamiento de programas multihilo en tiempo real.
+
+La herramienta permite ejecutar y depurar código C con múltiples hilos, observando visualmente el comportamiento de cada hilo y el estado de las variables durante la ejecución, lo que facilita la comprensión de conceptos complejos relacionados con la programación concurrente.
+
+\section{Requisitos del sistema}
+
+Para ejecutar esta herramienta, es necesario contar con:
+\begin{itemize}
+    \item \textbf{Docker} y \textbf{Docker Compose}: Para gestionar los contenedores aislados
+    \item \textbf{Node.js} (versión 14 o superior): Para la construcción del frontend
+\end{itemize}
+
+\subsection{Instalación de requisitos previos}
+
+Antes de poder utilizar la herramienta, es necesario instalar los siguientes componentes en su sistema operativo:
+
+\subsubsection{Instalación de Docker}
+
+Docker es esencial para el funcionamiento de la herramienta, ya que proporciona los entornos aislados donde se ejecutará el código.
+
+\begin{itemize}
+    \item \textbf{Linux (Ubuntu/Debian)}:
+    \begin{verbatim}
+    sudo apt update
+    sudo apt install docker.io docker-compose
+    sudo systemctl enable --now docker
+    sudo usermod -aG docker $USER
+    \end{verbatim}
+    
+    \item \textbf{macOS}:
+    Descargar e instalar Docker Desktop desde: \url{https://www.docker.com/products/docker-desktop/}
+    
+\end{itemize}
+
+\subsubsection{Instalación de Node.js}
+
+Node.js es necesario para construir y ejecutar el frontend de la aplicación.
+
+\begin{itemize}
+    \item \textbf{Linux (Ubuntu/Debian)}:
+    \begin{verbatim}
+    sudo apt install -y nodejs
+    \end{verbatim} 
+    
+    \item \textbf{macOS} (usando Homebrew):
+    \begin{verbatim}
+    brew install node
+    \end{verbatim}
+    
+\end{itemize}
+
+\section{Instalación y ejecución}
+
+\subsection{Obtención del código fuente}
+
+Para comenzar, se debe clonar el repositorio de GitHub:
+
+    \begin{verbatim}
+    git clone https://github.com/Adri-Extremix/Trabajo-de-Fin-de-Grado
+    \end{verbatim}
+
+\subsection{Preparación de scripts}
+
+Es necesario dar permisos de ejecución a los scripts del sistema:
+
+    \begin{verbatim}
+    cd Trabajo-de-Fin-de-Grado
+    chmod +x start_proyect.sh
+    chmod +x close_proyect.sh
+    \end{verbatim}
+
+\subsection{Inicio de la aplicación}
+
+Para iniciar todos los componentes del sistema:
+
+    \begin{verbatim}
+    ./start_proyect.sh
+    \end{verbatim}
+
+Este script realizará las siguientes acciones:
+\begin{itemize}
+    \item Detectar la dirección IP local
+    \item Crear una red Docker para la comunicación entre contenedores
+    \item Construir el frontend
+    \item Iniciar el proxy
+    \item Lanzar los contenedores de depuración
+    \item Abrir el navegador con la URL del sistema
+\end{itemize}
+
+La aplicación estará accesible automáticamente en el navegador, o alternativamente en la dirección \texttt{http://<IP\_LOCAL>:8080}.
+
+\subsection{Cierre de la aplicación}
+
+Para detener todos los servicios cuando se termine de utilizar la herramienta:
+
+\begin{verbatim}
+    ./close_proyect.sh
+\end{verbatim}
+
+\section{Guía de uso}
+
+\subsection{Características principales}
+
+La herramienta incluye las siguientes funcionalidades:
+
+\begin{itemize}
+    \item \textbf{Ejecución de código C}: Compila y ejecuta programas C con múltiples hilos
+    \item \textbf{Depuración interactiva}: Utiliza comandos de depuración como step-in, step-over, y breakpoints
+    \item \textbf{Visualización en tiempo real}: Observa el estado y la evolución de los hilos durante la ejecución
+    \item \textbf{Entorno seguro}: El código se ejecuta en contenedores Docker aislados
+    \item \textbf{Arquitectura escalable}: Múltiples contenedores Docker pueden servir a diferentes usuarios
+    \item \textbf{Comunicación WebSockets}: Actualización en tiempo real del estado de la depuración
+\end{itemize}
+
+\subsection{Interfaz principal}
+
+La interfaz de la aplicación está dividida en dos secciones:
+\begin{itemize}
+    \item \textbf{Sección de código}: Donde se escribe y edita el código C
+    
+    \begin{itemize}
+        
+        \item \textbf{Editor de código}: Donde se escribe el programa C
+        \item \textbf{Panel de control}: Con botones para compilar y ejecutar
+        \item \textbf{Terminal de salida}: Muestra la salida del programa y mensajes del sistema
+
+    \end{itemize}
+
+    \item \textbf{Sección de depuración}: Donde se gestionan los puntos de interrupción y se observa el estado de la ejecución
+
+    \begin{itemize}
+            
+        \item \textbf{Panel de depuración}: Contiene botones para iniciar, detener y controlar la depuración
+        \item \textbf{Vista de variables}: Muestra las variables activas y sus valores
+        \item \textbf{Vista de hilos}: Visualiza el estado de los diferentes hilos
+
+    \end{itemize}
+    
+\end{itemize}
+
+\subsection{Flujo de trabajo básico}
+
+\begin{enumerate}
+    \item Escribir o cargar código C en el editor de la interfaz web
+    \item Añadir puntos de interrupción (breakpoints) haciendo clic junto al número de línea
+    \item Compilar el código con el botón \textit{Compilar}
+    \item Si hay errores de compilación, corregirlos y volver a compilar
+    \item Para ejecución normal, presionar \textit{Ejecutar}
+    \item Para depuración, cambiar a la sección de depuración
+    \item Iniciar la depuración con el botón \textit{Run}
+    \item Utilizar los controles de depuración:
+    \begin{itemize}
+        \item \textbf{Step Over}: Avanza una instrucción sin entrar en funciones
+        \item \textbf{Reverse Step Over}: Retrocede una instrucción sin entrar en funciones
+        \item \textbf{Step Into}: Avanza entrando en las funciones llamadas
+        \item \textbf{Reverse Step Into}: Retrocede entrando en las funciones llamadas
+        \item \textbf{Step Out}: Sale de la función actual
+        \item \textbf{Reverse Step Out}: Retrocede saliendo de la función actual
+        \item \textbf{Continue}: Ejecuta hasta el siguiente breakpoint
+        \item \textbf{Reverse Continue}: Retrocede hasta el siguiente breakpoint
+        \item \textbf{Stop}: Detiene la ejecución del programa
+
+    \end{itemize}
+    \item Observar el estado de variables y la evolución de los hilos en tiempo real
+    \item La depuración puede detenerse en cualquier momento con \textit{Stop}
+\end{enumerate}
+
+\begin{tcolorbox}[colback=yellow!10!white,colframe=red!50!black,title=\textbf{Importante}]
+Cada vez que se realicen cambios en el código o en los puntos de interrupción, es necesario recompilar el código para que los cambios surtan efecto.
+\end{tcolorbox}
+
