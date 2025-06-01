@@ -60,22 +60,6 @@ npm run build
 # npm run start
 echo -e "${GREEN}Cliente iniciado correctamente.${NC}"
 
-# Start the proxy
-cd ../proxy
-if [ ! -f "docker-compose.yml" ]; then
-    echo -e "${RED}Error: docker-compose.yml no encontrado en el directorio del proxy.${NC}"
-    exit 1
-fi
-if [ ! -f "Dockerfile" ]; then
-    echo -e "${RED}Error: Dockerfile no encontrado en el directorio del proxy.${NC}"
-    exit 1
-fi
-
-echo -e "${GREEN}Iniciando proxy...${NC}"
-docker compose up -d --build
-echo -e "${GREEN}Proxy iniciado correctamente.${NC}"
-echo -e "- Proxy disponible en: ${BLUE}http://${PROXY_IP}:${PROXY_PORT}${NC}"
-
 
 # Start Docker containers
 cd ../docker
@@ -101,6 +85,27 @@ echo -e "${YELLOW}Verificando estado del sistema...${NC}"
 echo -e "Para ver los logs de los contenedores ejecuta: docker logs <container_name>"
 echo -e "Para detener todos los servicios ejecuta: docker-compose down en cada directorio"
 echo -e "${GREEN}¡Todo listo! Sistema iniciado correctamente${NC}"
+
+# Start the proxy
+cd ../proxy
+if [ ! -f "docker-compose.yml" ]; then
+    echo -e "${RED}Error: docker-compose.yml no encontrado en el directorio del proxy.${NC}"
+    exit 1
+fi
+if [ ! -f "Dockerfile" ]; then
+    echo -e "${RED}Error: Dockerfile no encontrado en el directorio del proxy.${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}Iniciando proxy...${NC}"
+docker compose up -d --build
+echo -e "${GREEN}Proxy iniciado correctamente.${NC}"
+echo -e "- Proxy disponible en: ${BLUE}http://${PROXY_IP}:${PROXY_PORT}${NC}"
+
+for i in {1..12}; do
+    echo -n "."
+    sleep 0.5
+done
 
 # Abrir el navegador predeterminado con la URL del proxy
 echo -e "${YELLOW}Abriendo navegador en la URL del proxy...${NC}"
