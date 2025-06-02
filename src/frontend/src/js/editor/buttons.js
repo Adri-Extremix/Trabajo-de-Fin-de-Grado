@@ -1,7 +1,11 @@
 import  $  from "jquery";
 import { updateTerminal } from "./outputTerminal.js";
 import { getBreakpoints } from "./editor.js";
-import { getSocket, getCompiled } from "../utils/webSocket.js";
+import {
+    getSocket,
+    getCompiled,
+    setEditorChanged,
+} from "../utils/webSocket.js";
 
 
 function Compile() {
@@ -9,6 +13,10 @@ function Compile() {
     const breakpoints = getBreakpoints(window.editor);
     console.log("Código a compilar:", code);
     console.log("Puntos de interrupción:", breakpoints);
+
+    // Indicar que estamos compilando, por lo que no hay cambios pendientes
+    setEditorChanged(false);
+
     getSocket().emit("compile", { code: code, breakpoints: breakpoints });
     console.log("Enviando código para compilación...");
 }

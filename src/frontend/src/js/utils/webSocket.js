@@ -7,6 +7,7 @@ let debuggerModule = null;
 
 let compiled = false;
 let socket;
+let editorChangedSinceCompilation = false; // Variable para rastrear cambios en el editor
 
 export const getSocket = () => {
     return socket;
@@ -14,6 +15,14 @@ export const getSocket = () => {
 
 export const getCompiled = () => {
     return compiled;
+};
+
+export const getEditorChanged = () => {
+    return editorChangedSinceCompilation;
+};
+
+export const setEditorChanged = (value) => {
+    editorChangedSinceCompilation = value;
 };
 
 // Inicializar Socket.IO
@@ -46,8 +55,18 @@ export function initializeSocket() {
             updateTerminal("Error: " + response.error);
             compiled = false;
         } else {
-            updateTerminal(response.result);
+            // Limpiar terminal para mostrar claramente que hay una nueva compilación
+            updateTerminal("Compilación completada con éxito.\n");
+            // Añadir pequeña pausa para mostrar la transición
+            setTimeout(() => {
+                // Esta función continúa después de un breve delay
+            }, 300);
+            // Mostrar resultado de la compilación si existe
+            if (response.result && response.result.trim()) {
+                updateTerminal(response.result);
+            }
             compiled = true;
+            editorChangedSinceCompilation = false; // Resetear el indicador de cambios
         }
 
         // Actualizamos botones y slicer

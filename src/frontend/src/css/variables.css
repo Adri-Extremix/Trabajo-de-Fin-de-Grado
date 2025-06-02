@@ -4,6 +4,8 @@
     --active-button-color-coder: #2d70ae;
     --hover-button-color-coder: #428fd6;
     --primary-color-debugger: #3ab150;
+    --primary-color-debugger-rgb: 58, 177, 80;
+        /* Versión RGB del color primario */
     --secondary-color-debugger: #38a34c;
     --active-button-color-debugger: #2d70ae;
     --hover-button-color-debugger: #428fd6;

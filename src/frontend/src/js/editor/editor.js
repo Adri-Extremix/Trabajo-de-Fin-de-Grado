@@ -4,6 +4,7 @@ import { cpp } from "@codemirror/lang-cpp";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView, basicSetup } from "codemirror";
 import { Decoration, gutter } from "@codemirror/view";
+import { setEditorChanged } from "../utils/webSocket.js";
 
 // Definir los efectos de estado para añadir y eliminar breakpoints
 const addBreakpoint = StateEffect.define();
@@ -140,14 +141,16 @@ int main() {
                     const linePos = line.from;
                     const lineBreakpoints = getBreakpoints(view);
                     const hasBreakpoint = lineBreakpoints.includes(lineNumber);
-    
+
                     view.dispatch({
                         effects: hasBreakpoint
                             ? removeBreakpoint.of(linePos)
-                            : addBreakpoint.of(linePos)
+                            : addBreakpoint.of(linePos),
                     });
-    
+
                     console.log("Breakpoints:", getBreakpoints(view));
+                    // Marcar que se han modificado los breakpoints
+                    setEditorChanged(true);
                     return true;
                 } catch (e) {
                     console.error("Error al manejar clic en gutter:", e);
@@ -168,18 +171,24 @@ int main() {
             breakpointState,
             breakpointGutter,
             EditorView.lineWrapping,
+            EditorView.updateListener.of((update) => {
+                if (update.docChanged || update.viewportChanged) {
+                    // Marcar que el editor ha cambiado desde la última compilación
+                    setEditorChanged(true);
+                }
+            }),
             EditorView.theme({
                 ".cm-breakpoint-gutter": {
                     width: "25px",
-                    cursor: "pointer"
+                    cursor: "pointer",
                 },
                 ".cm-breakpoint-marker": {
                     color: "red",
                     fontSize: "18px",
                     lineHeight: "18px",
                     margin: "0 auto",
-                    textAlign: "center"
-                }
+                    textAlign: "center",
+                },
             }),
         ],
     });
