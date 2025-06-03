@@ -165,7 +165,6 @@ header {
     font-size: 1rem;
 }
 
-/* Específicamente para los CodeShards en el depurador */
 .CodeShard-Content .cm-content {
     font-size: 0.85rem;
 }
@@ -190,11 +189,10 @@ header {
     background-color: #f7f7f7;
   }
 .breakpoint {
-color: red;
-font-size: 16px;
-line-height: 0.8;
-} */
- 
+    color: red;
+        font-size: 16px;
+        line-height: 0.8;
+}
 /* ******************** Terminal ******************** */
 
 #Terminal {
@@ -289,9 +287,9 @@ line-height: 0.8;
 
 .Debugger-container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 60% 40%;
     gap: 1%;
-    height: calc(100vh - 160px);
+    height: 100%;
         /* Altura calculada para evitar desbordamiento, ajustada al nuevo header */
         padding: 10px;
         overflow: hidden;
@@ -324,11 +322,11 @@ line-height: 0.8;
     flex-direction: column;
     gap: 10px;
     overflow-y: auto;
-        /* Scroll vertical interno */
-            flex-grow: 1;
-            /* Ocupa el espacio disponible */
-            flex-shrink: 1;
-            /* Se puede reducir si es necesario */
+    padding: 10px;
+    /* Scroll vertical interno */
+        flex-grow: 1;
+        /* Ocupa el espacio disponible */
+        flex-shrink: 1;
 }
 
 .CodeShard {
@@ -369,35 +367,14 @@ line-height: 0.8;
     height: 100%;
     font-family: monospace;
     font-size: 0.85rem;
-        /* Reducimos el tamaño de letra para la parte de depuración */
-    }
+}
     
-    /* Asegurar que la barra de desplazamiento siempre es visible */
-    .CodeShard-Content .cm-scroller {
-        overflow-x: scroll !important;
-        /* Forzar mostrar la barra de desplazamiento horizontal */
-        overflow-y: auto;
-        /* Mantener comportamiento normal para scroll vertical */
-}
-
-/* Mantener compatibilidad con la visualización anterior por si acaso */
-.CodeLine {
-    padding: 2px 0;
-    display: flex;
-}
-
-.LineNumber {
-color: #888;
-    margin-right: 10px;
-    user-select: none;
-    min-width: 20px;
-    text-align: right;
-}
-
-/* Estilo para la línea activa en formato no-CodeMirror (para compatibilidad) */
-.CurrentLine {
-    background-color: rgba(58, 177, 80, 0.2);
-    font-weight: bold;
+/* Asegurar que la barra de desplazamiento siempre es visible */
+.CodeShard-Content .cm-scroller {
+    overflow-x: scroll !important;
+    /* Forzar mostrar la barra de desplazamiento horizontal */
+    overflow-y: auto;
+    /* Mantener comportamiento normal para scroll vertical */
 }
 
 /* Estilo específico para la línea de parada en CodeMirror */
@@ -406,28 +383,23 @@ color: #888;
     border-left: 3px solid var(--primary-color-debugger);
 }
 
-/* Estilo para el fallback de código cuando CodeMirror no se puede cargar */
-.CodeShard-Content-Fallback {
-    background-color: var(--background-color-focus);
-    padding: 8px;
+/* Estilo específico para la línea de parada en CodeMirror */
+.cm-breakpointLine {
+    background-color: rgba(58, 177, 80, 0.15);
+    border-left: 3px solid var(--primary-color-debugger);
+}
+
+/* Estilo para el mensaje de error cuando CodeMirror no se puede cargar */
+.CodeShard-Content-Error {
+    background-color: rgba(255, 0, 0, 0.1);
+    padding: 12px;
     border-radius: 4px;
-    font-family: monospace;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     margin: 0;
-    white-space: pre;
-    overflow-x: auto;
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.CodeShard-Variables {
-margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #444;
-}
-
-.CodeShard-Variables h4 {
-    margin: 0 0 5px 0;
-    color: var(--primary-color-debugger);
+    color: #e74c3c;
+        text-align: center;
+        font-weight: bold;
+        border: 1px solid rgba(231, 76, 60, 0.3);
 }
 
 .VarTable {
@@ -455,7 +427,7 @@ margin-top: 10px;
 }
 
 .ThreadVisual {
-display: flex;
+    display: flex;
     flex-direction: column;
     gap: 15px;
 }
@@ -493,12 +465,6 @@ display: flex;
     display: flex;
     flex-direction: column;
     width: 100%;
-}
-
-.ThreadIcon {
-    font-size: 1.5rem;
-    margin-right: 12px;
-    color: var(--primary-color-debugger);
 }
 
 .ThreadName {
@@ -659,8 +625,7 @@ display: flex;
     border-radius: 5px;
     padding: 10px;
     overflow-y: auto;
-    max-height: calc(100% - 50px);
-        /* altura calculada restando el espacio del título */
+    max-height: calc(100% - 70px);
 }
 #Debugger .Buttons{
     margin-top: 5px;

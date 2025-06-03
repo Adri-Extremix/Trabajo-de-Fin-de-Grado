@@ -54,7 +54,7 @@ else
 fi
 
 # Ejecutando el lado del cliente
-cd src/frontend  
+cd src/frontend
 npm install
 npm run build
 # npm run start
