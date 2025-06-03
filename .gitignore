@@ -22,6 +22,7 @@ venv
 
 # Archivos generados para presentaciones Beamer
 *.nav
+
 *.snm
 *.vrb
 
