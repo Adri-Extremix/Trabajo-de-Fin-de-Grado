@@ -20,7 +20,6 @@ Para ejecutar este proyecto necesitas:
 
 - [Docker](https://www.docker.com/get-started) (y Docker Compose)
 - [Node.js](https://nodejs.org/) (versión 14 o superior)
-- [Python](https://www.python.org/) (versión 3.6 o superior) con pip
 
 ## Instalación y ejecución
 
