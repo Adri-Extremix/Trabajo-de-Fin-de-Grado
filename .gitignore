@@ -30,7 +30,6 @@ venv
 
 # Archivos intermedios de compilación
 *.dvi
-*.pdf
 *.ps
 *.xdv
 

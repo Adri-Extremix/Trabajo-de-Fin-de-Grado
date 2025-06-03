@@ -8,6 +8,7 @@ all: $(BUILD_DIR)/$(obj).pdf
 
 $(BUILD_DIR)/$(obj).pdf: $(obj).tex uc3mthesisIEEE.cls parts/* img/* | $(BUILD_DIR) $(BUILD_DIR)/parts # Añade dependencia a build/parts
 	latexmk -cd -g -pdflua -shell-escape -outdir=$(BUILD_DIR) $(obj).tex
+	mv $(BUILD_DIR)/$(obj).pdf $(obj).pdf
 
 # Crea el directorio de build si no existe
 $(BUILD_DIR):
