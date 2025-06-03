@@ -1,0 +1,18 @@
+services:
+  proxy:
+    container_name: proxy  # Nombre fijo y predecible
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"  # Puerto expuesto a internet/red
+    volumes:
+      - .:/app
+    command: python proxy.py
+    environment:
+      - ALLOWED_HOSTS=*
+    networks:
+      - debugger_network
+
+networks:
+  debugger_network:
+    external: true  # Esta red debe crearse antes con docker network create
