@@ -382,7 +382,7 @@ if __name__ == "__main__":
     start_time = time.time()
 
 
-    debugger = Debugger("../../examples/prueba1.c", "../../examples/prueba1.o", rr=False)
+    debugger = Debugger("../../examples/prueba1.c", "../../examples/prueba1.o", rr=True)
 
     print("Colocando breakpoint")
     debugger.set_breakpoint(22)

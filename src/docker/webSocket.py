@@ -132,11 +132,20 @@ class WebSocketContainer:
                 
         @self.socketio.on('compile')
         def handle_compile(data): 
-            #TODO: Hay un error aquí
             try:
                 result = self.compiler.compile_code(data["code"])
                 if self.compiler.compiled_file_path:
-                    self.debugger = Debugger(self.compiler.code_file_path, self.compiler.compiled_file_path)
+                    # Obtener el modo de depuración del objeto data
+                    debug_mode = data.get("debugMode", "gdb")
+                    # Configurar el depurador con el modo seleccionado
+                    # Usar RR si el debug_mode es "rr", de lo contrario usar GDB estándar
+                    if debug_mode == "rr":
+                        use_rr = True
+                    else:
+                        use_rr = False
+
+                    self.debugger = Debugger(self.compiler.code_file_path, self.compiler.compiled_file_path, rr=use_rr)
+                    
                     breakpoints = data.get("breakpoints", [])
                     for breakpoint in breakpoints:
                         self.debugger.set_breakpoint(breakpoint)
@@ -157,6 +166,7 @@ class WebSocketContainer:
 
                 #TODO: Acordarse de que el error de ejecución debe de aparecer como un error en la consola del cliente
                 emit('run_response', {'action': 'run', 'error': str(e)})
+                
                 return
             
 

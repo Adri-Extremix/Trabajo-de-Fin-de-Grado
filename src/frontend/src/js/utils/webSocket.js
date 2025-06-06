@@ -8,6 +8,7 @@ let debuggerModule = null;
 let compiled = false;
 let socket;
 let editorChangedSinceCompilation = false; // Variable para rastrear cambios en el editor
+let lastCompiledDebugMode = null; // Variable para almacenar el último modo de depuración compilado
 
 export const getSocket = () => {
     return socket;
@@ -25,6 +26,14 @@ export const setEditorChanged = (value) => {
     editorChangedSinceCompilation = value;
 };
 
+export const getLastCompiledDebugMode = () => {
+    return lastCompiledDebugMode;
+};
+
+export const setLastCompiledDebugMode = (mode) => {
+    lastCompiledDebugMode = mode;
+};
+
 // Inicializar Socket.IO
 export function initializeSocket() {
     // Conectar al WebSocket usando la URL actual (para que funcione con el proxy)
@@ -33,9 +42,21 @@ export function initializeSocket() {
 
     socket = io(currentUrl); // Esto conectará al mismo host/puerto donde se está sirviendo la página
 
+    // Inicializar el valor de lastCompiledDebugMode con el valor que tenga el selector
+    // Lo hacemos con setTimeout para asegurar que el DOM esté cargado
+    setTimeout(() => {
+        if (document.getElementById("debugMode")) {
+            lastCompiledDebugMode = document.getElementById("debugMode").value;
+            console.log("Modo de depuración inicial:", lastCompiledDebugMode);
+        }
+    }, 100);
+
     // Manejar la conexión exitosa
     socket.on("connect", () => {
         console.log("Conectado al servidor WebSocket");
+
+        // Hacer el socket disponible globalmente para los controladores de depuración
+        window.socket = socket;
     });
 
     // Manejar desconexiones
@@ -67,6 +88,10 @@ export function initializeSocket() {
             }
             compiled = true;
             editorChangedSinceCompilation = false; // Resetear el indicador de cambios
+
+            // Guardar el modo de depuración actual
+            lastCompiledDebugMode = document.getElementById("debugMode").value;
+            console.log("Modo de depuración guardado:", lastCompiledDebugMode);
         }
 
         // Actualizamos botones y slicer
@@ -112,6 +137,25 @@ export function initializeSocket() {
                         '<div class="CodeShard"><div class="CodeShard-Header">Error</div><div class="CodeShard-Content">No se pudo cargar el depurador.</div></div>'
                     );
             });
+    });
+
+    // Registro de eventos para depurar problemas con los controles de hilo
+    socket.on("connect", () => {
+        console.log(
+            "Socket conectado. Configurando event listeners de depuración."
+        );
+    });
+
+    socket.on("debug_step_over_response", (response) => {
+        console.log("Respuesta a debug_step_over:", response);
+    });
+
+    socket.on("debug_step_into_response", (response) => {
+        console.log("Respuesta a debug_step_into:", response);
+    });
+
+    socket.on("debug_step_out_response", (response) => {
+        console.log("Respuesta a debug_step_out:", response);
     });
 }
 

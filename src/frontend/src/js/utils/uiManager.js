@@ -1,5 +1,10 @@
-import { getCompiled, getEditorChanged } from "./webSocket.js";
+import {
+    getCompiled,
+    getEditorChanged,
+    getLastCompiledDebugMode,
+} from "./webSocket.js";
 import $ from "jquery";
+import { updateDebuggerControls } from "../debugger/debugControllers.js";
 
 // Función para mostrar un modal personalizado
 function showModal(title, message, onConfirm, onCancel) {
@@ -57,6 +62,9 @@ export function RunColorManager() {
     } else {
         $("#Ejecutar").prop("disabled", true);
     }
+
+    // También actualizamos el estado del slicer
+    $("#slicerToggle").prop("disabled", !getCompiled());
 }
 
 export function updateSlicer() {
@@ -64,19 +72,58 @@ export function updateSlicer() {
     // Inicialmente deshabilitar el slicer si no se ha compilado
     $("#slicerToggle").prop("disabled", !getCompiled());
 
+    // Función para verificar y mostrar el estado de los cambios en la consola
+    function debugChangeState() {
+        const currentDebugMode = document.getElementById("debugMode").value;
+        const lastDebugMode = getLastCompiledDebugMode();
+        const debugModeChanged =
+            lastDebugMode !== null && currentDebugMode !== lastDebugMode;
+        console.log("Estado actual de cambios:", {
+            editorChanged: getEditorChanged(),
+            debugModeChanged: debugModeChanged,
+            currentDebugMode: currentDebugMode,
+            lastCompiledDebugMode: lastDebugMode,
+            compiled: getCompiled(),
+        });
+    }
+
+    // Llamamos a esta función inicialmente y también la asociamos al cambio del modo
+    debugChangeState();
+    $(document).on("change", "#debugMode", debugChangeState);
+
     // Evento del slicer para cambiar entre Coder y Debugger
     $("#slicerToggle").on("change", function () {
         const isChecked = $(this).is(":checked");
 
         if (isChecked) {
             // Verificar si hay cambios en el editor desde la última compilación
-            if (getEditorChanged() && getCompiled()) {
+            const currentDebugMode = document.getElementById("debugMode").value;
+            const lastDebugMode = getLastCompiledDebugMode();
+            const debugModeChanged =
+                lastDebugMode !== null && currentDebugMode !== lastDebugMode;
+
+            if ((getEditorChanged() || debugModeChanged) && getCompiled()) {
+                // Construir el mensaje según lo que ha cambiado
+                let warningMessage = "Has realizado cambios";
+
+                if (debugModeChanged) {
+                    warningMessage += " en el modo de depuración";
+                    if (getEditorChanged()) {
+                        warningMessage +=
+                            " y en el código o los puntos de interrupción";
+                    }
+                } else {
+                    warningMessage +=
+                        " en el código o en los puntos de interrupción";
+                }
+
+                warningMessage +=
+                    " desde la última compilación. Para ver estos cambios reflejados en el depurador, debes compilar primero. ¿Deseas continuar sin compilar?";
+
                 // Mostrar advertencia al usuario
                 showModal(
                     "Cambios no compilados",
-                    "Has realizado cambios en el código o en los puntos de interrupción desde la última compilación. " +
-                        "Para ver estos cambios reflejados en el depurador, debes compilar primero. " +
-                        "¿Deseas continuar sin compilar?",
+                    warningMessage,
                     // Función para confirmar
                     () => {
                         // Continuar con el cambio al modo depurador
@@ -107,6 +154,11 @@ export function updateSlicer() {
 
         // Cambiar el color de los elementos C
         $(".large-letter").css("color", "var(--primary-color-debugger)");
+
+        // Actualizar los controles de depuración según el modo actual
+        if (typeof updateDebuggerControls === "function") {
+            updateDebuggerControls();
+        }
 
         // Si hay cambios en el editor, colorear el encabezado del modal para indicar modo depuración
         if ($(".modal-overlay").length > 0) {

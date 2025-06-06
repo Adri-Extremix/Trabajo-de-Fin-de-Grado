@@ -34,10 +34,22 @@
                     <div id="Container-Editor">
                         <div id="Editor" class="CodeMirror"></div>
                     </div>
-                                    
-                    <div class="Buttons">
-                        <button id="Compilar" class="Button">Compilar</button>
-                        <button id="Ejecutar" class="Button">Ejecutar</button>
+                    
+                    <!-- Controles de compilación y depuración -->
+                    <div class="CodeControls">
+                        <div class="ControlContainer">
+                            <div class="ButtonsGroup">
+                                <button id="Compilar" class="Button">Compilar</button>
+                                <button id="Ejecutar" class="Button">Ejecutar</button>
+                            </div>
+                            <div class="DebugModeSelector">
+                                <label for="debugMode">Modo depuración:</label>
+                                <select id="debugMode" class="DebugModeSelect">
+                                    <option value="gdb">GDB (Estándar)</option>
+                                    <option value="rr">RR (Grabación)</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -50,15 +62,20 @@
             <div id="Debugger">
 
                 <div class="Buttons">
+                        <!-- Botones comunes para ambos modos: gdb y rr -->
                         <button id="Debug-Run" class="Button">
                             <img src="../images/play-solid.svg" alt="Debug Run">
                         </button>
                         <button id="Debug-Continue" class="Button">
                             <img src="../images/forward-solid.svg" alt="Debug Continue">
                         </button>
+                        
+                        <!-- Botones específicos para modo rr (grabación) -->
                         <button id="Debug-Reverse-Continue" class="Button Reverse-Button">
                             <img src="../images/backward-solid.svg" alt="Debug Reverse Continue">
                         </button>
+                        
+                        <!-- Botones de step en la parte superior (solo para rr) -->
                         <button id="Debug-Step-Over" class="Button">
                             <img src="../images/arrow-trend-up-solid.svg" alt="Debug Step Over">
                         </button>

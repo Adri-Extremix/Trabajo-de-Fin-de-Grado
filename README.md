@@ -16,6 +16,7 @@ El proyecto implementa una arquitectura distribuida con los siguientes component
 
 ## Prerequisitos
 
+
 Para ejecutar este proyecto necesitas:
 
 - [Docker](https://www.docker.com/get-started) (y Docker Compose)

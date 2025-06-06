@@ -1,7 +1,7 @@
 services:
   debugger1:
     build:
-      context: ../ # Cambiar el contexto a un nivel superior
+      context: ../ 
       dockerfile: docker/Dockerfile
     environment:
       - PROXY_URL=http://proxy:8080 # Usar el nombre del servicio en lugar de localhost
@@ -16,7 +16,7 @@ services:
       - ./debugger.py:/app/debugger.py
       - ./webSocket.py:/app/webSocket.py
       - ../frontend/dist:/app/dist
-    # Añadidas configuraciones necesarias para RR
+    
     cap_add:
       - SYS_PTRACE
     security_opt:
@@ -31,10 +31,10 @@ services:
 
   debugger2:
     build:
-      context: ../ # Cambiar el contexto a un nivel superior
+      context: ../ 
       dockerfile: docker/Dockerfile
     environment:
-      - PROXY_URL=http://proxy:8080 # Usar el nombre del servicio en lugar de localhost
+      - PROXY_URL=http://proxy:8080 
       - HOST=debugger2
       - PORT=5000
     ports:
@@ -46,7 +46,6 @@ services:
       - ./debugger.py:/app/debugger.py
       - ./webSocket.py:/app/webSocket.py
       - ../frontend/dist:/app/dist
-    # Añadidas configuraciones necesarias para RR
     cap_add:
       - SYS_PTRACE
     security_opt:
@@ -61,10 +60,10 @@ services:
 
   debugger3:
     build:
-      context: ../ # Cambiar el contexto a un nivel superior
+      context: ../
       dockerfile: docker/Dockerfile
     environment:
-      - PROXY_URL=http://proxy:8080 # Usar el nombre del servicio en lugar de localhost
+      - PROXY_URL=http://proxy:8080 
       - HOST=debugger3
       - PORT=5000
     ports:
@@ -76,7 +75,6 @@ services:
       - ./debugger.py:/app/debugger.py
       - ./webSocket.py:/app/webSocket.py
       - ../frontend/dist:/app/dist
-    # Añadidas configuraciones necesarias para RR
     cap_add:
       - SYS_PTRACE
     security_opt:

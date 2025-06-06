@@ -29,6 +29,9 @@ function showDebuggerError(
     updateCodeShards({});
 }
 
+// Importamos las funciones para crear y configurar los controles de hilo
+import { setupThreadControlEvents } from "./debugControllers.js";
+
 // Función para actualizar la visualización de código (CodeShards)
 function updateCodeShards(threads) {
     const codeShardsContainer = $("#CodeShards");
@@ -62,7 +65,7 @@ function updateCodeShards(threads) {
             threadInfo += ` (línea ${thread.line})`;
         }
 
-        // Añadir encabezado con estilo de ThreadItem
+        // Añadir encabezado con estilo de ThreadItem, con los controles ya incluidos en el HTML
         codeShard.append(`
             <div class="ThreadItemHeader">
                 <div class="ThreadInfo">
@@ -70,6 +73,17 @@ function updateCodeShards(threads) {
                     <div class="ThreadFunction">${
                         threadInfo || "Sin información disponible"
                     }</div>
+                </div>
+                <div class="ThreadControls">
+                    <button class="ThreadButton thread-step-over" data-thread-id="${threadId}" title="Step Over">
+                        <img src="../images/arrow-trend-up-solid.svg" alt="Step Over">
+                    </button>
+                    <button class="ThreadButton thread-step-out" data-thread-id="${threadId}" title="Step Out">
+                        <img src="../images/arrow-turn-up-solid.svg" alt="Step Out">
+                    </button>
+                    <button class="ThreadButton thread-step-into" data-thread-id="${threadId}" title="Step Into">
+                        <img src="../images/arrow-turn-down-solid.svg" alt="Step Into">
+                    </button>
                 </div>
             </div>
         `);
@@ -185,6 +199,9 @@ function updateCodeShards(threads) {
 
         codeShardsContainer.append(codeShard);
     });
+
+    // Asegurarse de que los eventos de control de hilo se configuran después de cada actualización
+    setupThreadControlEvents();
 }
 
 // Función para manejar la respuesta del depurador
@@ -206,6 +223,12 @@ export function handleDebuggerResponse(response) {
 
     // Actualizar la visualización del código
     updateCodeShards(threads);
+
+    // Inicializar los eventos para los botones de control de hilo
+    // Esto garantiza que los botones funcionen después de cada actualización
+    setTimeout(() => {
+        setupThreadControlEvents();
+    }, 100);
 }
 
 // Función para mostrar un mensaje cuando no hay hilos activos
@@ -239,7 +262,7 @@ function updateThreadVisual(threads) {
         return;
     }
 
-    const threadVisual = $(`<div class="ThreadVisual">
+    const threadVisual = $(`                <div class="ThreadVisual">
         <div class="ThreadCount">Hilos activos: ${threadCount}</div>
     </div>`);
 
@@ -269,6 +292,17 @@ function updateThreadVisual(threads) {
                     <div class="ThreadFunction">${
                         threadInfo || "Sin información disponible"
                     }</div>
+                </div>
+                <div class="ThreadControls">
+                    <button class="ThreadButton thread-step-over" data-thread-id="${threadId}" title="Step Over">
+                        <img src="../images/arrow-trend-up-solid.svg" alt="Step Over">
+                    </button>
+                    <button class="ThreadButton thread-step-out" data-thread-id="${threadId}" title="Step Out">
+                        <img src="../images/arrow-turn-up-solid.svg" alt="Step Out">
+                    </button>
+                    <button class="ThreadButton thread-step-into" data-thread-id="${threadId}" title="Step Into">
+                        <img src="../images/arrow-turn-down-solid.svg" alt="Step Into">
+                    </button>
                 </div>
             </div>
         </div>`);
@@ -308,13 +342,17 @@ function updateThreadVisual(threads) {
         // Si no estaba resaltado previamente, resaltar elementos
         if (!isAlreadyHighlighted) {
             // Resaltar el CodeShard correspondiente
-            $(`.CodeShard[data-thread-id="${threadId}"]`).addClass("highlighted");
+            $(`.CodeShard[data-thread-id="${threadId}"]`).addClass(
+                "highlighted"
+            );
 
             // Resaltar también el elemento de hilo seleccionado
             $(this).addClass("highlighted");
 
             // Hacer scroll al CodeShard correspondiente
-            const targetShard = $(`.CodeShard[data-thread-id="${threadId}"]`)[0];
+            const targetShard = $(
+                `.CodeShard[data-thread-id="${threadId}"]`
+            )[0];
             if (targetShard) {
                 targetShard.scrollIntoView({
                     behavior: "smooth",

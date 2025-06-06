@@ -10,6 +10,57 @@ body {
     box-sizing: border-box;
 }
 
+/* Controles en el panel lateral */
+.CodeControls {
+    background-color: var(--background-color-focus);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    border-left: 1px solid var(--border-color);
+}
+
+.ControlContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    width: 100%;
+}
+
+/* Estilos para el selector de modo de depuración */
+.DebugModeSelector {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    color: var(--text-color);
+    width: 100%;
+}
+
+.DebugModeSelector label {
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.DebugModeSelect {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.3s ease;
+    width: 100%;
+}
+
+.DebugModeSelect:hover,
+.DebugModeSelect:focus {
+    border-color: var(--primary-color-coder);
+}
 /* ******************** Cabecera ******************** */
 header {
     background-color: var(--background-color-focus);
@@ -45,7 +96,7 @@ header {
 
 #MainContent {
     height: calc(100vh - 60px);
-    /* Ajustamos para la nueva altura del header */
+    /* Ajustamos solo para el header */
     overflow: hidden;
     /* Evitar desbordamiento */
 }
@@ -105,7 +156,7 @@ header {
 #Coder {
     height: 100%;
     display: grid;
-    grid-template-rows: 70% 35%;
+    grid-template-rows: 70% 30%;
     gap: 1%;
     color: var(--text-color);
 }
@@ -121,8 +172,15 @@ header {
     margin-top: 10%;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    gap: 5%;
+    align-items: center;
+        padding: 0 10px;
+    }
+    
+    .ButtonsGroup {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
 }
 
 /* ******************** Editor ******************** */
@@ -213,12 +271,12 @@ header {
 
 /* ******************** Buttons ******************** */
 .Button {
-    border-radius: calc(8px + 1vmin);
+    border-radius: 6px;
     background-color: var(--primary-color-coder);
-    font-size: calc(10px + 1.5vmin);
-    width: 40%;
-    
-    height: 12%;
+    font-size: 14px;
+        padding: 8px 10px;
+        width: 100%;
+        height: auto;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -459,13 +517,62 @@ header {
     display: flex;
     align-items: center;
     margin-bottom: 8px;
+    justify-content: space-between;
 }
 
 .ThreadItem .ThreadInfo {
     display: flex;
     flex-direction: column;
-    width: 100%;
-}
+    flex-grow: 1;
+    }
+    
+    /* Estilos para los botones de control por hilo */
+    .ThreadControls {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+    
+    .ThreadButton {
+        width: 28px;
+        height: 28px;
+        border-radius: 4px;
+        background-color: var(--primary-color-debugger);
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    
+    .ThreadButton:hover {
+        background-color: var(--hover-button-color-debugger);
+        border-color: var(--secondary-color-debugger);
+    }
+    
+    .ThreadButton:active {
+        background-color: var(--hover-button-color-debugger);
+        transform: scale(0.95);
+    }
+    
+    .ThreadButton.active {
+        background-color: var(--hover-button-color-debugger);
+        transform: scale(0.92);
+        box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+    }
+    
+    .ThreadButton img {
+        width: 16px;
+        height: 16px;
+        filter: brightness(0) invert(1);
+        /* Hacer que los iconos sean blancos */
+        object-fit: contain;
+        /* Asegurar que la imagen se muestre correctamente */
+        display: block;
+        /* Eliminar espacio extra debajo de la imagen */
+    }
 
 .ThreadName {
     font-weight: bold;
