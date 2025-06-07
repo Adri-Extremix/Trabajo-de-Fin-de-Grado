@@ -119,7 +119,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     open "$PROXY_URL"
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
     # Linux - intentar los comandos más comunes
-    xdg-open "$PROXY_URL" 2>/dev/null 
+    xdg-open "$PROXY_URL" 2>/dev/null &
     echo -e "${RED}No se pudo abrir el navegador automáticamente. Por favor, visita $PROXY_URL manualmente.${NC}"
 else
     echo -e "${RED}Sistema operativo no reconocido. Por favor, visita $PROXY_URL manualmente.${NC}"

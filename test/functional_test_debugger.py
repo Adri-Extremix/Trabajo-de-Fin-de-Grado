@@ -207,7 +207,92 @@ def stepping_into_a_other_file_code3():
 
     assert result["1"]["line"] == "30", f"El hilo 1 no ha realizado correctamente el step, no encontrandose en la línea 30. Se encuentra en la línea {result['1']['line']}"
 
+def reverse_stepping_over_code1():
+    debugger = Debugger(c_files[0],binary_files[0], rr=True)
+    debugger.set_breakpoint(27)
+    debugger.run()
+    debugger.step_over("1")
+    result = debugger.reverse_step_over()
 
+    assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
+
+    assert result["1"]["line"] == "27", f"El hilo 1 no ha realizado correctamente el reverse step over, no encontrandose en la línea 27. Se encuentra en la línea {result['1']['line']}"
+
+def reverse_stepping_over_code2():
+    debugger = Debugger(c_files[1],binary_files[1], rr=True)
+    debugger.set_breakpoint(44)
+    debugger.run()
+    debugger.step_over("1")
+    result = debugger.reverse_step_over()
+
+    assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
+
+    assert result["1"]["line"] == "44", f"El hilo 1 no ha realizado correctamente el reverse step over, no encontrandose en la línea 44. Se encuentra en la línea {result['1']['line']}"
+
+def reverse_stepping_over_code3():
+    debugger = Debugger(c_files[2],binary_files[2], rr=True)
+    debugger.set_breakpoint(28)
+    debugger.run()
+    debugger.step_over("1")
+    result = debugger.reverse_step_over()
+
+    assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
+    assert result["1"]["line"] == "28", f"El hilo 1 no ha realizado correctamente el reverse step over, no encontrandose en la línea 28. Se encuentra en la línea {result['1']['line']}"
+
+def reverse_stepping_out_of_a_function_code3():
+    debugger = Debugger(c_files[2],binary_files[2], rr=True)
+    debugger.set_breakpoint(6)
+    debugger.run()
+    debugger.step_out("1")
+    result = debugger.reverse_step_out()
+
+    assert result["1"]["function"] == "funcion1", f"El hilo 1 no se encuentra en la función funcion1, se encuentra en la función {result['1']['function']}"
+
+    assert result["1"]["line"] == "6", f"El hilo 1 no ha realizado correctamente el reverse step out, no encontrandose en la línea 6. Se encuentra en la línea {result['1']['line']}"
+
+def reverse_stepping_out_of_main_code3():
+    debugger = Debugger(c_files[2],binary_files[2], rr=True)
+    debugger.set_breakpoint(30)
+    debugger.run()
+    debugger.step_out("1")
+    result = debugger.reverse_step_out()
+
+    assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
+
+    assert result["1"]["line"] == "30", f"El hilo 1 no ha realizado correctamente el reverse step out, no encontrandose en la línea 30. Se encuentra en la línea {result['1']['line']}"
+
+def reverse_stepping_out_of_other_file_code3():
+    debugger = Debugger(c_files[2],binary_files[2], rr=True)
+    debugger.set_breakpoint(19)
+    debugger.run()
+    debugger.step_out("2")
+    result = debugger.reverse_step_out()
+
+    assert result["2"]["function"] == "hilo_funcion", f"El hilo 2 no se encuentra en la función worker_function, se encuentra en la función {result['2']['function']}"
+
+    assert result["2"]["line"] == "19", f"El hilo 2 no ha realizado correctamente el reverse step out, no encontrandose en la línea 19. Se encuentra en la línea {result['2']['line']}"
+
+def reverse_stepping_into_a_function_code3():
+    debugger = Debugger(c_files[2],binary_files[2], rr=True)
+    debugger.set_breakpoint(30)
+    debugger.run()
+    debugger.step_into("1")
+    result = debugger.reverse_step_into()
+
+    assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
+
+    assert result["1"]["line"] == "30", f"El hilo 1 no ha realizado correctamente el reverse step into, no encontrandose en la línea 30. Se encuentra en la línea {result['1']['line']}"
+
+def reverse_stepping_into_a_other_file_code3():
+    debugger = Debugger(c_files[2],binary_files[2], rr=True)
+    debugger.set_breakpoint(28)
+    debugger.run()
+    debugger.step_into("1")
+    result = debugger.reverse_step_into()
+
+    assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
+
+    assert result["1"]["line"] == "28", f"El hilo 1 no ha realizado correctamente el reverse step into, no encontrandose en la línea 28. Se encuentra en la línea {result['1']['line']}"
 def test():
     debugger = Debugger(c_files[0], binary_files[0], rr=False)
     debugger.set_breakpoint(50)
@@ -227,11 +312,9 @@ if __name__ == "__main__":
     setup()
     print("\033[93m\n ----------------- Ejecutando tests ----------------- \n\033[0m")
     # Tests de stepping
-    tests = [run_breakpoint_code1, run_breakpoint_code2, continue_breakpoint_code1, continue_breakpoint_code2,
-             reversing_breakpoint_code1, reversing_breakpoint_code2,
-             stepping_over_code1, stepping_over_code2, stepping_over_code3,
-             stepping_out_of_a_function_code3, stepping_out_of_main_code3, stepping_out_of_other_file_code3,
-             stepping_into_a_function_code3, stepping_into_a_not_function_code1, stepping_into_a_other_file_code3]
+    tests = [reverse_stepping_over_code1, reverse_stepping_over_code2, reverse_stepping_over_code3,
+             reverse_stepping_out_of_a_function_code3, reverse_stepping_out_of_main_code3, reverse_stepping_out_of_other_file_code3,
+             reverse_stepping_into_a_function_code3,reverse_stepping_into_a_other_file_code3]
     #tests = [stepping_over_code1, stepping_over_code2, stepping_over_code3,
     #         stepping_out_of_a_function_code3, stepping_out_of_main_code3, stepping_out_of_other_file_code3,
     #         stepping_into_a_function_code3, stepping_into_a_not_function_code1, stepping_into_a_other_file_code3]

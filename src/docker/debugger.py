@@ -288,9 +288,9 @@ class Debugger:
 
     def generic_reverse_step(self, step_type):
         correspondece_step = {
-            "step_over": "-exec-next",
-            "step_into": "-exec-step",
-            "step_out": "-exec-finish"
+            "step_over": "reverse-next",
+            "step_into": "reverse-step",
+            "step_out": "reverse-finish"
         }
 
         if step_type == "step_out":
@@ -309,37 +309,35 @@ class Debugger:
     def reverse_step_into(self):
         """Method to reverse step into the current function"""
         if self.enable_rr:
-
+                
             self.generic_reverse_step("step_into")
 
             stack = self.get_frames()[0]["payload"].get("stack", [])
             
             # Si la anterior llamada fue la creación del hilo no se puede hacer reverse step_out 
-            if stack[1] and stack[1]["func"] == "start_thread":
+            if len(stack) > 1 and stack[1]["func"] == "start_thread":
                 self.generic_reverse_step("step_over")
                 
             # Si al volver hacia atrás nos hemos metido en un función que no es nuestra, salimos     
             depth = 0
-            while stack[depth]["fullname"] != self.code_path:
+            while depth < len(stack) and stack[depth]["fullname"] != self.code_path:
                 depth += 1
                 self.generic_reverse_step("step_out")
                 if depth >= len(stack):
                     print("Error: No se pudo volver a la función")
+                    break
         
         return self._update_thread_functions()
 
-        
     def reverse_step_out(self):
-        
         if self.enable_rr:
+                
             self.generic_reverse_step("step_out")
-
-            frame_info = self.info_frame()[0]["payload"]
-
+            frame_info = self.info_frame()[-1]["payload"]
+            pprint(frame_info)
             if frame_info["frame"]["fullname"] != self.code_path:
                 self.generic_reverse_step("step_into")
-                frame_info = self.info_frame()[0]["payload"]
-        
+                frame_info = self.info_frame()[-1]["payload"]
         return self._update_thread_functions()
 
     def set_breakpoint(self, line):

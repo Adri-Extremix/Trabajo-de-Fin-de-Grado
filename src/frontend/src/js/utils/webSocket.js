@@ -2,8 +2,8 @@ import $  from "jquery";
 import io from "socket.io-client";
 import { updateTerminal } from "../editor/outputTerminal";
 import { RunColorManager } from "./uiManager.js";
-// No importamos directamente para evitar dependencia circular
-let debuggerModule = null;
+// Importación estática en lugar de dinámica
+import { handleDebuggerResponse, showDebuggingStatus } from "../debugger/debugger.js";
 
 let compiled = false;
 let socket;
@@ -112,31 +112,8 @@ export function initializeSocket() {
     // Escuchar respuestas de depuración
     socket.on("debug_response", (response) => {
         console.log("Respuesta de depuración:", response);
-        // Importamos dinámicamente el módulo del depurador
-        import("../debugger/debugger.js")
-            .then((module) => {
-                // Guardamos la referencia al módulo para futuro uso
-                debuggerModule = module;
-                // Procesamos la respuesta con la función handleDebuggerResponse
-                module.handleDebuggerResponse(response);
-            })
-            .catch((error) => {
-                console.error(
-                    "Error al cargar el módulo de depuración:",
-                    error
-                );
-                // Si hay un error, al menos quitamos el estado de carga
-                $(".ThreadContent")
-                    .empty()
-                    .append(
-                        '<div class="ThreadVisual"><div class="ThreadCount">Error al cargar el depurador</div></div>'
-                    );
-                $("#CodeShards")
-                    .empty()
-                    .append(
-                        '<div class="CodeShard"><div class="CodeShard-Header">Error</div><div class="CodeShard-Content">No se pudo cargar el depurador.</div></div>'
-                    );
-            });
+        // Usar la función importada directamente
+        handleDebuggerResponse(response);
     });
 
     // Registro de eventos para depurar problemas con los controles de hilo
@@ -171,47 +148,10 @@ export function bindingComunicactions() {
     $("#Debug-Reverse-Step-Out").on("click", reverseStepOutExecution);
 }
 
-// Función auxiliar para cargar el módulo del depurador y mostrar el estado de carga
+// Función auxiliar para mostrar el estado de carga
 function showLoadingState() {
-    // Si ya tenemos el módulo cargado, lo usamos directamente
-    if (debuggerModule) {
-        debuggerModule.showDebuggingStatus();
-        return;
-    }
-
-    // Si no, importamos el módulo dinámicamente
-    import("../debugger/debugger.js")
-        .then((module) => {
-            debuggerModule = module;
-            module.showDebuggingStatus();
-        })
-        .catch((error) => {
-            console.error("Error al cargar el módulo de depuración:", error);
-            // Fallback manual si falla la importación
-            $(".ThreadContent").empty().append(`
-                <div class="ThreadVisual loading">
-                    <div class="ThreadCount">Procesando...</div>
-                    <div class="ThreadList">
-                        <div class="LoadingIndicator">
-                            <div class="LoadingSpinner"></div>
-                            <div class="LoadingMessage">Depurando...</div>
-                        </div>
-                    </div>
-                </div>
-            `);
-
-            $("#CodeShards")
-                .empty()
-                .append(
-                    '<div class="CodeShard loading">' +
-                        '<div class="CodeShard-Header">Depurando...</div>' +
-                        '<div class="CodeShard-Content LoadingContent">' +
-                        '<div class="LoadingSpinner"></div>' +
-                        "<div>Esperando respuesta del depurador...</div>" +
-                        "</div>" +
-                        "</div>"
-                );
-        });
+    // Usar la función importada directamente
+    showDebuggingStatus();
 }
 
 function runExecution() {
