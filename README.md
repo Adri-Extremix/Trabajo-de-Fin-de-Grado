@@ -4,7 +4,7 @@ Este proyecto corresponde a mi Trabajo de Fin de Grado para la Universidad Carlo
 
 La herramienta permite ejecutar y depurar código C con múltiples hilos, visualizando en tiempo real el comportamiento de los mismos, lo que facilita el entendimiento de conceptos complejos relacionados con la concurrencia.
 
-Para más información consulte la [Memoria del TFG](./doc/build/report.pdf)
+Para más información consulte la [Memoria del TFG](doc/build/report.pdf)
 
 ## Arquitectura
 
