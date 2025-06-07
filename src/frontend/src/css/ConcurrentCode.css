@@ -289,7 +289,7 @@ header {
 
 .Button:hover {
     background-color: var(--hover-button-color-coder);
-    /* Color al pasar el ratón por encima */
+    /* Color al pasar el ratón por encima para botones del editor */
 }
 
 .Button:active {
@@ -298,6 +298,15 @@ header {
     /* Color al presionar el botón */
 }
 
+/* Hover específico para botones del debugger */
+#Debugger .Button:hover {
+    background-color: var(--hover-button-color-debugger);
+}
+
+#Debugger .Button:active {
+    background-color: var(--secondary-color-debugger);
+    transform: translateY(2px);
+}
 .Button:disabled {
     background-color: #6c8397;
     border-color: #5b6e80;
@@ -325,10 +334,6 @@ header {
 #Debugger .Reverse-Button {
     background-color: #21642d;
     border-color: #15421e;
-}
-
-#Debugger .Button:active {
-    transform: translateY(2px);
 }
 
 /* ******************** Debugger ******************** */

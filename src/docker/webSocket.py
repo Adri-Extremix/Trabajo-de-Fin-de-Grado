@@ -43,7 +43,6 @@ class WebSocketContainer:
         return send_from_directory("frontend/dist", "index.html")
 
     def serve_static(self, filename):
-        # static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend", "dist")
         return send_from_directory("frontend/dist", filename)
     def send_heartbeat(self):
         # Esperar a que el servidor esté completamente iniciado

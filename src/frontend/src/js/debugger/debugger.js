@@ -1,10 +1,14 @@
 import $ from "jquery";
-// Importaciones de CodeMirror de forma directa
 import { EditorState, StateField } from "@codemirror/state";
 import { EditorView, Decoration, lineNumbers } from "@codemirror/view";
 import { basicSetup } from "codemirror";
 import { cpp } from "@codemirror/lang-cpp";
 import { oneDark } from "@codemirror/theme-one-dark";
+
+// CORRECCIÓN: Usar el prefijo url: para forzar URLs como strings
+import stepOverIcon from "url:../../../images/arrow-trend-up-solid.svg";
+import stepOutIcon from "url:../../../images/arrow-turn-up-solid.svg";
+import stepIntoIcon from "url:../../../images/arrow-turn-down-solid.svg";
 
 // Función para mostrar un mensaje de error en los contenedores
 function showDebuggerError(
@@ -76,13 +80,13 @@ function updateCodeShards(threads) {
                 </div>
                 <div class="ThreadControls">
                     <button class="ThreadButton thread-step-over" data-thread-id="${threadId}" title="Step Over">
-                        <img src="../images/arrow-trend-up-solid.svg" alt="Step Over">
+                        <img src="${stepOverIcon}" alt="Step Over">
                     </button>
                     <button class="ThreadButton thread-step-out" data-thread-id="${threadId}" title="Step Out">
-                        <img src="../images/arrow-turn-up-solid.svg" alt="Step Out">
+                        <img src="${stepOutIcon}" alt="Step Out">
                     </button>
                     <button class="ThreadButton thread-step-into" data-thread-id="${threadId}" title="Step Into">
-                        <img src="../images/arrow-turn-down-solid.svg" alt="Step Into">
+                        <img src="${stepIntoIcon}" alt="Step Into">
                     </button>
                 </div>
             </div>
@@ -292,17 +296,6 @@ function updateThreadVisual(threads) {
                     <div class="ThreadFunction">${
                         threadInfo || "Sin información disponible"
                     }</div>
-                </div>
-                <div class="ThreadControls">
-                    <button class="ThreadButton thread-step-over" data-thread-id="${threadId}" title="Step Over">
-                        <img src="../images/arrow-trend-up-solid.svg" alt="Step Over">
-                    </button>
-                    <button class="ThreadButton thread-step-out" data-thread-id="${threadId}" title="Step Out">
-                        <img src="../images/arrow-turn-up-solid.svg" alt="Step Out">
-                    </button>
-                    <button class="ThreadButton thread-step-into" data-thread-id="${threadId}" title="Step Into">
-                        <img src="../images/arrow-turn-down-solid.svg" alt="Step Into">
-                    </button>
                 </div>
             </div>
         </div>`);
