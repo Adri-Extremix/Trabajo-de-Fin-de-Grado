@@ -7,8 +7,7 @@ import glob
 # Add the src directory to the path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
-from back import debugger
-from back.debugger import Debugger
+from docker.debugger import Debugger
 from pprint import pprint
 import subprocess
 
@@ -227,11 +226,16 @@ if __name__ == "__main__":
     print("\033[93m\n ----------------- Realizando el setup ----------------- \n\033[0m")
     setup()
     print("\033[93m\n ----------------- Ejecutando tests ----------------- \n\033[0m")
-    #tests = [run_breakpoint_code1, run_breakpoint_code2, continue_breakpoint_code1, continue_breakpoint_code2, reversing_breakpoint_code1, reversing_breakpoint_code2, stepping_out_of_a_function_code3, stepping_out_of_main_code3,stepping_out_of_other_file_code3 ,stepping_into_a_function_code3, stepping_into_a_not_function_code1, stepping_into_a_other_file_code3]
-
-    #tests = [stepping_out_of_other_file_code3]
-    tests = [test]
-    passed = [] 
+    # Tests de stepping
+    tests = [run_breakpoint_code1, run_breakpoint_code2, continue_breakpoint_code1, continue_breakpoint_code2,
+             reversing_breakpoint_code1, reversing_breakpoint_code2,
+             stepping_over_code1, stepping_over_code2, stepping_over_code3,
+             stepping_out_of_a_function_code3, stepping_out_of_main_code3, stepping_out_of_other_file_code3,
+             stepping_into_a_function_code3, stepping_into_a_not_function_code1, stepping_into_a_other_file_code3]
+    #tests = [stepping_over_code1, stepping_over_code2, stepping_over_code3,
+    #         stepping_out_of_a_function_code3, stepping_out_of_main_code3, stepping_out_of_other_file_code3,
+    #         stepping_into_a_function_code3, stepping_into_a_not_function_code1, stepping_into_a_other_file_code3]
+    passed = []
     failed = []
     errors = []
     

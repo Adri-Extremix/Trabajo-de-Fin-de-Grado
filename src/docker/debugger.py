@@ -167,7 +167,7 @@ class Debugger:
             "step_out": "-exec-finish"
         }
 
-        if thread_id != None:
+        if thread_id is not None:
             self.select_thread(thread_id)
 
         if step_type == "step_out":
@@ -176,44 +176,93 @@ class Debugger:
                 step_type = "step_over"
         print("Step type: ", step_type)
         self._gdb_write(correspondece_step[step_type])
-        for name, id in self.correspondence.items():
-            if id == thread_id:
-                self._process_thread(thread_id, name)
-                break
+        
+        # Solo procesar hilo específico si se proporciona thread_id
+        if thread_id is not None:
+            for name, id in self.correspondence.items():
+                if id == thread_id:
+                    self._process_thread(thread_id, name)
+                    # Actualizar también las variables de este hilo específico
+                    self._update_thread_variables(thread_id)
+                    break
+
+    def _update_thread_variables(self, thread_id):
+        """Actualiza las variables de un hilo específico para optimizar rendimiento"""
+        if thread_id not in self.threads:
+            return
+            
+        self.select_thread(thread_id)
+        
+        frames_info = self.get_frames()
+        if not frames_info or "stack" not in frames_info[0]["payload"]:
+            return
+            
+        frames = frames_info[0]["payload"]["stack"]
+        thread_variables = {}
+        
+        for frame in frames:
+            frame_level = frame["level"]
+            frame_func = frame["func"]
+            frame_file = frame.get("fullname", "")
+            
+            variable_info = self._gdb_write(f'-stack-list-variables --thread {thread_id} --frame {frame_level} 1')
+            if variable_info and "variables" in variable_info[0]["payload"]:
+                variables = variable_info[0]["payload"]["variables"]
+                
+                for var in variables:
+                    name = var.get('name') + "@" + frame_func
+                    value = var.get('value')
+                    if frame_file == self.code_path:
+                        thread_variables[name] = value
+        
+        self.threads[thread_id]["variables"] = thread_variables
 
     def step_over(self, thread_id = None):
-        if not self.enable_rr and thread_id:
+        if self.enable_rr:
+            # Para modo RR, no necesitamos thread_id específico
+            self.generic_step("step_over", None)
+            # En modo RR necesitamos actualizar todos los hilos porque no sabemos cuál cambió
+            return self._update_thread_functions()
+        elif thread_id is not None:
+            # Para modo GDB, necesitamos thread_id específico
             self.generic_step("step_over", thread_id)
-        elif self.enable_rr:
-            #TODO: Falta implementar el step over si se está usando rr
-            #self.generic_step("step_over")
-            # Creo que es solo eso
-            pass
-
+            # En modo GDB solo actualizamos el hilo específico (ya se hace en generic_step)
+            return self.threads
+        else:
+            print("Error: step_over requiere thread_id en modo GDB")
+            
         return self.threads
 
     def step_into(self, thread_id = None):
-        if not self.enable_rr and thread_id:
+        if self.enable_rr:
+            # Para modo RR, no necesitamos thread_id específico
+            self.generic_step("step_into", None)
+            # En modo RR necesitamos actualizar todos los hilos porque no sabemos cuál cambió
+            return self._update_thread_functions()
+        elif thread_id is not None:
+            # Para modo GDB, necesitamos thread_id específico
             self.generic_step("step_into", thread_id)
-        
-        elif self.enable_rr:
-            #TODO: Falta implementar el step into si se está usando rr
-            #self.generic_step("step_into")
-            # Creo que es solo eso
-            pass 
-
-        frame_info = self.info_frame()[0]["payload"]
-
-        if frame_info["frame"]["fullname"] != self.code_path:
-            self.generic_step("step_out",thread_id)
+            
+            # Verificar si estamos en el código del usuario después del step
             frame_info = self.info_frame()[0]["payload"]
+            if frame_info["frame"]["fullname"] != self.code_path:
+                self.generic_step("step_out", thread_id)
+            
+            # En modo GDB solo actualizamos el hilo específico (ya se hace en generic_step)
+            return self.threads
+        else:
+            print("Error: step_into requiere thread_id en modo GDB")
         
-
         return self.threads
 
     def step_out(self, thread_id = None):
-        if not self.enable_rr and thread_id:
-
+        if self.enable_rr:
+            # Para modo RR, no necesitamos thread_id específico
+            self.generic_step("step_out", None)
+            # En modo RR necesitamos actualizar todos los hilos porque no sabemos cuál cambió
+            return self._update_thread_functions()
+        elif thread_id is not None:
+            # Para modo GDB, necesitamos thread_id específico
             # Agregamos código para conocer el frame superior al actual
             upper_frame = None
             frames_response = self.get_frames()
@@ -224,26 +273,16 @@ class Debugger:
             # Con el frame superior podemos saber si es un hilo recien creado y por lo tanto 
             # no es necesario hacer un step out
             if upper_frame and upper_frame["func"] == "start_thread":
-                self.generic_step("step_over",thread_id)
+                self.generic_step("step_over", thread_id)
+                # En este caso especial sí necesitamos actualizar todos para verificar el estado
                 return self.threads
-            if not self.enable_rr and thread_id:
-                self.generic_step("step_out", thread_id)
-
-        elif self.enable_rr:
-            #TODO: Falta implementar el step out si se está usando rr
-            #self.generic_step("step_out")
-            # Creo que es solo eso
-            pass
+            
+            self.generic_step("step_out", thread_id)
+            # En modo GDB solo actualizamos el hilo específico (ya se hace en generic_step)
+            return self.threads
+        else:
+            print("Error: step_out requiere thread_id en modo GDB")
         
-        # TODO: Empiezo a pensar que este fragmento no se usa, al hacer un step out
-        # no vas a acabar en una función que no sea del usuario, porque solo el usuario a
-        # podido llamar a sus propias funciones, a excepción de la función main y la creación de un hilo
-        frame_info = self.info_frame()[0]["payload"]
-        while frame_info["frame"]["fullname"] != self.code_path:
-            #TODO: Este while no tiene sentido, no se actuliza el frame_info
-            print("Se usa el while")
-            self.generic_step("step_into",thread_id)
-
         return self.threads
     
 
@@ -263,10 +302,9 @@ class Debugger:
 
     def reverse_step_over(self):
         if self.enable_rr:
-           
             self.generic_reverse_step("step_over")
 
-        return self.threads
+        return self._update_thread_functions()
 
     def reverse_step_into(self):
         """Method to reverse step into the current function"""
@@ -288,7 +326,7 @@ class Debugger:
                 if depth >= len(stack):
                     print("Error: No se pudo volver a la función")
         
-        return self.threads
+        return self._update_thread_functions()
 
         
     def reverse_step_out(self):
@@ -302,7 +340,7 @@ class Debugger:
                 self.generic_reverse_step("step_into")
                 frame_info = self.info_frame()[0]["payload"]
         
-        return self.threads
+        return self._update_thread_functions()
 
     def set_breakpoint(self, line):
         try:

@@ -199,6 +199,12 @@ class WebSocketContainer:
             if self.debugger is None:
                 emit('debug_response', {'action': 'step_over', 'error': 'Debugger not initialized'})
                 return
+            
+            # Si no se proporciona thread_id y no es modo RR, usar el primer hilo disponible
+            if thread_id is None and not self.debugger.enable_rr:
+                if self.debugger.threads:
+                    thread_id = list(self.debugger.threads.keys())[0]
+                    
             result = self.debugger.step_over(thread_id)
             emit('debug_response', {'action': 'step_over', 'result': result})
 
@@ -217,6 +223,12 @@ class WebSocketContainer:
             if self.debugger is None:
                 emit('debug_response', {'action': 'step_into', 'error': 'Debugger not initialized'})
                 return
+            
+            # Si no se proporciona thread_id y no es modo RR, usar el primer hilo disponible
+            if thread_id is None and not self.debugger.enable_rr:
+                if self.debugger.threads:
+                    thread_id = list(self.debugger.threads.keys())[0]
+                    
             result = self.debugger.step_into(thread_id)
             emit('debug_response', {'action': 'step_into', 'result': result})
 
@@ -235,6 +247,12 @@ class WebSocketContainer:
             if self.debugger is None:
                 emit('debug_response', {'action': 'step_out', 'error': 'Debugger not initialized'})
                 return
+            
+            # Si no se proporciona thread_id y no es modo RR, usar el primer hilo disponible
+            if thread_id is None and not self.debugger.enable_rr:
+                if self.debugger.threads:
+                    thread_id = list(self.debugger.threads.keys())[0]
+                    
             result = self.debugger.step_out(thread_id)
             emit('debug_response', {'action': 'step_out', 'result': result})
 

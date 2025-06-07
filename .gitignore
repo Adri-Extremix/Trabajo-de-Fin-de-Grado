@@ -3,7 +3,8 @@
 __pycache__
 venv
 .DS_Store
-
+*.dSYM
+*.o
 # Ignorar todos los archivos de salida de compilación de LaTeX excepto el .tex
 
 # Archivos auxiliares comunes de LaTeX

@@ -232,7 +232,19 @@ function reverseContinueExecution() {
 
 function stepOverExecution() {
     showLoadingState();
-    socket.emit("step_over", { thread_id: null });
+    // Obtener el modo de depuración actual
+    const debugMode = getLastCompiledDebugMode();
+    let thread_id = null;
+
+    // Para modo GDB, obtener el primer hilo disponible
+    if (debugMode === "gdb") {
+        const firstThread = $(".ThreadItem").first().data("thread-id");
+        if (firstThread) {
+            thread_id = firstThread;
+        }
+    }
+
+    socket.emit("step_over", { thread_id: thread_id });
 }
 
 function reverseStepOverExecution() {
@@ -242,7 +254,19 @@ function reverseStepOverExecution() {
 
 function stepIntoExecution() {
     showLoadingState();
-    socket.emit("step_into", { thread_id: null });
+    // Obtener el modo de depuración actual
+    const debugMode = getLastCompiledDebugMode();
+    let thread_id = null;
+
+    // Para modo GDB, obtener el primer hilo disponible
+    if (debugMode === "gdb") {
+        const firstThread = $(".ThreadItem").first().data("thread-id");
+        if (firstThread) {
+            thread_id = firstThread;
+        }
+    }
+
+    socket.emit("step_into", { thread_id: thread_id });
 }
 
 function reverseStepIntoExecution() {
@@ -252,7 +276,19 @@ function reverseStepIntoExecution() {
 
 function stepOutExecution() {
     showLoadingState();
-    socket.emit("step_out", { thread_id: null });
+    // Obtener el modo de depuración actual
+    const debugMode = getLastCompiledDebugMode();
+    let thread_id = null;
+
+    // Para modo GDB, obtener el primer hilo disponible
+    if (debugMode === "gdb") {
+        const firstThread = $(".ThreadItem").first().data("thread-id");
+        if (firstThread) {
+            thread_id = firstThread;
+        }
+    }
+
+    socket.emit("step_out", { thread_id: thread_id });
 }
 
 function reverseStepOutExecution() {
