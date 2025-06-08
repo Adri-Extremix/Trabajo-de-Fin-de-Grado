@@ -4,7 +4,6 @@ FROM ubuntu:latest
 # Configuración inicial
 ENV DEBIAN_FRONTEND=noninteractive
 
-
 # Actualizar e instalar dependencias básicas
 RUN apt-get update && apt-get install -y \
     git \
@@ -27,6 +26,9 @@ RUN apt-get update && apt-get install -y \
     dnsutils \
     net-tools \
     curl \
+    pypy3 \
+    pypy3-dev \
+    pypy3-venv \
     && apt-get clean \ 
     && rm -rf /var/lib/apt/lists/*
 
@@ -38,14 +40,13 @@ ENV PYTHONUNBUFFERED=1
 COPY docker/compiler.py docker/debugger.py docker/requirements.txt docker/webSocket.py ./
 COPY ../frontend/dist ./frontend/dist
 
-# Configurar Python e instalar dependencias en un entorno virtual
-RUN python3.12 -m venv venv && \
-    . venv/bin/activate && \
-    pip install --upgrade pip && \
-    pip install -r requirements.txt
+# Crear entorno virtual con PyPy directamente (sin instalar pip globalmente)
+RUN pypy3 -m venv pypy_venv && \
+    ./pypy_venv/bin/pip install --upgrade pip && \
+    ./pypy_venv/bin/pip install -r requirements.txt
 
 # Exponer el puerto 5000 para la comunicación
 EXPOSE 5000
 
-# Comando por defecto al iniciar el contenedor
-CMD ["/app/venv/bin/python3", "webSocket.py"]
+# Comando por defecto al iniciar el contenedor usando el venv de PyPy
+CMD ["./pypy_venv/bin/pypy3", "webSocket.py"]
