@@ -9,6 +9,8 @@ let compiled = false;
 let socket;
 let editorChangedSinceCompilation = false; // Variable para rastrear cambios en el editor
 let lastCompiledDebugMode = null; // Variable para almacenar el último modo de depuración compilado
+// Almacenar información del hilo activo para optimizar operaciones de step
+let activeThreadId = null;
 
 export const getSocket = () => {
     return socket;
@@ -32,6 +34,15 @@ export const getLastCompiledDebugMode = () => {
 
 export const setLastCompiledDebugMode = (mode) => {
     lastCompiledDebugMode = mode;
+};
+
+export const getActiveThreadId = () => {
+    return activeThreadId;
+};
+
+export const setActiveThreadId = (threadId) => {
+    activeThreadId = threadId;
+    console.log("Thread activo actualizado a:", threadId);
 };
 
 // Inicializar Socket.IO
@@ -176,12 +187,22 @@ function stepOverExecution() {
     const debugMode = getLastCompiledDebugMode();
     let thread_id = null;
 
-    // Para modo GDB, obtener el primer hilo disponible
+    // Para modo GDB, usar el thread activo o el primer hilo disponible
     if (debugMode === "gdb") {
-        const firstThread = $(".ThreadItem").first().data("thread-id");
-        if (firstThread) {
-            thread_id = firstThread;
+        // Priorizar el thread activo almacenado
+        thread_id = activeThreadId;
+
+        // Si no hay thread activo, usar el primer hilo disponible
+        if (!thread_id) {
+            const firstThread = $(".ThreadItem").first().data("thread-id");
+            if (firstThread) {
+                thread_id = firstThread;
+                // Actualizar el thread activo para futuras operaciones
+                setActiveThreadId(thread_id);
+            }
         }
+
+        console.log("Step Over ejecutándose en thread:", thread_id);
     }
 
     socket.emit("step_over", { thread_id: thread_id });
@@ -198,12 +219,22 @@ function stepIntoExecution() {
     const debugMode = getLastCompiledDebugMode();
     let thread_id = null;
 
-    // Para modo GDB, obtener el primer hilo disponible
+    // Para modo GDB, usar el thread activo o el primer hilo disponible
     if (debugMode === "gdb") {
-        const firstThread = $(".ThreadItem").first().data("thread-id");
-        if (firstThread) {
-            thread_id = firstThread;
+        // Priorizar el thread activo almacenado
+        thread_id = activeThreadId;
+
+        // Si no hay thread activo, usar el primer hilo disponible
+        if (!thread_id) {
+            const firstThread = $(".ThreadItem").first().data("thread-id");
+            if (firstThread) {
+                thread_id = firstThread;
+                // Actualizar el thread activo para futuras operaciones
+                setActiveThreadId(thread_id);
+            }
         }
+
+        console.log("Step Into ejecutándose en thread:", thread_id);
     }
 
     socket.emit("step_into", { thread_id: thread_id });
@@ -220,12 +251,22 @@ function stepOutExecution() {
     const debugMode = getLastCompiledDebugMode();
     let thread_id = null;
 
-    // Para modo GDB, obtener el primer hilo disponible
+    // Para modo GDB, usar el thread activo o el primer hilo disponible
     if (debugMode === "gdb") {
-        const firstThread = $(".ThreadItem").first().data("thread-id");
-        if (firstThread) {
-            thread_id = firstThread;
+        // Priorizar el thread activo almacenado
+        thread_id = activeThreadId;
+
+        // Si no hay thread activo, usar el primer hilo disponible
+        if (!thread_id) {
+            const firstThread = $(".ThreadItem").first().data("thread-id");
+            if (firstThread) {
+                thread_id = firstThread;
+                // Actualizar el thread activo para futuras operaciones
+                setActiveThreadId(thread_id);
+            }
         }
+
+        console.log("Step Out ejecutándose en thread:", thread_id);
     }
 
     socket.emit("step_out", { thread_id: thread_id });
@@ -234,4 +275,69 @@ function stepOutExecution() {
 function reverseStepOutExecution() {
     showLoadingState();
     socket.emit("reverse_step_out", { thread_id: null });
+}
+
+// ========== FUNCIONES PARA BOTONES POR HILO ==========
+
+/**
+ * Ejecuta step over para un hilo específico
+ * @param {string} threadId - ID del hilo
+ */
+export function threadStepOverExecution(threadId) {
+    console.log("Thread Step Over para hilo:", threadId);
+    
+    if (!socket || !socket.connected) {
+        console.error("El socket no está disponible o no está conectado");
+        return false;
+    }
+    
+    showLoadingState();
+    console.log("Emitiendo evento step_over con thread_id:", threadId);
+    socket.emit("step_over", { thread_id: threadId });
+    
+    // Actualizar el thread activo para futuras operaciones globales
+    setActiveThreadId(threadId);
+    return true;
+}
+
+/**
+ * Ejecuta step into para un hilo específico
+ * @param {string} threadId - ID del hilo
+ */
+export function threadStepIntoExecution(threadId) {
+    console.log("Thread Step Into para hilo:", threadId);
+    
+    if (!socket || !socket.connected) {
+        console.error("El socket no está disponible o no está conectado");
+        return false;
+    }
+    
+    showLoadingState();
+    console.log("Emitiendo evento step_into con thread_id:", threadId);
+    socket.emit("step_into", { thread_id: threadId });
+    
+    // Actualizar el thread activo para futuras operaciones globales
+    setActiveThreadId(threadId);
+    return true;
+}
+
+/**
+ * Ejecuta step out para un hilo específico
+ * @param {string} threadId - ID del hilo
+ */
+export function threadStepOutExecution(threadId) {
+    console.log("Thread Step Out para hilo:", threadId);
+    
+    if (!socket || !socket.connected) {
+        console.error("El socket no está disponible o no está conectado");
+        return false;
+    }
+    
+    showLoadingState();
+    console.log("Emitiendo evento step_out con thread_id:", threadId);
+    socket.emit("step_out", { thread_id: threadId });
+    
+    // Actualizar el thread activo para futuras operaciones globales
+    setActiveThreadId(threadId);
+    return true;
 }

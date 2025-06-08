@@ -4,6 +4,7 @@ import { EditorView, Decoration, lineNumbers } from "@codemirror/view";
 import { basicSetup } from "codemirror";
 import { cpp } from "@codemirror/lang-cpp";
 import { oneDark } from "@codemirror/theme-one-dark";
+import { setActiveThreadId } from "../utils/webSocket.js";
 
 // CORRECCIÓN: Usar el prefijo url: para forzar URLs como strings
 import stepOverIcon from "url:../../../images/arrow-trend-up-solid.svg";
@@ -58,8 +59,8 @@ function updateCodeShards(threads) {
             `<div class="ThreadItem" data-thread-id="${threadId}"></div>`
         );
 
-        // Generar información para el título del hilo
-        let threadTitle = `Hilo ${index + 1}`;
+        // Generar información para el título del hilo (usar threadId real)
+        let threadTitle = `Hilo ${threadId}`;
         let threadInfo = "";
 
         if (thread.function) {
@@ -206,6 +207,27 @@ function updateCodeShards(threads) {
 
     // Asegurarse de que los eventos de control de hilo se configuran después de cada actualización
     setupThreadControlEvents();
+
+    // Añadir event listener para hacer clic en CodeShards y actualizar el thread activo
+    $(".CodeShard").on("click", function () {
+        const threadId = $(this).data("thread-id");
+        if (threadId) {
+            setActiveThreadId(threadId);
+            console.log(
+                "Thread activo actualizado por selección de CodeShard:",
+                threadId
+            );
+
+            // Resaltar visualmente el CodeShard seleccionado
+            $(".CodeShard").removeClass("highlighted");
+            $(".ThreadItem").removeClass("highlighted");
+
+            $(this).addClass("highlighted");
+            $(`.ThreadItem[data-thread-id="${threadId}"]`).addClass(
+                "highlighted"
+            );
+        }
+    });
 }
 
 // Función para manejar la respuesta del depurador
@@ -221,6 +243,18 @@ export function handleDebuggerResponse(response) {
     const threadCount = Object.keys(threads).length;
 
     console.log(`Procesando respuesta de depuración con ${threadCount} hilos`);
+
+    // Actualizar el thread activo si hay hilos disponibles
+    if (threadCount > 0) {
+        const threadIds = Object.keys(threads);
+        // Priorizar el primer hilo disponible como thread activo si no hay uno establecido
+        const firstThreadId = threadIds[0];
+        setActiveThreadId(firstThreadId);
+        console.log(
+            "Thread activo establecido automáticamente:",
+            firstThreadId
+        );
+    }
 
     // Actualizar primero la visualización de hilos
     updateThreadVisual(threads);
@@ -323,10 +357,16 @@ function updateThreadVisual(threads) {
     threadContent.append(threadVisual);
 
     // Añadir event listener para resaltar el CodeShard correspondiente al hacer clic en un hilo
-
     $(".ThreadItem").on("click", function () {
         const threadId = $(this).data("thread-id");
         const isAlreadyHighlighted = $(this).hasClass("highlighted");
+
+        // Actualizar el thread activo cuando se selecciona un hilo
+        setActiveThreadId(threadId);
+        console.log(
+            "Thread activo actualizado por selección del usuario:",
+            threadId
+        );
 
         // Eliminar resaltado de todos los elementos
         $(".CodeShard").removeClass("highlighted");

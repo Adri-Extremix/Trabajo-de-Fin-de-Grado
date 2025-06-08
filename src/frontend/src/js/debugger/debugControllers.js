@@ -1,5 +1,10 @@
 import $ from "jquery";
-import { getLastCompiledDebugMode } from "../utils/webSocket.js";
+import {
+    getLastCompiledDebugMode,
+    threadStepOverExecution,
+    threadStepIntoExecution,
+    threadStepOutExecution,
+} from "../utils/webSocket.js";
 
 /**
  * Actualiza la visibilidad de los botones de control de depuración según el modo seleccionado
@@ -50,67 +55,48 @@ export function setupThreadControlEvents() {
     $(document).off("click", ".thread-step-into");
     
     // Event listener para botón step over de hilo
-    $(document).on("click", ".thread-step-over", function(e) {
+    $(document).on("click", ".thread-step-over", function (e) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         const threadId = $(this).data("thread-id");
-        console.log("Thread Step Over para hilo:", threadId);
-        
+
         // Resaltamos visualmente que el botón ha sido pulsado
         $(this).addClass("active");
         setTimeout(() => $(this).removeClass("active"), 300);
-        
-        // Verificar que el socket está disponible
-        const socket = window.socket;
-        if (socket && socket.connected) {
-            console.log("Emitiendo evento step_over con thread_id:", threadId);
-            socket.emit("step_over", { thread_id: threadId });
-        } else {
-            console.error("El socket no está disponible o no está conectado");
-        }
+
+        // Llamar a la función de comunicación WebSocket
+        threadStepOverExecution(threadId);
     });
-    
+
     // Event listener para botón step out de hilo
-    $(document).on("click", ".thread-step-out", function(e) {
+    $(document).on("click", ".thread-step-out", function (e) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         const threadId = $(this).data("thread-id");
-        console.log("Thread Step Out para hilo:", threadId);
-        
+
         // Resaltamos visualmente que el botón ha sido pulsado
         $(this).addClass("active");
         setTimeout(() => $(this).removeClass("active"), 300);
-        
-        const socket = window.socket;
-        if (socket && socket.connected) {
-            console.log("Emitiendo evento step_out con thread_id:", threadId);
-            socket.emit("step_out", { thread_id: threadId });
-        } else {
-            console.error("El socket no está disponible o no está conectado");
-        }
+
+        // Llamar a la función de comunicación WebSocket
+        threadStepOutExecution(threadId);
     });
     
     // Event listener para botón step into de hilo
     $(document).on("click", ".thread-step-into", function(e) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         const threadId = $(this).data("thread-id");
-        console.log("Thread Step Into para hilo:", threadId);
-        
+
         // Resaltamos visualmente que el botón ha sido pulsado
         $(this).addClass("active");
         setTimeout(() => $(this).removeClass("active"), 300);
-        
-        const socket = window.socket;
-        if (socket && socket.connected) {
-            console.log("Emitiendo evento step_into con thread_id:", threadId);
-            socket.emit("step_into", { thread_id: threadId });
-        } else {
-            console.error("El socket no está disponible o no está conectado");
-        }
+
+        // Llamar a la función de comunicación WebSocket
+        threadStepIntoExecution(threadId);
     });
 
     console.log("Eventos de control de hilos configurados correctamente");
