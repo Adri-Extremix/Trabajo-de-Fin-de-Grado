@@ -88,10 +88,7 @@ class Debugger:
         
         # Obtenemos toda la información necesaria en una sola consulta
         threads_info = self.get_thread_info()[-1]["payload"]
-        current_thread_id = threads_info.get("current-thread-id")
-        
-        print(f"Actualizando hilos. Hilo actual según GDB: {current_thread_id}")
-        print(f"Hilos disponibles en GDB: {[t['id'] for t in threads_info.get('threads', [])]}")
+        current_thread_id = str(threads_info.get("current-thread-id"))
         
         # Procesamiento por lotes de los hilos
         threads_batch = []
@@ -99,18 +96,13 @@ class Debugger:
             thread_id = str(thread["id"])
             thread_target = thread["target-id"]
             thread_state = thread.get("state", "unknown")
-            
-            print(f"Procesando hilo {thread_id} (target: {thread_target}, estado: {thread_state})")
             threads_batch.append((thread_id, thread_target))
         
         # Procesamiento paralelizable (usando ThreadPool si es posible)
         for thread_id, thread_name in threads_batch:
             result = self._process_thread(thread_id, thread_name)
             if result is None:
-                print(f"Hilo {thread_id} no pudo ser procesado (probablemente no está en código del usuario)")
                 continue
-            else:
-                print(f"Hilo {thread_id} procesado exitosamente")
         
         self.select_thread(current_thread_id)
         self.get_all_thread_local_variables()
@@ -118,15 +110,6 @@ class Debugger:
         # Mostrar cambios en hilos
         new_thread_ids = set(self.threads.keys())
         old_thread_ids = set(old_threads.keys())
-        
-        if new_thread_ids != old_thread_ids:
-            added_threads = new_thread_ids - old_thread_ids
-            removed_threads = old_thread_ids - new_thread_ids
-            
-            if added_threads:
-                print(f"Nuevos hilos detectados: {added_threads}")
-            if removed_threads:
-                print(f"Hilos finalizados: {removed_threads}")
         
         return self.threads
 
@@ -146,21 +129,17 @@ class Debugger:
 
     def _process_single_thread_optimized(self, thread_id):
         """Procesa un solo hilo de manera optimizada, actualizando solo sus datos"""
-        print(f"\n--- PROCESO OPTIMIZADO HILO {thread_id} ---")
+        # Asegurar que thread_id sea string para consistencia
+        thread_id = str(thread_id)
         
         # Verificar que el hilo existe en nuestro registro
         if thread_id not in self.threads:
-            print(f"❌ Hilo {thread_id} no existe en self.threads: {list(self.threads.keys())}")
             return False
         
-        print(f"Estado inicial del hilo {thread_id}:")
         old_data = dict(self.threads[thread_id])
-        print(f"  Línea: {old_data.get('line')}")
-        print(f"  Función: {old_data.get('function')}")
         
         # Seleccionar el hilo
         try:
-            print(f"Seleccionando hilo {thread_id}...")
             self.select_thread(thread_id)
             
             # Verificar que la selección fue exitosa
@@ -168,39 +147,27 @@ class Debugger:
             current_thread = current_thread_info.get("current-thread-id")
             
             if str(current_thread) != str(thread_id):
-                print(f"❌ Error: No se pudo seleccionar el hilo {thread_id}. Hilo actual: {current_thread}")
                 return False
-            else:
-                print(f"✅ Hilo {thread_id} seleccionado correctamente")
         except Exception as e:
-            print(f"❌ Excepción al seleccionar hilo {thread_id}: {e}")
             return False
         
         # Obtener información del frame actual
         try:
-            print(f"Obteniendo información del frame...")
             frame_info_response = self.info_frame()
             
             if not frame_info_response:
-                print(f"❌ No hubo respuesta al comando info_frame()")
                 return False
                 
             if "frame" not in frame_info_response[0]["payload"]:
-                print(f"❌ No hay información de frame en la respuesta: {frame_info_response[0]['payload']}")
                 return False
                 
             frame_info = frame_info_response[0]["payload"]["frame"]
-            print(f"✅ Frame obtenido: archivo={frame_info.get('fullname')}, línea={frame_info.get('line')}, función={frame_info.get('func')}")
             
         except Exception as e:
-            print(f"❌ Excepción obteniendo frame info: {e}")
             return False
         
         # Verificar que estamos en código del usuario
         if frame_info.get("fullname") != self.code_path:
-            print(f"❌ Hilo {thread_id} no está en código del usuario:")
-            print(f"   Archivo actual: {frame_info.get('fullname')}")
-            print(f"   Archivo esperado: {self.code_path}")
             return False
         
         # Buscar el nombre del hilo en correspondence
@@ -211,45 +178,20 @@ class Debugger:
                 break
         
         if not thread_name:
-            print(f"❌ No se encontró el nombre para el hilo {thread_id} en correspondence:")
-            print(f"   Correspondencias disponibles: {self.correspondence}")
             return False
-        
-        print(f"✅ Nombre del hilo encontrado: {thread_name}")
         
         # Actualizar datos del hilo
         try:
-            print(f"Actualizando datos del hilo...")
             self._update_thread_data(thread_id, thread_name, frame_info)
-            print(f"✅ Datos del hilo actualizados")
         except Exception as e:
-            print(f"❌ Error actualizando datos del hilo: {e}")
             return False
         
         # Actualizar variables del hilo
         try:
-            print(f"Actualizando variables del hilo...")
             self._update_thread_variables(thread_id)
-            print(f"✅ Variables del hilo actualizadas")
         except Exception as e:
-            print(f"❌ Error actualizando variables del hilo: {e}")
             return False
         
-        # Verificar cambios
-        new_data = self.threads[thread_id]
-        print(f"Estado final del hilo {thread_id}:")
-        print(f"  Línea: {old_data.get('line')} -> {new_data.get('line')}")
-        print(f"  Función: {old_data.get('function')} -> {new_data.get('function')}")
-        
-        line_changed = old_data.get('line') != new_data.get('line')
-        func_changed = old_data.get('function') != new_data.get('function')
-        
-        if line_changed or func_changed:
-            print(f"✅ CAMBIOS DETECTADOS en hilo {thread_id}")
-        else:
-            print(f"⚠️  NO SE DETECTARON CAMBIOS en hilo {thread_id}")
-        
-        print(f"--- FIN PROCESO OPTIMIZADO HILO {thread_id} ---\n")
         return True
 
     def _update_thread_data(self, thread_id, thread_name, frame_info):
@@ -303,129 +245,68 @@ class Debugger:
         return self._update_thread_functions()
 
     def generic_step(self, step_type, thread_id=None):
-        import time
-        step_start_time = time.time()
-        print(f"\n=== INICIANDO STEP {step_type.upper()} ===")
-        print(f"Thread ID solicitado: {thread_id}")
-        print(f"Modo RR: {self.enable_rr}")
-        print(f"Timestamp: {step_start_time}")
-        
         correspondece_step = {
             "step_over": "-exec-next",
             "step_into": "-exec-step",
             "step_out": "-exec-finish"
         }
 
+        # Asegurar consistencia de tipos para thread_id
+        if thread_id is not None:
+            thread_id = str(thread_id)
+
         # Capturar estado inicial para comparación
         initial_threads = dict(self.threads)
-        print(f"Estado inicial de hilos: {list(initial_threads.keys())}")
         
         # En modo GDB (no RR), configurar scheduler para controlar hilos
         if not self.enable_rr and thread_id is not None:
-            print(f"--- CONFIGURACIÓN DE HILO EN MODO GDB ---")
-            
-            # Verificar estado del hilo antes de seleccionar
-            try:
-                thread_info_before = self.get_thread_info()[-1]["payload"]
-                print(f"Hilo activo antes de seleccionar: {thread_info_before.get('current-thread-id')}")
-            except Exception as e:
-                print(f"Error obteniendo info de hilo antes: {e}")
-            
             # Asegurar que solo el hilo seleccionado ejecute
             selection_success = self.select_thread(thread_id)
-            print(f"Resultado de select_thread({thread_id}): {selection_success}")
             
             # Verificar que el hilo está seleccionado correctamente
             try:
                 current_thread_info = self.get_thread_info()[-1]["payload"]
                 current_thread = current_thread_info.get("current-thread-id")
-                print(f"Hilo actualmente seleccionado: {current_thread}")
-                print(f"Configuración de scheduler: scheduler-locking=step")
                 
                 if str(current_thread) != str(thread_id):
-                    print(f"❌ ERROR: El hilo seleccionado ({current_thread}) no coincide con el solicitado ({thread_id})")
                     return self.threads
-                else:
-                    print(f"✅ Hilo correctamente seleccionado: {current_thread}")
             except Exception as e:
-                print(f"❌ Error verificando hilo seleccionado: {e}")
                 return self.threads
         
         elif thread_id is not None:
-            print(f"--- CONFIGURACIÓN DE HILO EN MODO RR ---")
             selection_success = self.select_thread(thread_id)
-            print(f"Resultado de select_thread({thread_id}) en RR: {selection_success}")
 
         if step_type == "step_out":
             frame_depth = self.get_stack_depth()
-            print(f"Profundidad del frame: {frame_depth}")
             if frame_depth == 1:
-                print("Cambiando step_out a step_over (frame único)")
                 step_type = "step_over"
-
-        print("--- ESTADO ANTES DEL STEP ---")
-        for tid, tdata in self.threads.items():
-            print(f"Hilo {tid}: línea={tdata.get('line')}, función={tdata.get('func')}")
         
         # Ejecutar el comando de step
         step_command = correspondece_step[step_type]
-        print(f"--- EJECUTANDO COMANDO: {step_command} ---")
         
         try:
             step_result = self._gdb_write(step_command)
-            print(f"Resultado del comando step: {step_result}")
         except Exception as e:
-            print(f"❌ Error ejecutando step: {e}")
             return self.threads
         
         # Solo procesar hilo específico si se proporciona thread_id y no estamos en modo RR
         if thread_id is not None and not self.enable_rr:
-            print(f"--- ACTUALIZANDO SOLO HILO {thread_id} (MODO OPTIMIZADO) ---")
-            
             # Usar la función optimizada para actualizar un solo hilo
             success = self._process_single_thread_optimized(thread_id)
             
             if success:
-                print(f"✅ Actualización optimizada completada para el hilo {thread_id}")
-                
-                # Verificar cambios
-                print("--- VERIFICANDO CAMBIOS ---")
-                for tid in self.threads:
-                    old_data = initial_threads.get(tid, {})
-                    new_data = self.threads[tid]
-                    if old_data.get('line') != new_data.get('line'):
-                        print(f"Hilo {tid}: línea cambió de {old_data.get('line')} a {new_data.get('line')}")
-                    if old_data.get('func') != new_data.get('func'):
-                        print(f"Hilo {tid}: función cambió de {old_data.get('func')} a {new_data.get('func')}")
-                
-                step_end_time = time.time()
-                print(f"✅ STEP COMPLETADO en {step_end_time - step_start_time:.3f}s")
                 return self.threads
-            else:
-                print(f"❌ Falló la actualización optimizada del hilo {thread_id}, actualizando todos los hilos")
         
         # Si no se proporciona thread_id específico o estamos en modo RR, actualizar todos los hilos
-        print("--- ACTUALIZANDO TODOS LOS HILOS ---")
         result = self._update_thread_functions()
-        
-        # Verificar cambios finales
-        print("--- VERIFICANDO CAMBIOS FINALES ---")
-        for tid in self.threads:
-            old_data = initial_threads.get(tid, {})
-            new_data = self.threads[tid]
-            if old_data.get('line') != new_data.get('line'):
-                print(f"Hilo {tid}: línea cambió de {old_data.get('line')} a {new_data.get('line')}")
-            if old_data.get('func') != new_data.get('func'):
-                print(f"Hilo {tid}: función cambió de {old_data.get('func')} a {new_data.get('func')}")
-        
-        step_end_time = time.time()
-        print(f"✅ STEP COMPLETADO en {step_end_time - step_start_time:.3f}s")
-        print(f"=== FIN STEP {step_type.upper()} ===\n")
         
         return result
 
     def _update_thread_variables(self, thread_id):
         """Actualiza las variables de un hilo específico para optimizar rendimiento"""
+        # Asegurar que thread_id sea string para consistencia
+        thread_id = str(thread_id)
+        
         if thread_id not in self.threads:
             return
             
@@ -456,6 +337,9 @@ class Debugger:
         self.threads[thread_id]["variables"] = thread_variables
 
     def step_over(self, thread_id = None):
+        if thread_id is not None:
+            thread_id = str(thread_id)
+            
         if self.enable_rr:
             # Para modo RR, no necesitamos thread_id específico
             self.generic_step("step_over", None)
@@ -463,16 +347,16 @@ class Debugger:
             return self._update_thread_functions()
         elif thread_id is not None:
             # Para modo GDB, necesitamos thread_id específico
-            print("Haciendo step over en el hilo:", thread_id)
             self.generic_step("step_over", thread_id)
             # En modo GDB solo actualizamos el hilo específico (ya se hace en generic_step)
             return self.threads
-        else:
-            print("Error: step_over requiere thread_id en modo GDB")
             
         return self.threads
 
     def step_into(self, thread_id = None):
+        if thread_id is not None:
+            thread_id = str(thread_id)
+            
         if self.enable_rr:
             # Para modo RR, no necesitamos thread_id específico
             self.generic_step("step_into", None)
@@ -489,8 +373,6 @@ class Debugger:
             
             # En modo GDB solo actualizamos el hilo específico (ya se hace en generic_step)
             return self.threads
-        else:
-            print("Error: step_into requiere thread_id en modo GDB")
         
         return self.threads
 
@@ -519,8 +401,6 @@ class Debugger:
             self.generic_step("step_out", thread_id)
             # En modo GDB solo actualizamos el hilo específico (ya se hace en generic_step)
             return self.threads
-        else:
-            print("Error: step_out requiere thread_id en modo GDB")
         
         return self.threads
     
@@ -563,7 +443,6 @@ class Debugger:
                 depth += 1
                 self.generic_reverse_step("step_out")
                 if depth >= len(stack):
-                    print("Error: No se pudo volver a la función")
                     break
         
         return self._update_thread_functions()
@@ -585,12 +464,12 @@ class Debugger:
             self._gdb_write(f"-break-insert {line}")
             return True
         except Exception as e:
-            print(e)
             return False
         
     def select_thread(self, thread_id):
-        """Selecciona un hilo específico para depuración con logging detallado"""
-        print(f"\n--- SELECCIONANDO HILO {thread_id} ---")
+        """Selecciona un hilo específico para depuración"""
+        # Asegurar que thread_id sea string para consistencia
+        thread_id = str(thread_id)
         
         # Verificar estado antes de la selección
         try:
@@ -598,27 +477,17 @@ class Debugger:
             current_before = before_info.get("current-thread-id")
             available_threads = [t['id'] for t in before_info.get('threads', [])]
             
-            print(f"Estado antes de seleccionar:")
-            print(f"  Hilo actual: {current_before}")
-            print(f"  Hilos disponibles: {available_threads}")
-            print(f"  Hilo solicitado: {thread_id}")
-            
             # Verificar que el hilo solicitado existe
             if str(thread_id) not in [str(t) for t in available_threads]:
-                print(f"❌ ERROR: El hilo {thread_id} no existe en la lista de hilos disponibles")
                 return False
                 
         except Exception as e:
-            print(f"❌ Error obteniendo estado inicial: {e}")
             return False
         
         # Ejecutar el comando de selección
         try:
-            print(f"Ejecutando comando: -thread-select {thread_id}")
-            result = self._gdb_write(f"-thread-select {thread_id}")
-            print(f"Resultado del comando: {result}")
+            self._gdb_write(f"-thread-select {thread_id}")
         except Exception as e:
-            print(f"❌ Error ejecutando comando de selección: {e}")
             return False
         
         # Verificar estado después de la selección
@@ -626,21 +495,12 @@ class Debugger:
             after_info = self.get_thread_info()[-1]["payload"]
             current_after = after_info.get("current-thread-id")
             
-            print(f"Estado después de seleccionar:")
-            print(f"  Hilo actual: {current_after}")
-            
             if str(current_after) == str(thread_id):
-                print(f"✅ Hilo {thread_id} seleccionado exitosamente")
-                print(f"--- FIN SELECCIÓN HILO {thread_id} ---\n")
                 return True
             else:
-                print(f"❌ ERROR: Selección falló. Esperado: {thread_id}, Actual: {current_after}")
-                print(f"--- FIN SELECCIÓN HILO {thread_id} ---\n")
                 return False
                 
         except Exception as e:
-            print(f"❌ Error verificando estado final: {e}")
-            print(f"--- FIN SELECCIÓN HILO {thread_id} ---\n")
             return False
 
     def get_thread_info(self):
@@ -670,7 +530,6 @@ class Debugger:
 
             frames_info = self.get_frames()
             if not frames_info or "stack" not in frames_info[0]["payload"]:
-                print(f"No se encontraron frames para el thread {thread_id}.")
                 continue
 
             frames = frames_info[0]["payload"]["stack"]
@@ -699,12 +558,8 @@ class Debugger:
         if not self.enable_rr:
             scheduler_info = self._gdb_write("show scheduler-locking")
             non_stop_info = self._gdb_write("show non-stop")
-            print("Configuración actual del scheduler:")
-            print(f"Scheduler-locking: {scheduler_info}")
-            print(f"Non-stop mode: {non_stop_info}")
             return scheduler_info, non_stop_info
         else:
-            print("Configuración de scheduler no aplicable en modo RR")
             return None, None
 
     def set_scheduler_mode(self, mode="step"):
@@ -718,41 +573,12 @@ class Debugger:
         if not self.enable_rr:
             valid_modes = ["off", "on", "step"]
             if mode not in valid_modes:
-                print(f"Modo inválido. Modos válidos: {valid_modes}")
                 return False
             
             self._gdb_write(f"set scheduler-locking {mode}")
-            print(f"Scheduler-locking configurado a: {mode}")
             return True
         else:
-            print("Configuración de scheduler no aplicable en modo RR")
             return False
-
-    def diagnose_thread_behavior(self):
-        """Método de diagnóstico para entender el comportamiento de hilos"""
-        print("\n=== DIAGNÓSTICO DE HILOS ===")
-        
-        # 1. Mostrar configuración actual
-        print("1. Configuración actual:")
-        self.get_scheduler_config()
-        
-        # 2. Mostrar información de hilos
-        print("\n2. Información de hilos:")
-        thread_info = self.get_thread_info()[-1]["payload"]
-        print(f"Hilo actual: {thread_info.get('current-thread-id')}")
-        print(f"Número total de hilos: {len(thread_info.get('threads', []))}")
-        
-        for thread in thread_info.get('threads', []):
-            thread_id = thread['id']
-            thread_state = thread.get('state', 'unknown')
-            thread_target = thread.get('target-id', 'unknown')
-            print(f"  Hilo {thread_id}: estado={thread_state}, target={thread_target}")
-        
-        # 3. Mostrar estado de nuestros hilos procesados
-        print(f"\n3. Hilos procesados en self.threads: {list(self.threads.keys())}")
-        print(f"4. Correspondencias: {self.correspondence}")
-        
-        print("=== FIN DIAGNÓSTICO ===\n")
 
     def __del__(self):
         if hasattr(self,"gdb") and self.gdb:
