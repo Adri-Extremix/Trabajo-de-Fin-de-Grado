@@ -7,7 +7,7 @@ La \gls{concurrencia} \cite{ParallelismComputerArchitecture} se define como la c
 
 Este enfoque no solo mejora la eficiencia en la ejecución, sino que también incrementa la escalabilidad, especialmente en entornos distribuidos, y contribuye a disminuir el consumo energético mediante una distribución adecuada de las tareas y la reducción de las frecuencias de reloj \cite{EnergyEfficiencyParallelAplications}. Además, la desaceleración en el avance de la Ley de Moore \cite{LeyMoore} ha subrayado la necesidad de explorar otros medios para aumentar el rendimiento y la eficiencia de los sistemas \cite{ParallelProgramming}.
 
-Sin embargo, diversas investigaciones sobre la paralelización en \gls{tiempo de compilación} han evidenciado que extraer de forma automática el \gls{paralelismo} de programas secuenciales resulta un desafio considerable \cite{ParallelProgramming}. Esto implica que, para aprovechar plenamente las ventajas de los \gls{sistemas multicore}, es indispensable que los desarrolladores realicen una reestructuración manual del código para transformarlo en una aplicación concurrente.
+Sin embargo, diversas investigaciones sobre la paralelización en \gls{tiempo de compilación} han evidenciado que extraer de forma automática el \gls{paralelismo} de programas secuenciales resulta un desafío considerable \cite{ParallelProgramming}. Esto implica que, para aprovechar plenamente las ventajas de los \gls{sistemas multicore}, es indispensable que los desarrolladores realicen una reestructuración manual del código para transformarlo en una aplicación concurrente.
 
 En este contexto, formar nuevos profesionales con conocimientos profundos en \gls{concurrencia} se presenta como una estrategia clave para mejorar el rendimiento de las aplicaciones y reducir los costes energéticos, consolidándose como un factor competitivo esencial en el desarrollo de \gls{software} actual y futuro.
 
@@ -19,17 +19,17 @@ El paralelismo presenta nuevos desafíos a la hora de desarrollar programas, ya 
 Un \gls{depurador} \cite{WikipediaDebugger} es un programa usado para probar y \gls{depurar} otros programas. Los \glspl{depurador} suelen permitir colocar puntos de interrupción, saltar a través de distintas partes del código e inspeccionar el estado de la memoria, registros de la \gls{CPU} y la pila de llamadas.
 Estos \glspl{depurador} suelen ser integrados en los entornos de desarrollo, como \textit{Visual Studio} \cite{DebuggerVisualStudio} o \textit{Eclipse} \cite{DebuggerEclipse}, aunque también existen \glspl{depurador} basados en línea de comandos (\gls{CLI}) como \textit{GDB} \cite{GDB} o \textit{LLDB} \cite{LLDB}. 
 
-Sin embargo, los \glspl{depurador} tradicionales no suelen estar diseñados para \glspl {programa concurrente}. En un \gls{programa concurrente} \cite{ParallelismComputerArchitecture} existen múltiples \glspl{proceso}, que pueden ser ejecutados en paralelo o de forma intercalada, que interactuan con los recursos, lo que obliga a que los \glspl{depurador} tengan funcionalidades específicas para soportar este tipo de ejecuciones.
+Sin embargo, los \glspl{depurador} tradicionales no suelen estar diseñados para \glspl {programa concurrente}. En un \gls{programa concurrente} \cite{ParallelismComputerArchitecture} existen múltiples \glspl{proceso}, que pueden ser ejecutados en paralelo o de forma intercalada, que interactúan con los recursos, lo que obliga a que los \glspl{depurador} tengan funcionalidades específicas para soportar este tipo de ejecuciones.
 
-Los \glspl{depurador} de \glspl{programa concurrente} son capaces de controlar e inspeccionar cada uno de los \glspl{proceso} que existen en el programa, aunque el nivel de granularidadd y funcionalidad dependen de la herramienta. A continuación se explorarán algunas de las herramientas usadas en la actualidad.
+Los \glspl{depurador} de \glspl{programa concurrente} son capaces de controlar e inspeccionar cada uno de los \glspl{proceso} que existen en el programa, aunque el nivel de granularidad y funcionalidad dependen de la herramienta. A continuación se explorarán algunas de las herramientas usadas en la actualidad.
 
 \subsection{GDB}{\label{subsec:gdb}}
-GDB es un \gls{depurador} de \gls{código abierto} creado por la \textit{Free Software Foundation} en 1986 \cite{GDB}. Este \gls{depurador} solo está disponible para sistemas \textit{Unix} \cite{UNIX} , aunque simulando este sistema en otros sistemas operativos se puede utilizar \cite{GDBDownload}. Es importante destacar que esta herramienta ocupa en disco únicamente en torno a 12.22 MB. 
-GDB una herramienta con la que se interactua a través de su \gls{CLI} o \gls{TUI} y permite controlar la ejecución de programas y analizar su estado en tiempo de ejecución. GDB es capaz de depurar programas escritos en C, C++, D, Fortran, Go, Pascal, Rust y \gls{ensamblador} \cite{GDB}.  
+GDB es un \gls{depurador} de \gls{código abierto} creado por la \textit{Free Software Foundation} en 1986 \cite{GDB}. Este \gls{depurador} solo está disponible para sistemas \textit{Unix} \cite{UNIX}, aunque simulando este sistema en otros sistemas operativos se puede utilizar \cite{GDBDownload}. Es importante destacar que esta herramienta ocupa en disco únicamente en torno a 12.22 MB. 
+GDB es una herramienta con la que se interactúa a través de su \gls{CLI} o \gls{TUI} y permite controlar la ejecución de programas y analizar su estado en tiempo de ejecución. GDB es capaz de depurar programas escritos en C, C++, D, Fortran, Go, Pascal, Rust y \gls{ensamblador} \cite{GDB}.  
 
 GDB permite colocar puntos de interrupción, inspeccionar la memoria, los \gls{registros} de la \gls{CPU} y la pila de llamadas e incluso revisar el código \gls{ensamblador} del programa y modificar el valor de las variables en tiempo de ejecución. Además presenta ciertas características avanzadas como la posibilidad de crear \glspl{script} en Python para automatizar tareas \cite{GDBPython}, utilizar \gls{lenguaje máquina} para devolver respuestas procesadas y entendibles por las máquinas \cite{GDB/MI} controlar la ejecución del programa hacia atrás, aunque esta última solo está disponible para programas mono-hilo \cite{GDBReversing}.
 
-Sus puntos fuertes son la multitud de funcionalidades que ofrece para \gls{depurar} y obtener información sobre el estado del programa y posibilidad de automatizar sus \glspl{proceso} a través de la \gls{API} de Python o su \gls{interfaz máquina-humano}, lo que permite crear nuevas herramientas que extiendan las características de este \gls{depurador} y se adapten a las necesidades del usuario. Ejemplos de ello son CLion (\subsectionref{clion}) o herramientas menos cononidas como Blink \cite{Blink}, un \gls{depurador} de entornos mixtos que utiliza la composición para \gls{depurar} programas que utilizan varios códigos.
+Sus puntos fuertes son la multitud de funcionalidades que ofrece para \gls{depurar} y obtener información sobre el estado del programa y posibilidad de automatizar sus \glspl{proceso} a través de la \gls{API} de Python o su \gls{interfaz máquina-humano}, lo que permite crear nuevas herramientas que extiendan las características de este \gls{depurador} y se adapten a las necesidades del usuario. Ejemplos de ello son CLion (\subsectionref{clion}) o herramientas menos conocidas como Blink \cite{Blink}, un \gls{depurador} de entornos mixtos que utiliza la composición para \gls{depurar} programas que utilizan varios códigos.
 
 \begin{lstlisting}[caption={Muestra del depurador GDB}]
 (gdb) break 50
@@ -115,7 +115,7 @@ Para poder grabar la ejecución es necesario ejecutar \texttt{rr record <program
 Esto hace a RR un \gls{depurador} muy útil por la flexibilidad y las funcionalidades que le ofrece GDB y la capacidad de convertir \gls{proceso} no deterministas en\glspl{determinista}, sin embargo añade un \textit{\gls{overhead}} en la memoria en la ejecución del programa de entre 1.5 y 2 veces y la ralentización que supone ejecutar programas paralelos en una emulación de un solo núcleo\cite{RR}.
 
 \subsection{CLion}{\label{subsec:clion}}
-CLion es un \gls{IDE} de propiedad de JetBrains, enfocado en la programación en C y C++. Esta aplicación necesita de una licencia para su uso de entre 60\euro a 100\euro, aunque existe una prueba gratuita de 30 días \cite{ClionPrizing}. Cabe destacar que CLion es multiplataforma, disponible para Windows, macOS y Linux y ocupa un espacio de 3.5 GB en disco \cite{ClionDownload}.
+CLion es un \gls{IDE} de propiedad de JetBrains, enfocado en la programación en C y C++. Esta aplicación necesita de una licencia para su uso de entre 60 \euro a 100 \euro, aunque existe una prueba gratuita de 30 días \cite{ClionPrizing}. Cabe destacar que CLion es multiplataforma, disponible para Windows, macOS y Linux y ocupa un espacio de 3.5 GB en disco \cite{ClionDownload}.
 
 CLion incluye una opción para depurar a través de GDB (\subsectionref{gdb}) o LLDB (\subsectionref{lldb}), elegible a través de un menú contextual, mediante una \gls{interfaz gráfica} y extendible con Valgrind y ThreadSanitizer. En este modo depuración se pueden colocar puntos de interrupción, ejecutar el programa, parar el programa, y realizar \textit{\gls{step over}} y \textit{\gls{step into}} \cite{ClionDebugger}.
 
@@ -136,7 +136,7 @@ Seer destaca por su ligereza, su \gls{interfaz gráfica}, su rendimiento y la mu
 
 \section{Otras Herramientas}\label{sec:herramientas}
 
-Además de los \glspl{depurador} de \glspl{programa concurrente}, existen otras herramientas que permiten analizar el comportamiento de un \glspl{programa concurrente} y detectar errores debidos a el uso incorrecto de la \gls{concurrencia}. A continuación se explorarán algunas de estas herramientas.
+Además de los \glspl{depurador} de \glspl{programa concurrente}, existen otras herramientas que permiten analizar el comportamiento de un \glspl{programa concurrente} y detectar errores debidos al uso incorrecto de la \gls{concurrencia}. A continuación se explorarán algunas de estas herramientas.
 
 \subsection{Helgrind}{\label{subsec:helgrind}}
 
@@ -174,9 +174,9 @@ Helgrind se complementa con las funcionalidades tradicionales de los \glspl{depu
 
 \subsection{ThreadSanitizer}{\label{subsec:thread-sanitizer}}
 
-ThreadSanitizer es una herramienta que detecta \glspl{condición de carrera} para código C y C++. Está formado por una módulo de \gls{inyección de código} y una librería de \gls{tiempo de ejecución}. Esta herramienta puede ralentizar la ejecución en torno a un factor de 5 a 20 e introducir un sobrecarga de memoria de un factor de 5 a 10 \cite{ThreadSanitizer}.
+ThreadSanitizer es una herramienta que detecta \glspl{condición de carrera} para código C y C++. Está formada por un módulo de \gls{inyección de código} y una librería de \gls{tiempo de ejecución}. Esta herramienta puede ralentizar la ejecución en torno a un factor de 5 a 20 e introducir una sobrecarga de memoria de un factor de 5 a 10 \cite{ThreadSanitizer}.
 
-A diferencia de Helgrind (\subsectionref{helgrind}), ThreadSanitizer solo detecta \glspl{condición de carrera} en \gls{tiempo de ejecución}, lo que significa que si durante la ejecución no se ha recorrido cierto fragmento de código no va poder detectar \glspl{condición de carrera} que corresponda con ese fragmento \cite{ThreadSanitizerGithub}.
+A diferencia de Helgrind (\subsectionref{helgrind}), ThreadSanitizer solo detecta \glspl{condición de carrera} en \gls{tiempo de ejecución}, lo que significa que si durante la ejecución no se ha recorrido cierto fragmento de código no va a poder detectar \glspl{condición de carrera} que corresponda con ese fragmento \cite{ThreadSanitizerGithub}.
 
 Para usar esta herramienta se debe de compilar con la opción \texttt{-pthread} y ejecutar el programa con la opción \texttt{-fsanitize=thread}. Es importante destacar que esta \gls{compilación} debe de contener todo el código del programa, incluyendo las librerías que se usen, en caso contrario puede detectar \gls{falso positivo}. Tras esta \gls{compilación} la herramienta devolverá en la \gls{salida estándar} los errores que haya detectado, como se muestra en la siguiente figura \cite{ThreadSanitizer}.
 
@@ -203,7 +203,7 @@ WARNING: ThreadSanitizer: data race (pid=26327)
 \end{lstlisting}
 
 \section{Comparativa de Depuradores}\label{sec:comparativa-depuradores}
-Con el objetivo de encontrar cual de las herramientas descritas en las secciones anteriores es la que mejor se adapta a las necesidades del proyecto, se ha realizado una comparativa de las características de cada una de ellas. 
+Con el objetivo de encontrar cuál de las herramientas descritas en las secciones anteriores es la que mejor se adapta a las necesidades del proyecto, se ha realizado una comparativa de las características de cada una de ellas. 
 
 Las características que se tendrán en cuenta para la comparación son las siguientes:
 \begin{itemize}
@@ -261,7 +261,7 @@ Para el caso de la \textbf{Usabilidad} se han tenido en cuenta el número de bot
 
 \subsection{Conexión con los Objetivos del Proyecto}{\label{subsec:conexión-objetivos-proyecto}}
 
-A partir del análisis de las herramientas existentes para la depuración de \glspl{programa concurrente}, se observa que, si bien cada una presenta características distintivas, ninguna satisface completamente el objetivo 2 (\ref{obj:didactico}). La única excepción parcial es CLion (\subsectionref{clion}), que se acerca más a cumplir este objetivo, aunque carece de una versión gratuita, lo que limita su accesibilidad. Por ello, y basándose en los conocimientos adquiridos durante esta investigación, se plantea el desarrollo de una herramienta que no solo abstraiga las funcionalidades de los depuradores actuales, sino que también incorpore mecanismos didácticos que faciliten el aprendizaje de la depuración en entornos concurrentes de manera intuitiva y accesible para principiantes.
+A partir del análisis de las herramientas existentes para la depuración de \glspl{programa concurrente}, se observa que, si bien cada una presenta características distintivas, ninguna satisface completamente el objetivo 2 (\ref{obj:didactico}). La única excepción parcial es CLion (\subsectionref{clion}), que se acerca más a cumplir este objetivo, aunque carece de una versión gratuita, lo que limita su accesibilidad. Por ello se plantea el desarrollo de una herramienta, que no solo abstraiga las funcionalidades de los depuradores actuales, sino que también incorpore mecanismos didácticos que faciliten el aprendizaje de la depuración en entornos concurrentes de manera intuitiva y accesible para principiantes.
 
 En el capítulo \chapterref{analisis} se detallará cómo se conseguirán alcanzar estos objetivos y qué herramientas se utilizarán para ello.
 

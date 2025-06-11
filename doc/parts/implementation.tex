@@ -4,8 +4,7 @@ En este capítulo se describen los aspectos relacionados con la implementación 
 \section{Implementación} \label{sec:implementacion}
 Tal y como se mencionó en \subsectionref{programacion}, el lado cliente será desarrollado con JavaScript, mientras que el lado servidor (\textit{\gls{proxy}} + \glspl{contenedor}) se desarrollará en Python. Además el lado servidor se comunicará con un \gls{contenedor} docker para ejecutar de manera aislada el código desarrollado por el cliente (\subsectionref{sandbox}). Con esto en mente se explicará como se han organizado cada parte del proyecto, cómo se han integrado las librerías y cómo se ha construido la \gls{imagen Docker} y el archivo \texttt{docker-compose.yml} para la orquestación de los \glspl{contenedor}.
 
-
-El código al completo se encuentra disponible en el repositorio de GitHub del proyecto \href{https://github.com/Adri-Extremix/Trabajo-de-Fin-de-Grado}.
+El código al completo se encuentra disponible en el repositorio de GitHub del proyecto \url{https://github.com/Adri-Extremix/Trabajo-de-Fin-de-Grado}.
 
 \subsection{Estructura de ficheros del proyecto}\label{subsec:estructura_ficheros_proyecto}
 
@@ -25,7 +24,8 @@ Se ha decidido tener un primer nivel de directorios que separen las distintas pa
             .2 test/.
             .2 README.md.
             .2 doc/.
-            .2 run\_proyect.py.       
+            .2 start\_proyect.py.
+            .2 close\_proyect.py.       
         }
     \end{tcolorbox}
     }
@@ -73,19 +73,19 @@ A partir de aquí exploraremos el directorio del \gls{código fuente}. En el dir
 En el directorio \texttt{proxy} se encuentra el fichero \texttt{proxy.py} que contiene la implementación del \textit{\gls{proxy}}, el fichero \texttt{requirements.txt} que contiene las dependencias necesarias y los ficheros \texttt{Dockerfile} y \texttt{docker-compose.yml} que contienen la configuración del \gls{contenedor} \textit{\gls{proxy}}.
 
 En el directorio del lado cliente \texttt{frontend} se encuentra el fichero \texttt{index.html} que contiene la estructura de la página web, el fichero \texttt{package.json} que contiene las dependencias del lado cliente, y un directorio para cada tipo de recurso (imágenes, scripts y estilos). 
-En el directorio \texttt{docker} se encuentran los ficheros necesarios para construir la \gls{imagen Docker}. En este directorio se encuentran los ficheros \texttt{Dockerfile} y \texttt{docker-compose.yml} que contiene las instrucciones para construir la imagen. También se incluye un fichero \texttt{requirements.txt} que contiene las dependencias necesarias para ejecutar el código del \gls{contenedor}, además de cada uno de los ficheros \texttt{.py} que contienen la implementación de cada uno de los componentes de cada \gls{contenedor}.  
+En el directorio \texttt{docker} se encuentran los ficheros necesarios para construir la \gls{imagen Docker}. Este directorio contiene los ficheros \texttt{Dockerfile} y \texttt{docker-compose.yml} que contiene las instrucciones para construir la imagen. También se incluye un fichero \texttt{requirements.txt} que contiene las dependencias necesarias para ejecutar el código del \gls{contenedor}, además de cada uno de los ficheros \texttt{.py} que contienen la implementación de cada uno de los componentes de cada \gls{contenedor}.  
 
-Por último, en el directiorio \texttt{src} se encuentra el fichero \texttt{run\_proyect.sh} que permite desplegar la parte correspondiente al lado servidor. 
+Por último, en el directorio \texttt{src} se encuentra el fichero \texttt{start\_proyect.sh} que permite desplegar la parte correspondiente al lado servidor. 
 
 \subsection{Uso de librerías y dependencias} \label{subsec:uso_librerias_dependencias}
 
 En esta sección se describen las librerías y dependencias utilizadas en el proyecto, así como su propósito y cómo se integran en el sistema. Las dependencias y librerías se engloban en dos grupos: las del lado cliente y las del lado servidor.
 
 \subsubsection{Lado cliente}
-Dado que el lado cliente se desarrolla en JavaScript, se ha usado NodeJS como entorno de ejecución y gestor de paquetes. Para la gestión de dependencias se ha utilizado \texttt{npm} y \texttt{package.json} para definir las dependencias necesarias.
+Dado que el lado cliente se desarrolla en JavaScript, se ha usado NodeJS como en torno de ejecución y gestor de paquetes. Para la gestión de dependencias se ha utilizado \texttt{npm} y \texttt{package.json} para definir las dependencias necesarias.
 Las principales dependencias utilizadas son:
 \begin{itemize}
-    \item \textbf{Parcel} \cite{parcel}: Parcel me permite empaquetar el código JavaScript y sus dependencias en un solo archivo, facilitando la carga y ejecución en el navegador.Permitiendo que se puedan servir los ficheros desde el lado servidor a los navegadores.
+    \item \textbf{Parcel} \cite{parcel}: Parcel me permite empaquetar el código JavaScript y sus dependencias en un solo archivo, facilitando la carga y ejecución en el navegador. Permitiendo que se puedan servir los ficheros desde el lado servidor a los navegadores.
     \item \textbf{CodeMirror} \cite{codemirror}: CodeMirror es una librería que proporciona un editor de código enriquecido, que permite resaltar la sintaxis y ofrece funcionalidades avanzadas.
     \item \textbf{Socket.io} \cite{socket.io}: Socket.io es una librería que permite la comunicación en tiempo real entre el cliente y el servidor a través de WebSockets. Es una librería fundamental para permitir comunicar el lado cliente con la sesión de depuración que se ejecuta en los diferentes \glspl{contenedor}.
 \end{itemize}
@@ -178,7 +178,7 @@ CMD ["/app/venv/bin/python3", "webSocket.py"]
 \end{lstlisting}
 
 
-Con la imagen preparada solo es necesario indicar cómo se deben de desplegar. Para ello se usará el fichero \texttt{/src/docker/docker-compose.yml}. Este fichero tendrá la configuración de las \gls{variables de entorno} que se usan en el código, con la información sobre los host y puertos, de la red a la que se tiene que contectar y del mapeo de puertos que tiene que realizar el \gls{contenedor}. Además se indicarán los recursos que podrán usar cada docker, en este caso se ha decidido que solo puedan usar 4 \glspl{hilo} y 128MB reservados para ese \gls{contenedor}, con hasta un máximo de 256MB de memoria dinámica. En la figura \ref{lst:docker-compose-debugger} se muestra un fragmento del \texttt{docker-compose.yml} que corresponde con la configuración de un \gls{contenedor} de depuración llamado \texttt{debugger1}. 
+Con la imagen preparada solo es necesario indicar cómo se deben de desplegar. Para ello se usará el fichero \texttt{/src/docker/docker-compose.yml}. Este fichero tendrá la configuración de las \gls{variables de entorno} que se usan en el código, con la información sobre los hosts y puertos, de la red a la que se tiene que conectar y del mapeo de puertos que tiene que realizar el \gls{contenedor}. Además se indicarán los recursos que podrán usar cada docker, en este caso se ha decidido que solo puedan usar 4 \glspl{hilo} y 128 MB reservados para ese \gls{contenedor}, con hasta un máximo de 256 MB de memoria dinámica. En la figura \ref{lst:docker-compose-debugger} se muestra un fragmento del \texttt{docker-compose.yml} que corresponde con la configuración de un \gls{contenedor} de depuración llamado \texttt{debugger1}.
 
 \begin{lstlisting}[caption={Docker-compose.yml para un contenedor de depuración}, label={lst:docker-compose-debugger}]
 services:
@@ -215,7 +215,7 @@ En el siguiente diagrama \figref{diagrama_despliegue} se muestra el diagrama de 
 
 \drawiosvgfigure[0.8]{diagrama_despliegue}{Diagrama de despliegue del sistema}
 
-El despliegue del lado puede ser desplagado separando en distintas máquinas el \textit{\gls{proxy}} y los \glspl{contenedor}, o bien desplegando todo en la misma máquina. En este caso se ha decidido desplegar el \textit{\gls{proxy}} y los \glspl{contenedor} en la misma máquina, pero se puede desplegar de manera separada. Por esta razón las especificaciones técnicas se han separado en los 3 principales componentes aunque el despliegue se realice en la misma máquina.
+El sistema puede desplegarse de manera que el \textit{\gls{proxy}} y los \glspl{contenedor} estén en diferentes máquinas, o bien desplegando todo en la misma máquina. En este caso se ha decidido desplegar el \textit{\gls{proxy}} y los \glspl{contenedor} en la misma máquina, pero se puede desplegar de manera separada cambiando la red de docker e indicando las IP correspondientes. Por esta razón las especificaciones técnicas se han separado en los 3 principales componentes aunque el despliegue se realice en la misma máquina.
 
 Las especificaciones técnicas recomendadas para el despliegue del sistema son las siguientes:
 
@@ -228,7 +228,7 @@ Las especificaciones técnicas recomendadas para el despliegue del sistema son l
     \toprule
     Especificación    & \textbf{Servicio de Sesiones de Depuración}                                                                & \textbf{Máquina Proxy}            & \textbf{Máquina de Lado Cliente}  \\ \midrule
     CPU               & \begin{tabular}[c]{@{}c@{}}4 núcleos $\times$ (número de sesiones)\\ Intel Core i7-13700 or superior\end{tabular} & Intel® CoreTM i3 CPU 6300 & CPU con al menos 2 núcleos \\
-    RAM               & \begin{tabular}[c]{@{}c@{}}512 Mb $\times$ (número de sesiones) \\ 4 GB o superior\end{tabular}                   & 2 GB o superior                   & 2GB o superior                    \\
+    RAM               & \begin{tabular}[c]{@{}c@{}}512 MB $\times$ (número de sesiones) \\ 4 GB o superior\end{tabular}                   & 2 GB o superior                   & 2 GB o superior                    \\
         Almacenamiento    & 2 GB $\times$ (número de sesiones)                                                                                & 2 GB o superior                   & 100 MB                            \\
         Sistema Operativo & Ubuntu 24.04 LTS                                                                                           & Ubuntu 24.04 LTS                  & Cualquiera                        \\ \bottomrule
     \end{tabular}

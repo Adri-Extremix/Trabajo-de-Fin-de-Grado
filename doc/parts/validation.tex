@@ -1,6 +1,6 @@
 \chapter{Validación y Verificación}\label{chap:validacion}
 
-En este capitulo se presentará la validación y verificación del sistema desarrollado. El objetivo de esta sección es comprobar que el sistema cumple con los requisitos establecidos en el capitulo \chapterref{analisis}. 
+En este capítulo se presentará la validación y verificación del sistema desarrollado. El objetivo de esta sección es comprobar que el sistema cumple con los requisitos establecidos en el capítulo \chapterref{analisis}. 
 
 La verificación busca comprobar que el sistema cumple con los requisitos establecidos en la fase de análisis \cite{IEEE-Validation-Verification}, mientras que la validación busca comprobar que el sistema cumple con las expectativas del cliente \cite{IEEE-Validation-Verification}. 
 Es por esto que se desarrollarán dos tipos de pruebas: pruebas de verificación (\sectionref{verificacion}) y pruebas de validación (\sectionref{validacion}). 
@@ -20,9 +20,9 @@ Para conseguir verificar que el sistema cumple con los requisitos establecidos s
     {OK}
     {FN-GUI, FN-editor, FN-editor-breakpoint, FN-aplicacion-web, NF-multiplataforma}
     \begin{enumerate}
-        \item Acceder a la URL del sistema desde el navegador
-        \item Escribir código en C
-        \item Comprobar que el código se muestra con resaltado de sintaxis
+        \item Acceder a la URL del sistema desde el navegador.
+        \item Escribir código en C.
+        \item Comprobar que el código se muestra con resaltado de sintaxis.
     \end{enumerate}
     \end{testCase}
 
@@ -33,11 +33,11 @@ Para conseguir verificar que el sistema cumple con los requisitos establecidos s
         {OK}
         {FN-fichero-codigo, FN-compilacion, FN-ejecutar, FN-aviso-error-concurrencia, FN-aplicacion-web, FN-arquitectura-distribuida, FN-comunicacion-websockets, NF-compilador, NF-ejecucion, NF-ejecucion-POSIX, NF-abstraccion-so, NF-abstraccion-arch, NF-sandbox, NF-multiplataforma, NF-docker}
         \begin{enumerate}
-            \item Escribir código en C
-            \item Compilar el código
-            \item Consultar la salida de la compilación
-            \item Ejecutar el código
-            \item Consultar la salida de la ejecución
+            \item Escribir código en C.
+            \item Compilar el código.
+            \item Consultar la salida de la compilación.
+            \item Ejecutar el código.
+            \item Consultar la salida de la ejecución.
         \end{enumerate}
     \end{testCase}
 
@@ -48,14 +48,14 @@ Para conseguir verificar que el sistema cumple con los requisitos establecidos s
         {OK}
         {FN-editor-breakpoint, FN-depurar, FN-continuar-ejecucion, FN-visualizacion-hilos, FN-visualizacion-variables, FN-arquitectura-distribuida, FN-comunicacion-websockets, NF-ejecucion-POSIX, NF-depuracion-c, NF-abstraccion-so, NF-abstraccion-arch, NF-informacion-depuracion, NF-estabilidad, NF-sandbox, NF-multiplataformama, NF-docker}
         \begin{enumerate}
-            \item Colocar un breakpoint en el código
-            \item Compilar el código
-            \item Pasar a modo depuración
-            \item Comenzar la depuración
-            \item Observar que el programa se ha detenido en el breakpoint
-            \item Comprobar que se muestra la información al completo del estado del programa en el momento de la parada
-            \item Continuar la ejecución del programa
-            \item Comprobar que se ha finalizado la ejecución del programa
+            \item Colocar un breakpoint en el código.
+            \item Compilar el código.
+            \item Pasar a modo depuración.
+            \item Comenzar la depuración.
+            \item Observar que el programa se ha detenido en el breakpoint.
+            \item Comprobar que se muestra la información al completo del estado del programa en el momento de la parada.
+            \item Continuar la ejecución del programa.
+            \item Comprobar que se ha finalizado la ejecución del programa.
         \end{enumerate}
     \end{testCase}
 
@@ -67,14 +67,14 @@ Para conseguir verificar que el sistema cumple con los requisitos establecidos s
         {FN-editor-breakpoint, FN-depurar, FN-step-over, FN-step-into, FN-step-out, FN-visualizacion-hilos, FN-visualizacion-variables, FN-arquitectura-distribuida, FN-comunicacion-websockets, NF-ejecucion-POSIX, NF-depuracion-c, NF-abstraccion-so, NF-abstraccion-arch, NF-informacion-depuracion, NF-estabilidad, NF-sandbox, NF-multiplataforma, NF-docker}
 
         \begin{enumerate}
-            \item Comenzar la depuración
-            \item Observar que el programa se ha detenido en el breakpoint
-            \item Realizar un step-over del hilo seleccionado
-            \item Comprobar que solo ha avanzado el hilo seleccionado
-            \item Realizar un step-into del hilo seleccionado
-            \item Comprobar que se ha entrado en la función del código del hilo seleccionado
-            \item Realizar un step-out del hilo seleccionado
-            \item Comprobar que se ha salido de la función del código del hilo seleccionado
+            \item Comenzar la depuración.
+            \item Observar que el programa se ha detenido en el breakpoint.
+            \item Realizar un step-over del hilo seleccionado.
+            \item Comprobar que solo ha avanzado el hilo seleccionado.
+            \item Realizar un step-into del hilo seleccionado.
+            \item Comprobar que se ha entrado en la función del código del hilo seleccionado.
+            \item Realizar un step-out del hilo seleccionado.
+            \item Comprobar que se ha salido de la función del código del hilo seleccionado.
         \end{enumerate}
     \end{testCase}
 
@@ -85,14 +85,14 @@ Para conseguir verificar que el sistema cumple con los requisitos establecidos s
         {OK}
         {FN-editor-breakpoint, FN-depurar, FN-rebobinar, FN-visualizacion-hilos, FN-visualizacion-variables, FN-arquitectura-distribuida, FN-comunicacion-websockets, NF-ejecucion-POSIX, NF-depuracion-c, NF-abstraccion-so, NF-abstraccion-arch, NF-informacion-depuracion, NF-estabilidad, NF-sandbox, NF-multiplataforma, NF-docker}
         \begin{enumerate}
-            \item Iniciar la depuración
-            \item Observar que el programa se ha detenido en el breakpoint
-            \item Comprobar que se muestra la información al completo del estado del programa en el momento de la parada
-            \item Avanzar la ejecución del programa hasta el siguiente breakpoint
-            \item Observar que el programa se ha detenido en el siguiente breakpoint
-            \item Comprobar que se muestra la información al completo del estado del programa en el momento de la parada
-            \item Rebobinar la ejecución, volviendo al breakpoint anterior
-            \item Comprobar que se la información que se muestra es la misma que en el momento de la anterior parada
+            \item Iniciar la depuración.
+            \item Observar que el programa se ha detenido en el breakpoint.
+            \item Comprobar que se muestra la información al completo del estado del programa en el momento de la parada.
+            \item Avanzar la ejecución del programa hasta el siguiente breakpoint.
+            \item Observar que el programa se ha detenido en el siguiente breakpoint.
+            \item Comprobar que se muestra la información al completo del estado del programa en el momento de la parada.
+            \item Rebobinar la ejecución, volviendo al breakpoint anterior.
+            \item Comprobar que se la información que se muestra es la misma que en el momento de la anterior parada.
         \end{enumerate}
     \end{testCase}
 
@@ -103,16 +103,16 @@ Para conseguir verificar que el sistema cumple con los requisitos establecidos s
         {OK}
         {FN-editor-breakpoint, FN-depurar, FN-rebobinar, FN-visualizacion-hilos, FN-visualizacion-variables, FN-arquitectura-distribuida, FN-comunicacion-websockets, NF-ejecucion-POSIX, NF-depuracion-c, NF-abstraccion-so, NF-abstraccion-arch, NF-informacion-depuracion, NF-estabilidad, NF-sandbox, NF-multiplataforma, NF-docker}
         \begin{enumerate}
-            \item Iniciar la depuración
-            \item Avanzar la ejecución del programa con un step-over
-            \item Rebobinar la ejecución con un rebobinado del step-over
-            \item Comprobar que el programa se encuentra en el mismo estado que antes de realizar el step-over
-            \item Avanzar la ejecución del programa con un step-into
-            \item Rebobinar la ejecución con un rebobinado del step-into
-            \item Comprobar que el programa se encuentra en el mismo estado que antes de realizar el step-into
-            \item Avanzar la ejecución del programa con un step-out
-            \item Rebobinar la ejecución con un rebobinado del step-out
-            \item Comprobar que el programa se encuentra en el mismo estado que antes de realizar el step-out
+            \item Iniciar la depuración.
+            \item Avanzar la ejecución del programa con un step-over.
+            \item Rebobinar la ejecución con un rebobinado del step-over.
+            \item Comprobar que el programa se encuentra en el mismo estado que antes de realizar el step-over.
+            \item Avanzar la ejecución del programa con un step-into.
+            \item Rebobinar la ejecución con un rebobinado del step-into.
+            \item Comprobar que el programa se encuentra en el mismo estado que antes de realizar el step-into.
+            \item Avanzar la ejecución del programa con un step-out.
+            \item Rebobinar la ejecución con un rebobinado del step-out.
+            \item Comprobar que el programa se encuentra en el mismo estado que antes de realizar el step-out.
         \end{enumerate}
     \end{testCase}
     
@@ -123,12 +123,12 @@ Para conseguir verificar que el sistema cumple con los requisitos establecidos s
         {OK}
         {FN-depurar, FN-visualizacion-hilos, FN-visualizacion-variables, FN-visualizacion-evolucion, FN-aplicacion-web, NF-ejecucion-POSIX, NF-depuracion-c, NF-abstraccion-so, NF-abstraccion-arch, NF-informacion-depuracion, NF-estabilidad, NF-sandbox, NF-multiplataforma}
         \begin{enumerate}
-            \item Tener un código en C donde varios hilos accedan a una variable global
-            \item Colocar varios breakpoints en el código
-            \item Iniciar la depuración
-            \item Observar que el programa se ha parado en el primer breakpoint y que la variable global ya ha sido modificada por un hilo
-            \item Avanzar la ejecución del programa hasta el siguiente breakpoint
-            \item Observar que el programa se ha parado en el segundo breakpoint y que la variable global ya ha sido modificada por otro hilo, mostrando el valor anterior y el nuevo valor
+            \item Tener un código en C donde varios hilos accedan a una variable global.
+            \item Colocar varios breakpoints en el código.
+            \item Iniciar la depuración.
+            \item Observar que el programa se ha parado en el primer breakpoint y que la variable global ya ha sido modificada por un hilo.
+            \item Avanzar la ejecución del programa hasta el siguiente breakpoint.
+            \item Observar que el programa se ha parado en el segundo breakpoint y que la variable global ya ha sido modificada por otro hilo, mostrando el valor anterior y el nuevo valor.
         \end{enumerate}
     \end{testCase}
 
@@ -154,9 +154,9 @@ Para conseguir validar que el sistema cumple con las expectativas del cliente se
     {OK}
     {CA-escribir-codigo, CA-c-highlight, RE-depurar-c, RE-multiplataforma}
     \begin{enumerate}
-        \item Acceder a la URL del sistema desde el navegador de cualquier dispositivo
-        \item Escribir código en C
-        \item Comprobar que el código se muestra con resaltado de sintaxis
+        \item Acceder a la URL del sistema desde el navegador de cualquier dispositivo.
+        \item Escribir código en C.
+        \item Comprobar que el código se muestra con resaltado de sintaxis.
     \end{enumerate}
 \end{testCase}
 
@@ -167,13 +167,13 @@ Para conseguir validar que el sistema cumple con las expectativas del cliente se
     {OK}
     {CA-compilar-codigo, CA-ejecutar-codigo, CA-aviso-error-concurrencia, RE-compilar-c, RE-ejecutar-c, RE-abstraccion-so, RE-abstraccion-arch, RE-abstraccion-comp}
     \begin{enumerate}
-        \item Escribir código en C
-        \item Compilar el código
-        \item Consultar la salida de la compilación
-        \item Comprobar que se muestra un aviso en caso de error de concurrencia
-        \item Ejecutar el código
-        \item Consultar la salida de la ejecución
-        \item Comprobar que se ha ejecutado correctamente
+        \item Escribir código en C.
+        \item Compilar el código.
+        \item Consultar la salida de la compilación.
+        \item Comprobar que se muestra un aviso en caso de error de concurrencia.
+        \item Ejecutar el código.
+        \item Consultar la salida de la ejecución.
+        \item Comprobar que se ha ejecutado correctamente.
     \end{enumerate}
 \end{testCase}
 
@@ -184,9 +184,9 @@ Para conseguir validar que el sistema cumple con las expectativas del cliente se
     {OK}
     {CA-compilar-codigo, CA-aviso-error-concurrencia, RE-compilar-c, RE-abstraccion-so, RE-abstraccion-arch, RE-abstraccion-comp}
     \begin{enumerate}
-        \item Escribir código en C con errores de concurrencia
-        \item Compilar el código
-        \item Comprobar que se muestra un aviso en caso de error de concurrencia
+        \item Escribir código en C con errores de concurrencia.
+        \item Compilar el código.
+        \item Comprobar que se muestra un aviso en caso de error de concurrencia.
     \end{enumerate}
 \end{testCase}
 
@@ -197,14 +197,14 @@ Para conseguir validar que el sistema cumple con las expectativas del cliente se
     {OK}
     {CA-sistema, CA-depurar-codigo, CA-depurar-parar-ejecucion, CA-visibilidad-hilos, CA-visibilidad-variables, RE-depuracion-c, RE-abstraccion-so, RE-abstraccion-arch, RE-abstraccion-memoria, RE-abstraccion-codigo-no-propio}
     \begin{enumerate}
-        \item Colocar un breakpoint en el código
-        \item Compilar el código
-        \item Pasar a modo depuración
-        \item Comenzar la depuración
-        \item Observar que el programa se ha detenido en el breakpoint
-        \item Comprobar que se muestra la información al completo del estado del programa en el momento de la parada
-        \item Continuar la ejecución del programa
-        \item Comprobar que se ha finalizado la ejecución del programa
+        \item Colocar un breakpoint en el código.
+        \item Compilar el código.
+        \item Pasar a modo depuración.
+        \item Comenzar la depuración.
+        \item Observar que el programa se ha detenido en el breakpoint.
+        \item Comprobar que se muestra la información al completo del estado del programa en el momento de la parada.
+        \item Continuar la ejecución del programa.
+        \item Comprobar que se ha finalizado la ejecución del programa.
     \end{enumerate}
 \end{testCase}
 
@@ -215,10 +215,10 @@ Para conseguir validar que el sistema cumple con las expectativas del cliente se
     {OK}
     {CA-sistema, CA-depurar-codigo, CA-depurar-paso, CA-visibilidad-hilos, CA-visibilidad-variables, RE-depuracion-c, RE-abstraccion-so, RE-abstraccion-arch, RE-abstraccion-memoria, RE-abstraccion-codigo-no-propio}
     \begin{enumerate}
-        \item Comenzar la depuración
-        \item Observar que el programa se ha detenido en el breakpoint
-        \item Continuar la ejecución del programa avanzando un paso
-        \item Comprobar que se ha avanzado un paso en la ejecución del programa para el hilo seleccionado
+        \item Comenzar la depuración.
+        \item Observar que el programa se ha detenido en el breakpoint.
+        \item Continuar la ejecución del programa avanzando un paso.
+        \item Comprobar que se ha avanzado un paso en la ejecución del programa para el hilo seleccionado.
     \end{enumerate}
 \end{testCase}
     
@@ -229,12 +229,12 @@ Para conseguir validar que el sistema cumple con las expectativas del cliente se
     {OK}
     {CA-sistema, CA-depurar-codigo, CA-visibilidad-hilos, CA-visibilidad-variables, CA-depurar-rebobinar, RE-depuracion-c, RE-abstraccion-so, RE-abstraccion-arch, RE-abstraccion-memoria, RE-abstraccion-codigo-no-propio}
     \begin{enumerate}
-        \item Iniciar la depuración
-        \item Observar que el programa se ha detenido en el primer breakpoint
-        \item Avanzar la ejecución del programa hasta el siguiente breakpoint
-        \item Observar que el programa se ha detenido en el segundo breakpoint
-        \item Rebobinar la ejecución, volviendo al breakpoint anterior
-        \item Comprobar que la información que se muestra es la misma que en el momento de la anterior parada
+        \item Iniciar la depuración.
+        \item Observar que el programa se ha detenido en el primer breakpoint.
+        \item Avanzar la ejecución del programa hasta el siguiente breakpoint.
+        \item Observar que el programa se ha detenido en el segundo breakpoint.
+        \item Rebobinar la ejecución, volviendo al breakpoint anterior.
+        \item Comprobar que la información que se muestra es la misma que en el momento de la anterior parada.
     \end{enumerate}
 \end{testCase}
 
@@ -245,12 +245,12 @@ Para conseguir validar que el sistema cumple con las expectativas del cliente se
     {OK}
     {CA-sistema, CA-depurar-codigo, CA-visibilidad-hilos, CA-visibilidad-variables, CA-evolucion-hilos, RE-depuracion-c, RE-abstraccion-so, RE-abstraccion-arch, RE-abstraccion-memoria, RE-abstraccion-codigo-no-propio}
     \begin{enumerate}
-        \item Tener un código en C donde varios hilos accedan a una variable global
-        \item Colocar varios breakpoints en el código
-        \item Iniciar la depuración
-        \item Observar que el programa se ha parado en el primer breakpoint y que la variable global ya ha sido modificada por un hilo
-        \item Avanzar la ejecución del programa hasta el siguiente breakpoint
-        \item Observar que el programa se ha parado en el segundo breakpoint y que la variable global ya ha sido modificada por otro hilo, mostrando el valor anterior y el nuevo valor
+        \item Tener un código en C donde varios hilos accedan a una variable global.
+        \item Colocar varios breakpoints en el código.
+        \item Iniciar la depuración.
+        \item Observar que el programa se ha parado en el primer breakpoint y que la variable global ya ha sido modificada por un hilo.
+        \item Avanzar la ejecución del programa hasta el siguiente breakpoint.
+        \item Observar que el programa se ha parado en el segundo breakpoint y que la variable global ya ha sido modificada por otro hilo, mostrando el valor anterior y el nuevo valor.
     \end{enumerate}
 \end{testCase}
 
@@ -261,10 +261,10 @@ Para conseguir validar que el sistema cumple con las expectativas del cliente se
     {OK}
     {CA-sistema, CA-compilar-codigo, CA-ejecutar-codigo, RE-seguridad}
     \begin{enumerate}
-        \item Se debe de escribir un código malicioso en el editor, como por ejemplo una \textit{bomba fork}
-        \item Compilar el código
-        \item Ejecutar el código
-        \item Comprobar que el sistema no se ve afectado por el código malicioso        
+        \item Se debe de escribir un código malicioso en el editor, como por ejemplo una \textit{bomba fork}.
+        \item Compilar el código.
+        \item Ejecutar el código.
+        \item Comprobar que el sistema no se ve afectado por el código malicioso.
     \end{enumerate}
 \end{testCase}
     

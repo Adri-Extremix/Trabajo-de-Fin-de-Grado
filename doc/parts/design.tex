@@ -1,6 +1,6 @@
 \chapter{Diseño}\label{chap:diseno}
 
-En este capítulo se detalla el diseño que tendrá la solución propuesta. Para ello se discutirán sobre las posibles alternativas y cuál de ellas ha sido elegida (\sectionref{estudio-solucion-final}) y posteriormente, se describirá la arquitectura del sistema (\sectionref{arquitectura-sistema}) en base a la solución final elegida.
+En este capítulo se detalla el diseño que tendrá la solución propuesta. Para ello se discutirán sobre las posibles alternativas y cuál de ellas ha sido elegida (\sectionref{estudio-solucion-final}) y posteriormente, se describirá la arquitectura del sistema (\sectionref{arquitectura-sistema}) a partir de la solución final elegida.
 
 \section{Construcción de la solución final}\label{sec:estudio-solucion-final}
 
@@ -18,7 +18,7 @@ Una \gls{aplicación monolítica} \cite{DistributedSystems} es aquella que se ej
 
 Una \gls{aplicación distribuida} \cite {DistributedSystems} es aquella que se ejecuta en múltiples \glspl{proceso}. Este tipo de aplicaciones tienen una mayor complejidad de desarrollar, debido a la comunicación entre \glspl{proceso}. Sin embargo, una \gls{aplicación distribuida} que sirva un \gls{servicio web} podría funcionar en cualquier sistema operativo, dado que solo ejecutaría el código del cliente,
 
-\subsection{Elección de la arquitectura} \label{subsec:eleccion-arquitectura}
+\subsubsection{Elección de la arquitectura} \label{subsec:eleccion-arquitectura}
 
 Tras exponer las ventajas y desventajas de cada una de las arquitecturas, se ha decidido optar por una arquitectura distribuida. La arquitectura monolítica no es una opción viable, ya que para cumplir con los requisitos \sreqref{NF-abstraccion-so}, \sreqref{NF-abstraccion-arch} y \sreqref{NF-multiplataforma} sería necesario compilar el \gls{código fuente} para cada sistema operativo y arquitectura. Esto supondría un gran esfuerzo de desarrollo y mantenimiento, ya que habría que mantener diferentes versiones del \gls{código fuente} para cada sistema operativo y arquitectura.
 
@@ -53,7 +53,7 @@ Si se optara por no usar un entorno aislado, el código del cliente se ejecutar�
 Por otro lado, si se opta por un entorno aislado, el código del cliente se ejecutará en un entorno controlado y limitado. Esto evitaría que el código del cliente pudiera acceder a la memoria o a los ficheros del servidor, lo que aumentaría la seguridad del sistema. 
 
 \subsection{Elección de entorno sandbox} \label{subsec:eleccion-sandbox}
-Dadas las ventajas que supone el uso de un entorno aislado y la necesidad de cumplir con  el requisito \sreqref{NF-sandbox}, "\textit{el sistema debe de ejecutar el código en un entorno aislado para evitar problemas de seguridad o disponibilidad}". Para ello, se optó por utilizar \glspl{contenedor} Docker en los que se ejecutarán los programas. De esta manera cualquier código malicioso no podrá acceder a los archivos del sistema ni atacar a la disponibilidad del servidor. Además se limitarán los recursos de los \glspl{contenedor} para controlar el uso de los mismos.
+Dadas las ventajas que supone el uso de un entorno aislado y la necesidad de cumplir con  el requisito \sreqref{NF-sandbox}, \textit{“el sistema debe de ejecutar el código en un entorno aislado para evitar problemas de seguridad o disponibilidad”}. Para ello, se optó por utilizar \glspl{contenedor} Docker en los que se ejecutarán los programas. De esta manera cualquier código malicioso no podrá acceder a los archivos del sistema ni atacar a la disponibilidad del servidor. Además se limitarán los recursos de los \glspl{contenedor} para controlar el uso de los mismos.
 
 La principal dificultad que supone incorporar \glspl{contenedor} es controlar la disponibilidad de cada uno de ellos. Las características del proyecto nos obligan a que la comunicación entre cliente y docker sea por sesión, lo que implica que durante la sesión el docker no estará disponible para servir a ningún otro cliente. Una posible solución es que la responsabilidad del servidor sea servir los ficheros estáticos del cliente y redirigir los mensajes del cliente al contenedor asociado a la sesión correspondiente y gestionar las comunicaciones entre clientes y \glspl{contenedor}. Esta solución podría generar un \gls{cuello de botella} en el componente servidor en el caso de tener muchos clientes activos, dado que todas las comunicaciones pasarían por el servidor.
 
@@ -88,7 +88,7 @@ Dada la arquitectura distribuida del sistema, se necesita usar un lenguaje de pr
 
 \subsubsection{Tecnologías del lado cliente} \label{subsubsec:tecnologias-cliente}
 
-Para la construcción de la aplicación web se ha basará en HTML5 para dar estructura al código, CSS3 para dar estilos, y JavaScript para implementar las distintas funcionalidades. Se ha decidido elegir este \textit{Stack} por ser el más básico y el que más experiencia se tiene. Este \textit{Stack} será más que suficiente dado que el lado cliente no será de gran envergadura y no necesitará más que unos pocos botones, un editor de código y una comunicación a través de WebSockets.
+Para la construcción de la aplicación web se ha basado en HTML5 para dar estructura al código, CSS3 para dar estilos, y JavaScript para implementar las distintas funcionalidades. Se ha decidido elegir este \textit{Stack} por ser el más básico y el que más experiencia se tiene. Este \textit{Stack} será más que suficiente dado que el lado cliente no será de gran envergadura y no necesitará más que unos pocos botones, un editor de código y una comunicación a través de WebSockets.
 
 
 \subsubsection{Tecnologías del lado servidor} \label{sec:tecnologias-servidor}
@@ -97,10 +97,10 @@ En cuanto al lenguaje de programación del lado servidor es necesario elegir un 
 Dentro de las opciones destacan Python, Go, Rust y NodeJS, por lo que vamos a analizar cada una de ellas.
 
 \begin{itemize}
-    \item \textbf{Python}: Un lenguaje de programación interpretado, muy versátil, aunque con un rendimiento moderado. Gracias a frameworks como Flask para implementar APIs REST, aiohttp o FastAPI para WebSockets, y al módulo threading, para la concurrencia, es una opción viable.
-    \item \textbf{Go}: Un lenguaje de programación compilado, con un buen rendimiento y orientado en la concurrencia y el procesamiento en la red. Su soporte nativo para WebSockets mediante goroutines, y frameworks como Gin o Echo para APIs REST lo hacen ideal para este tipo de comunicación.
-    \item \textbf{Rust}: Un lenguaje de programación compilado, con un gran rendimiento, aunque con una curva de aprendizaje pronunciada. Tiene bibliotecas como Actix-web para APIs REST y WebSockets, pero no es la más recomendable por su complejidad. 
-    \item \textbf{NodeJS}: Un lenguaje de programación interpretado con excelente soporte tanto para APIs REST (Express.js) como para WebSockets (Socket.io), aunque su concurrencia se basa en un solo hilo utilizando un bucle de eventos y un modelo asíncrono; lo que no es un paralelismo real. Su modelo no es ideal para operaciones intensivas en CPU.
+    \item \textbf{Python}: Un lenguaje de programación interpretado, muy versátil, aunque con un rendimiento moderado. Gracias a frameworks como Flask para implementar \textit{API} REST, aiohttp o FastAPI para WebSockets, y al módulo threading, para la concurrencia, es una opción viable.
+    \item \textbf{Go}: Un lenguaje de programación compilado, con un buen rendimiento y orientado en la concurrencia y el procesamiento en la red. Su soporte nativo para WebSockets mediante goroutines, y frameworks como Gin o Echo para \textit{API} REST lo hacen ideal para este tipo de comunicación.
+    \item \textbf{Rust}: Un lenguaje de programación compilado, con un gran rendimiento, aunque con una curva de aprendizaje pronunciada. Tiene bibliotecas como Actix-web para \textit{API} REST y WebSockets, pero no es la más recomendable por su complejidad.
+    \item \textbf{NodeJS}: Un lenguaje de programación interpretado con excelente soporte tanto para \textit{API} REST (Express.js) como para WebSockets (Socket.io), aunque su concurrencia se basa en un solo hilo utilizando un bucle de eventos y un modelo asíncrono; lo que no es un paralelismo real. Su modelo no es ideal para operaciones intensivas en CPU.
 \end{itemize}
 
 Tanto Go como Python son lenguajes adecuados para el proyecto. Aunque Go ofrece un rendimiento superior, la disponibilidad de la biblioteca Python \textit{pygdbmi}, que facilita la gestión de una sesión RR/GDB y la obtención de la salida MI en formato JSON, convierte a Python en la opción más conveniente.
@@ -215,7 +215,7 @@ La Interfaz Gráfica debe de gestionar la interacción del usuario con la aplica
 {Punto de comunicación por Web Socket desde el cliente al servidor}
 {COM-Editor de Código, COM-Web Socket y REST API Servidor} % dependencias
 {Mensajes del servidor} % in-data
-{Cambios del sistema ,Mensajes del cliente} % out-data
+{Cambios del sistema, Mensajes del cliente} % out-data
 {FN-comunicacion-websockets, FN-arquitectura-distribuida} % relations
 La comunicación con el servidor se encargará de gestionar la comunicación entre el cliente y el servidor a través de Web Sockets. %description
 \end{component}
@@ -255,7 +255,7 @@ La comunicación con los contenedores se encargará de gestionar la comunicació
 {Se encarga de compilar el código recibido y ejecutarlo sin modo depuración}
 {COM-Web Socket Docker}
 {Código}
-{Salida Estándar}
+{Salida estándar}
 {FN-fichero-codigo, FN-compilacion, FN-ejecutar, FN-aviso-error-concurrencia, NF-docker}
 Este componente se encarga de realizar acciones básicas que no están relacionadas directamente con la depuración, como compilar el código y ejecutarlo.
 \end{component}
@@ -310,7 +310,7 @@ La interfaz gráfica del sistema se ha diseñado para facilitar la interacción 
         \caption{Mockup de la interfaz gráfica del sistema} 
         \label{fig:Mockup}
       }%
-      {\includesvg[inkscapelatex=false,width=0.95\textwidth]{Mockup.svg}}
+      {\includesvg[inkscapelatex=false, width=0.95\textwidth]{Mockup.svg}}
   \end{figure}
 
 La interfaz gráfica se divide en dos secciones:
@@ -365,6 +365,9 @@ Tal y como se ha desarrollado en \subsectionref{diagrama-secuencia-depuracion}, 
     {
     \begin{tcolorbox}
         \dirtree{%
+        .1 Variables Globales.
+            .2 mutex: 0x12345678.
+            .2 global: 18.
         .1 Hilos. 
             .2 Hilo-1:.
                 .3 function: "main".
