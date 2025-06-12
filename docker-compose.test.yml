@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: tfg-test-runner
+    volumes:
+      - ./test:/app/test
+      - ./examples:/app/examples
+      - ./src:/app/src
+    environment:
+      - PYTHONPATH=/app/src
+    privileged: true  # Necesario para RR
+    security_opt:
+      - seccomp:unconfined  # Necesario para ptrace/debugging
+    cap_add:
+      - SYS_PTRACE  # Necesario para GDB
+    networks:
+      - test-network
+    command: /app/run_tests.sh
+
+  # Servicio alternativo para ejecutar tests específicos
+  test-interactive:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: tfg-test-interactive
+    volumes:
+      - ./test:/app/test
+      - ./examples:/app/examples
+      - ./src:/app/src
+    environment:
+      - PYTHONPATH=/app/src
+    privileged: true
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - SYS_PTRACE
+    networks:
+      - test-network
+    command: tail -f /dev/null  # Mantener contenedor activo
+    profiles:
+      - interactive
+
+networks:
+  test-network:
+    driver: bridge

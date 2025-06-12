@@ -27,7 +27,7 @@ COPY examples/ ./examples/
 
 # Compilar los ejemplos
 WORKDIR /app/examples
-RUN gcc -g -pthread -o prueba1 prueba1.c
+RUN gcc -g -pthread -o prueba1.o prueba1.c
 
 # Volver al directorio principal
 WORKDIR /app/src/docker

@@ -9,7 +9,7 @@ import unittest
 import glob
 import subprocess
 from pprint import pprint
-from back.debugger import Debugger
+from docker.debugger import Debugger
 
 class TestDebugger(unittest.TestCase):
 
@@ -111,4 +111,4 @@ class TestDebugger(unittest.TestCase):
         debugger = Debugger(self.c_files[0], self.binary_files[0])
         debugger.run()
         self.assertEqual(debugger.threads, {}, "Run method in code 1 is not working correctly")
-            
+

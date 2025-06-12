@@ -1,0 +1,80 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    gdb \
+    gcc \
+    python3 \
+    python3-pip \
+    python3-dev \
+    build-essential \
+    python3-venv \
+    wget \
+    git \
+    cmake \
+    zlib1g-dev \
+    pkg-config \
+    ccache \
+    gcc-multilib \
+    g++-multilib \
+    libc6-dev-i386 \
+    capnproto \
+    libcapnp-dev \
+    libzstd-dev \
+    python3-pexpect \
+    lldb \
+    liblldb-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalar RR (Record and Replay debugger) con soporte de 32-bit deshabilitado
+RUN git clone https://github.com/rr-debugger/rr.git /tmp/rr \
+    && cd /tmp/rr \
+    && mkdir build \
+    && cd build \
+    && cmake -Ddisable32bit=ON .. \
+    && make -j$(nproc) \
+    && make install \
+    && rm -rf /tmp/rr
+
+WORKDIR /app
+
+# Crear entorno virtual de Python
+RUN python3 -m venv /venv \
+    && . /venv/bin/activate \
+    && pip install --upgrade pip
+
+# Instalar dependencias de Python
+COPY src/docker/requirements.txt ./requirements.txt
+RUN /venv/bin/pip install -r requirements.txt
+
+# Copiar toda la estructura necesaria
+COPY src/ ./src/
+COPY examples/ ./examples/
+COPY test/ ./test/
+
+# Compilar los ejemplos para los tests
+WORKDIR /app/examples
+RUN gcc -g -O0 -pthread prueba1.c -o prueba1.out \
+    && gcc -g -O0 -pthread prueba2.c -o prueba2.out \
+    && gcc -g -O0 -pthread prueba3.c -o prueba3.out
+
+# Configurar el entorno para RR
+RUN echo 'kernel.perf_event_paranoid = 1' >> /etc/sysctl.conf
+
+# Volver al directorio principal
+WORKDIR /app
+
+# Script para ejecutar tests
+RUN echo '#!/bin/bash\n\
+source /venv/bin/activate\n\
+echo "=== Ejecutando tests unitarios ==="\n\
+cd /app/test\n\
+python -m unittest test_debugger.py -v\n\
+echo "\n=== Ejecutando tests funcionales ==="\n\
+python functional_test_debugger.py\n\
+' > /app/run_tests.sh \
+    && chmod +x /app/run_tests.sh
+
+CMD ["/app/run_tests.sh"]
