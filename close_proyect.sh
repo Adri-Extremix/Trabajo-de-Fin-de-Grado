@@ -23,7 +23,7 @@ cd ./src/docker
 if [ -f "docker-compose.yml" ]; then
     echo -e "${GREEN}Deteniendo contenedores de debugger...${NC}"
     docker compose down
-    echo -e "${GREEN}✅ Contenedores de debugger detenidos.${NC}"
+    echo -e "${GREEN} Contenedores de debugger detenidos.${NC}"
 else
     echo -e "${YELLOW}No se encontró el archivo docker-compose.yml para debugger.${NC}"
     # Intentar detener manualmente los contenedores
@@ -35,7 +35,7 @@ cd ../proxy
 if [ -f "docker-compose.yml" ]; then
     echo -e "${GREEN}Deteniendo el proxy...${NC}"
     docker compose down
-    echo -e "${GREEN}✅ Proxy detenido.${NC}"
+    echo -e "${GREEN} Proxy detenido.${NC}"
 else
     echo -e "${YELLOW}No se encontró el archivo docker-compose.yml para proxy.${NC}"
     # Intentar detener manualmente el proxy
@@ -55,7 +55,7 @@ fi
 echo -e "${GREEN}Eliminando la red Docker...${NC}"
 docker network rm debugger_network 2>/dev/null
 if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✅ Red Docker eliminada.${NC}"
+    echo -e "${GREEN} Red Docker eliminada.${NC}"
 else
     echo -e "${YELLOW}No se pudo eliminar la red. Podría estar en uso por otros contenedores.${NC}"
 fi
