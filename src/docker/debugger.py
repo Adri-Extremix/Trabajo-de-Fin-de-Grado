@@ -80,9 +80,10 @@ class Debugger:
         for response in exec_run:
             if response.get("message") == "thread-exited":
                 self.threads.pop(response["payload"]["id"], None)
-        
-        threads_info = self._gdb_write("-thread-info")[-1]["payload"]
-        
+
+        # Get thread information
+        threads_info = self.get_thread_info() 
+
         stop_reason = self._extract_stop_reason(exec_run)
         print(f"Razón de parada: {stop_reason}") 
         
@@ -102,7 +103,8 @@ class Debugger:
         self.threads.clear()  
         # Obtenemos toda la información necesaria en una sola consulta
         if threads_info is None:
-            threads_info = self.get_thread_info()[-1]["payload"]
+            threads_info = self.get_thread_info()
+
         current_thread_id = str(threads_info.get("current-thread-id"))
 
         # Procesamiento por lotes de los hilos
@@ -152,7 +154,7 @@ class Debugger:
 
             if hasattr(self, 'lamport_manager') and self.lamport_manager._is_lamport_watchpoint_hit(stop_reason):
                 # ✅ Obtener thread info correctamente
-                threads_info = self._gdb_write("-thread-info")[-1]["payload"]
+                threads_info = self.get_thread_info()
                 self.lamport_manager.update_global_variables(threads_info)
                 continue
             else:
@@ -165,7 +167,7 @@ class Debugger:
                 self.threads.pop(response["payload"]["id"], None)
 
         # ✅ Actualizar al final
-        threads_info = self._gdb_write("-thread-info")[-1]["payload"]
+        threads_info = self.get_thread_info()
         self.lamport_manager.update_global_variables(threads_info)
 
         return self._update_thread_functions(threads_info)
@@ -194,7 +196,7 @@ class Debugger:
         if not self.enable_rr and thread_id is not None:
             selection_success = self.select_thread(thread_id)
             try:
-                current_thread_info = self.get_thread_info()[-1]["payload"]
+                current_thread_info = self.get_thread_info()
                 current_thread = current_thread_info.get("current-thread-id")
                 if str(current_thread) != str(thread_id):
                     return self.threads
@@ -420,8 +422,24 @@ class Debugger:
         self._gdb_write(f"-thread-select {thread_id}")
 
     def get_thread_info(self):
-        info = self._gdb_write("-thread-info")
-        return info
+        """Obtiene información de hilos de forma consistente"""
+        threads_info = self._gdb_write("-thread-info")
+        if threads_info[-1].get("message") == "done":
+            return threads_info[-1]["payload"]
+        # Buscar la respuesta con message='done'
+        for response in threads_info:
+            if isinstance(response, dict) and response.get("message") == "done":
+                return response["payload"]
+
+        for i in range(3):
+            print("No se encontró thread info válido, reintentando...")
+            threads_info = self._gdb_write("-thread-info")
+            for response in threads_info:
+                if isinstance(response, dict) and response.get("message") == "done":
+                    return response["payload"]
+            time.sleep(1)
+
+        raise RuntimeError("No se pudo obtener información de hilos después de varios intentos")
 
     def info_frame(self):
         info = self._gdb_write("-stack-info-frame")

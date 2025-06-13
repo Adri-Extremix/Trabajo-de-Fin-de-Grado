@@ -34,7 +34,8 @@ def run_breakpoint_code1():
     debugger.set_breakpoint(50)
     result = debugger.run()
 
-    print(f"debugger.global_variables: {debugger.lamport_manager.global_variables}")
+    print("Historial de variables globales después de ejecutar hasta el primer breakpoint:")
+    pprint(debugger.lamport_manager.global_variables)
 
     assert "1" in result.keys(), "El hilo '1' no se encontró en el resultado"
     assert "2" in result.keys(), "El hilo '2' no se encontró en el resultado"
@@ -48,8 +49,8 @@ def run_breakpoint_code2():
     debugger = Debugger(c_files[1], binary_files[1], rr=False)
     debugger.set_breakpoint(20)
     result = debugger.run()
-
-    print(f"debugger.global_variables: {debugger.lamport_manager.global_variables}")
+    print("Historial de variables globales después de ejecutar hasta el primer breakpoint:")
+    pprint(debugger.lamport_manager.global_variables)
 
     assert "1" in result.keys(), "El hilo '1' no se encontró en el resultado"
 
@@ -64,6 +65,8 @@ def continue_breakpoint_code1():
     debugger.set_breakpoint(70)
     
     result_run = debugger.run()
+    print("Historial de variables globales después de ejecutar hasta el primer breakpoint:")
+    pprint(debugger.lamport_manager.global_variables)
 
     assert len(result_run) == 1, f"Se esperaba solo 1 hilo, se encontraron {len(result_run)}"
 
@@ -74,7 +77,10 @@ def continue_breakpoint_code1():
     assert result_run["1"]["line"] == "28", f"El hilo '1' no se detuvo en la línea 28, se detuvo en la línea {result_run['1']['line']}"
 
 
+
     result_continue = debugger.continue_execution()
+    print("Historial de variables globales después de continuar:")
+    pprint(debugger.lamport_manager.global_variables)
 
     assert len(result_continue) == 2, f"Se esperaban 2 hilos, se encontraron {len(result_continue)}"
 

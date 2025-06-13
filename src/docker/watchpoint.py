@@ -1,5 +1,6 @@
 import time
 import os
+import datetime
 
 class LamportWatchpointManager:
     def __init__(self, debugger):
@@ -10,8 +11,8 @@ class LamportWatchpointManager:
         
         # Gestión de variables globales
         self.global_variables = {}
-        self.setup_transparent_watchpoints()
         self._initialize_global_variables()
+        self.setup_transparent_watchpoints()
         
     def _initialize_global_variables(self):
         """Inicializar variables globales desde GDB"""
@@ -61,10 +62,10 @@ class LamportWatchpointManager:
                         if thread_info:
                             current_thread = thread_info.get("current-thread-id", "1")
                         else:
-                            # Obtener thread info si no se proporciona
-                            thread_response = self.debugger._gdb_write("-thread-info")
-                            if thread_response and thread_response[0].get("message") == "done":
-                                current_thread = thread_response[0]["payload"].get("current-thread-id", "1")
+                            # Obtener thread info si no se proporciona usando el método centralizado
+                            thread_response = self.debugger.get_thread_info()
+                            if thread_response and thread_response[-1].get("message") == "done":
+                                current_thread = thread_response[-1]["payload"].get("current-thread-id", "1")
                             else:
                                 current_thread = "1"
                         
@@ -74,7 +75,8 @@ class LamportWatchpointManager:
                         event = {
                             "value": new_value,
                             "lamport_time": self.lamport_clocks[current_thread],
-                            "thread_id": str(current_thread)
+                            "thread_id": str(current_thread),
+                            "timestamp": datetime.datetime.now().isoformat()
                         }
                         self.global_variables[var_name]["history"].append(event)
                         print(f"Historial actualizado: {var_name} = {new_value} (lamport: {self.lamport_clocks[current_thread]})")
@@ -104,12 +106,24 @@ class LamportWatchpointManager:
                 print(f"Error configurando watchpoint para {var_name}: {e}")
 
     def _is_lamport_watchpoint_hit(self, stop_reason):
-        """Determina si la parada fue por nuestro watchpoint"""
+        """Determina si la parada fue SOLO por nuestro watchpoint"""
         try:
             if isinstance(stop_reason, list):
-                return any("watchpoint" in reason.lower() for reason in stop_reason if isinstance(reason, str))
+                has_watchpoint = any("watchpoint" in reason.lower() for reason in stop_reason if isinstance(reason, str))
+                has_breakpoint = any("breakpoint" in reason.lower() for reason in stop_reason if isinstance(reason, str))
+                
+                # ✅ Si hay breakpoint del usuario, NO es transparente
+                if has_breakpoint and has_watchpoint:
+                    print("🔍 Watchpoint + Breakpoint simultáneos → Priorizar breakpoint del usuario")
+                    return False  # No hacer auto-continue
+                
+                # Solo watchpoint → transparente
+                return has_watchpoint and not has_breakpoint
+                
             elif isinstance(stop_reason, str):
-                return "watchpoint" in stop_reason.lower()
+                # Solo watchpoint, sin breakpoint
+                return "watchpoint" in stop_reason.lower() and "breakpoint" not in stop_reason.lower()
+                
             return False
         except:
             return False
