@@ -5,6 +5,7 @@
 void* greet(void* arg);
 void* add(void* arg);
 void* printArray(void* arg);
+int greetCount = 0;
 
 typedef struct {
     int a;
@@ -16,7 +17,6 @@ typedef struct {
     int* arr;
     int size;
 } PrintArrayArgs;
-
 int main() {
     pthread_t thread1, thread2, thread3;
 
@@ -44,9 +44,9 @@ int main() {
 
     return 0;
 }
-
 // Function to print a greeting message
 void* greet(void* argumento) {
+    greetCount++;
     printf("Hello, welcome to the program!\n");
     return NULL;
 }

@@ -19,20 +19,17 @@ class Debugger:
             self.gdb = GdbController(command=["rr", "replay", "--interpreter=mi3"])
         else:
             self.gdb = GdbController(command=["gdb", "--interpreter=mi3"])
-        self.global_variables = self.get_global_variables()
         self.gdb.write(f"file {self.compiled_path}")
         with open(self.code_path, "r") as file:
             self.code = file.read()
+        
+        # ✅ Simplificar: solo funciones y threads en debugger
         self.functions = self.parse_code()
         self.threads = {}
         self.correspondence = {}
-        
-        self.lamport_manager = self.initialize_lamport_manager()
-    
-    def initialize_lamport_manager(self):
-        """Inicializa el manager de Lamport cuando sea necesario"""
-        if not hasattr(self, 'lamport_manager') or self.lamport_manager is None:
-            self.lamport_manager = LamportWatchpointManager(self)
+
+        # ✅ LamportManager gestiona las variables globales
+        self.lamport_manager = LamportWatchpointManager(self)
 
     def parse_code(self):
         """Method to parse the code and get the functions and their lines"""
@@ -76,21 +73,33 @@ class Debugger:
             return int(response[0]["payload"]["depth"])
         return 0
     
-    def get_global_variables(self):
-        """Method to get the global variables from the code"""
-        symbols_response = self._gdb_write("info variables")
-        global_vars = {}
-        if symbols_response:
-            print("Global variables found:")
-            pprint(symbols_response)
-            for response in symbols_response:
-                print("Cada respuesta de símbolo:")
-                pprint(response)
+    def run(self):
+        """Method to run the program"""
+        exec_run = self._gdb_write("-exec-run")
+        
+        for response in exec_run:
+            if response.get("message") == "thread-exited":
+                self.threads.pop(response["payload"]["id"], None)
+        
+        threads_info = self._gdb_write("-thread-info")[-1]["payload"]
+        
+        stop_reason = self._extract_stop_reason(exec_run)
+        print(f"Razón de parada: {stop_reason}") 
+        
+        if hasattr(self, 'lamport_manager') and self.lamport_manager._is_lamport_watchpoint_hit(stop_reason):
+            self.lamport_manager.update_global_variables(threads_info)  # ✅ Pasar diccionario
+            return self.continue_execution()
+        else:
+            self.lamport_manager.update_global_variables(threads_info)  # ✅ Pasar diccionario
 
+        if self.enable_rr:
+            return self.continue_execution()
+        else:
+            return self._update_thread_functions(threads_info)
 
     def _update_thread_functions(self, threads_info=None):
         """Actualiza la información de hilos optimizando consultas a GDB"""
-        self.threads.clear()  # Limpieza más eficiente
+        self.threads.clear()  
         # Obtenemos toda la información necesaria en una sola consulta
         if threads_info is None:
             threads_info = self.get_thread_info()[-1]["payload"]
@@ -134,96 +143,32 @@ class Debugger:
             "start_line": start_line,
         }
 
-    def run(self):
-        """Method to run the program"""
-        exec_run = self._gdb_write("-exec-run")
-        
-        for response in exec_run:
-            if response.get("message") == "thread-exited":
-                self.threads.pop(response["payload"]["id"], None)
-        
-        threads_info = self._gdb_write("-thread-info")[-1]["payload"]
-        return self._handle_run_stop_transparently(thread_info=threads_info)
-
-        if self.enable_rr:
-            # En modo RR, manejar la parada inicial del run
-            return self.continue_execution()
-        else:
-            # En modo GDB normal, verificar si nos paramos por watchpoint
-            return self._handle_run_stop_transparently()
-
-    def _handle_run_stop_transparently(self, thread_info):
-        """Maneja la parada inicial del run, continuando si es por watchpoint"""
-        
-        # Verificar si hay manager de Lamport configurado
-        if not hasattr(self, 'lamport_manager'):
-            return self._update_thread_functions()
-        
-        # Verificar razón de la parada inicial
-        try:
-            # Obtener información de la parada
-            stop_reason = self._get_current_stop_reason(thread_info)
-            # Si fue watchpoint transparente, continuar automáticamente
-            if self.lamport_manager._is_lamport_watchpoint_hit(stop_reason):
-                print("🏃 Run se paró en watchpoint transparente, auto-continuando...")
-                return self.continue_execution()  # Ya maneja watchpoints transparentemente
-            else:
-                # Parada normal
-                if self.enable_rr:
-                    # En modo RR, simplemente continuamos
-                    return self.continue_execution()
-                else:
-                    return self._update_thread_functions()
-
-        except Exception as e:
-            # Si hay error obteniendo info, continuar con flujo normal
-            return self._update_thread_functions()
-        
-
-    def _get_current_stop_reason(self, thread_info):
-        """Obtiene la razón de la parada actual"""
-        try:
-            if thread_info and len(thread_info) > 0:
-                for thread in thread_info[0]["payload"]["threads"]:
-                    if thread.get("state") == "stopped":
-                        return thread.get("stop-reason", "unknown")
-        except Exception as e:
-            print(f"Error obteniendo razón de parada: {e}")
-        return "unknown"
-
-
     def continue_execution(self):
         """Continue mejorado que maneja watchpoints transparentemente"""
         
-        while True:  # Loop hasta llegar a breakpoint real del usuario
+        while True:
             exec_continue = self._gdb_write("-exec-continue")
-            
-            # Procesar respuesta para identificar razón de parada
             stop_reason = self._extract_stop_reason(exec_continue)
-            location_info = self._extract_location_info(exec_continue)
-            
-            # Manejar a través del manager de watchpoints
-            result = self.lamport_manager.handle_stop_event(stop_reason, location_info)
-            
-            if result == "USER_BREAKPOINT_HIT":
-                # Parada legítima del usuario - salir del loop
-                break
-            elif result == "LAMPORT_WATCHPOINT_HIT" and not self.lamport_manager.is_transparent_mode:
-                # Modo no transparente - parar en watchpoint
-                break
-            elif result and "auto_continue" in str(result):
-                # Auto-continue exitoso - continuar el loop
+
+            if hasattr(self, 'lamport_manager') and self.lamport_manager._is_lamport_watchpoint_hit(stop_reason):
+                # ✅ Obtener thread info correctamente
+                threads_info = self._gdb_write("-thread-info")[-1]["payload"]
+                self.lamport_manager.update_global_variables(threads_info)
                 continue
             else:
-                # Otras razones de parada - salir del loop
+                print(f"Razón de parada: {stop_reason}")
                 break
         
         # Limpiar threads que hayan terminado
         for response in exec_continue:
             if response.get("message") == "thread-exited":
                 self.threads.pop(response["payload"]["id"], None)
-        
-        return self._update_thread_functions()
+
+        # ✅ Actualizar al final
+        threads_info = self._gdb_write("-thread-info")[-1]["payload"]
+        self.lamport_manager.update_global_variables(threads_info)
+
+        return self._update_thread_functions(threads_info)
     
     def reverse_continue(self):
         """Method to reverse continue the execution of the program"""
@@ -332,10 +277,15 @@ class Debugger:
             # Usar la función optimizada para actualizar un solo hilo
             success = self._process_single_thread_optimized(thread_id)
             if success:
+                # Actualizar variables globales después del step
+                self.global_variables = self.get_global_variable_values()
                 return self.threads
     
         # Si no se proporciona thread_id específico o estamos en modo RR, actualizar todos los hilos
         result = self._update_thread_functions()
+        # Actualizar variables globales
+        self.global_variables = self.get_global_variable_values()
+        
         return result
 
     def step_over(self, thread_id=None):
@@ -526,28 +476,41 @@ class Debugger:
             self.gdb.exit()
             self.gdb = None
 
-    
+    def get_current_state_for_frontend(self):
+        """Obtiene el estado completo para el frontend"""
+        return {
+            "threads": self.threads,
+            "globals": self.lamport_manager.get_lamport_globals_structure()
+        }
 
+    def _extract_stop_reason(self, exec_response):
+        """Extrae la razón de parada de la respuesta de exec-run/exec-continue"""
+        try:
+            for response in exec_response:
+                if response.get("message") == "stopped":
+                    payload = response.get("payload", {})
+                    return payload.get("reason", "breakpoint-hit")  # Default común
+                # También verificar en el tipo de respuesta
+                elif response.get("type") == "notify" and "stopped" in str(response):
+                    return "breakpoint-hit"
+        except:
+            pass
+        return "breakpoint-hit"  # Asumir breakpoint por defecto
 
-if __name__ == "__main__":
-    start_time = time.time()
-
-
-    debugger = Debugger("../../examples/prueba1.c", "../../examples/prueba1.o", rr=False)
-
-    print("Colocando breakpoint")
-    debugger.set_breakpoint(22)
-    print("Colocando breakkpoint")
-    debugger.set_breakpoint(33)
-    print("Ejecutando el programa")
-    pprint(debugger.run())
-    
-    # pprint(debugger.correspondence)
-    # print("Continuando la ejecución")
-    # pprint(debugger.continue_execution())
-    # print("Volviendo al anterior breakpoint")
-    # pprint(debugger.reverse_continue())
-
-    # elapsed_time = time.time() - start_time
-    # print(f"La ejecución tardó {elapsed_time:.4f} segundos")
+    def _extract_location_info(self, exec_response):
+        """Extrae información de ubicación de la respuesta"""
+        try:
+            for response in exec_response:
+                if response.get("message") == "stopped":
+                    payload = response.get("payload", {})
+                    return {
+                        "line": payload.get("line"),
+                        "file": payload.get("file"),
+                        "function": payload.get("func"),
+                        "address": payload.get("addr")
+                    }
+        except Exception as e:
+            print(f"Error extrayendo información de ubicación: {e}")
+            
+        return {}
 

@@ -17,9 +17,6 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     pkg-config \
     ccache \
-    gcc-multilib \
-    g++-multilib \
-    libc6-dev-i386 \
     capnproto \
     libcapnp-dev \
     libzstd-dev \

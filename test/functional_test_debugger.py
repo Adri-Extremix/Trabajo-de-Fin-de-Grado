@@ -34,6 +34,8 @@ def run_breakpoint_code1():
     debugger.set_breakpoint(50)
     result = debugger.run()
 
+    print(f"debugger.global_variables: {debugger.lamport_manager.global_variables}")
+
     assert "1" in result.keys(), "El hilo '1' no se encontró en el resultado"
     assert "2" in result.keys(), "El hilo '2' no se encontró en el resultado"
 
@@ -46,6 +48,8 @@ def run_breakpoint_code2():
     debugger = Debugger(c_files[1], binary_files[1], rr=False)
     debugger.set_breakpoint(20)
     result = debugger.run()
+
+    print(f"debugger.global_variables: {debugger.lamport_manager.global_variables}")
 
     assert "1" in result.keys(), "El hilo '1' no se encontró en el resultado"
 
@@ -312,9 +316,21 @@ if __name__ == "__main__":
     setup()
     print("\033[93m\n ----------------- Ejecutando tests ----------------- \n\033[0m")
     # Tests de stepping
-    tests = [reverse_stepping_over_code1, reverse_stepping_over_code2, reverse_stepping_over_code3,
-             reverse_stepping_out_of_a_function_code3, reverse_stepping_out_of_main_code3, reverse_stepping_out_of_other_file_code3,
-             reverse_stepping_into_a_function_code3,reverse_stepping_into_a_other_file_code3]
+    tests = [
+        run_breakpoint_code1,
+        run_breakpoint_code2,
+        continue_breakpoint_code1,
+        continue_breakpoint_code2,
+        stepping_over_code1,
+        stepping_over_code2,
+        stepping_over_code3,
+        stepping_out_of_a_function_code3,
+        stepping_out_of_main_code3,
+        stepping_out_of_other_file_code3,
+        stepping_into_a_function_code3,
+        stepping_into_a_not_function_code1,
+        stepping_into_a_other_file_code3
+    ]
     #tests = [stepping_over_code1, stepping_over_code2, stepping_over_code3,
     #         stepping_out_of_a_function_code3, stepping_out_of_main_code3, stepping_out_of_other_file_code3,
     #         stepping_into_a_function_code3, stepping_into_a_not_function_code1, stepping_into_a_other_file_code3]
