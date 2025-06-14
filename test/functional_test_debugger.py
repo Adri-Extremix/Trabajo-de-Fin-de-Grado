@@ -35,28 +35,30 @@ def run_breakpoint_code1():
     result = debugger.run()
 
     print("Historial de variables globales después de ejecutar hasta el primer breakpoint:")
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
-    assert "1" in result.keys(), "El hilo '1' no se encontró en el resultado"
-    assert "2" in result.keys(), "El hilo '2' no se encontró en el resultado"
+    threads = result["threads"]
+    assert "1" in threads.keys(), "El hilo '1' no se encontró en el resultado"
+    assert "2" in threads.keys(), "El hilo '2' no se encontró en el resultado"
 
-    assert result["1"]["function"] == "main", f"El hilo '1' no se detuvo en la función 'main', se detuvo en la función {result['1']['function']}"
+    assert threads["1"]["function"] == "main", f"El hilo '1' no se detuvo en la función 'main', se detuvo en la función {threads['1']['function']}"
 
-    assert result["2"]["line"] == "50", f"El hilo '2' no se detuvo en la línea 50, se detuvo en la línea {result['2']['line']}"
-    assert result["2"]["function"] == "greet", f"El hilo '2' no se detuvo en la función 'greet', se detuvo en la función {result['2']['function']}"
+    assert threads["2"]["line"] == "50", f"El hilo '2' no se detuvo en la línea 50, se detuvo en la línea {threads['2']['line']}"
+    assert threads["2"]["function"] == "greet", f"El hilo '2' no se detuvo en la función 'greet', se detuvo en la función {threads['2']['function']}"
 
 def run_breakpoint_code2():
     debugger = Debugger(c_files[1], binary_files[1], rr=False)
     debugger.set_breakpoint(20)
     result = debugger.run()
     print("Historial de variables globales después de ejecutar hasta el primer breakpoint:")
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
-    assert "1" in result.keys(), "El hilo '1' no se encontró en el resultado"
+    threads = result["threads"]
+    assert "1" in threads.keys(), "El hilo '1' no se encontró en el resultado"
 
-    assert result["1"]["function"] == "main", f"El hilo '1' no se detuvo en la función 'main', se detuvo en la función {result['1']['function']}"
+    assert threads["1"]["function"] == "main", f"El hilo '1' no se detuvo en la función 'main', se detuvo en la función {threads['1']['function']}"
 
-    found = any(info.get("line") == "20" for info in result.values())
+    found = any(info.get("line") == "20" for info in threads.values())
     assert found, "Ningún hilo se ha parado en la línea 20"
 
 def continue_breakpoint_code1():
@@ -66,32 +68,34 @@ def continue_breakpoint_code1():
     
     result_run = debugger.run()
     print("Historial de variables globales después de ejecutar hasta el primer breakpoint:")
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result_run["globals"])
 
-    assert len(result_run) == 1, f"Se esperaba solo 1 hilo, se encontraron {len(result_run)}"
+    threads_run = result_run["threads"]
+    assert len(threads_run) == 1, f"Se esperaba solo 1 hilo, se encontraron {len(threads_run)}"
 
-    assert "1" in result_run, "La clave '1' no se encontró en el resultado"
+    assert "1" in threads_run, "La clave '1' no se encontró en el resultado"
 
-    assert result_run["1"]["function"] == "main", f"El hilo '1' no se detuvo en la función 'main', se detuvo en la función {result_run['1']['function']}"
+    assert threads_run["1"]["function"] == "main", f"El hilo '1' no se detuvo en la función 'main', se detuvo en la función {threads_run['1']['function']}"
 
-    assert result_run["1"]["line"] == "28", f"El hilo '1' no se detuvo en la línea 28, se detuvo en la línea {result_run['1']['line']}"
+    assert threads_run["1"]["line"] == "28", f"El hilo '1' no se detuvo en la línea 28, se detuvo en la línea {threads_run['1']['line']}"
 
 
 
     result_continue = debugger.continue_execution()
     print("Historial de variables globales después de continuar:")
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result_continue["globals"])
 
-    assert len(result_continue) == 2, f"Se esperaban 2 hilos, se encontraron {len(result_continue)}"
+    threads_continue = result_continue["threads"]
+    assert len(threads_continue) == 2, f"Se esperaban 2 hilos, se encontraron {len(threads_continue)}"
 
-    assert "1" in result_continue, "La clave '1' no se encontró en el resultado"
-    assert "4" in result_continue, "La clave '4' no se encontró en el resultado"
+    assert "1" in threads_continue, "La clave '1' no se encontró en el resultado"
+    assert "4" in threads_continue, "La clave '4' no se encontró en el resultado"
 
-    assert result_continue["1"]["function"] == "main", f"El hilo '1' no se detuvo en la función 'main', se detuvo en la función {result_continue['1']['function']}"
+    assert threads_continue["1"]["function"] == "main", f"El hilo '1' no se detuvo en la función 'main', se detuvo en la función {threads_continue['1']['function']}"
 
-    assert result_continue["4"]["function"] == "printArray", f"El hilo '4' no se detuvo en la función 'printArray', se detuvo en la función {result_continue['4']['function']}"
+    assert threads_continue["4"]["function"] == "printArray", f"El hilo '4' no se detuvo en la función 'printArray', se detuvo en la función {threads_continue['4']['function']}"
 
-    assert result_continue["4"]["line"] == "70", f"El hilo '4' no se detuvo en la línea 70, se detuvo en la línea {result_continue['4']['line']}"
+    assert threads_continue["4"]["line"] == "70", f"El hilo '4' no se detuvo en la línea 70, se detuvo en la línea {threads_continue['4']['line']}"
 
 def continue_breakpoint_code2():
     debugger = Debugger(c_files[1], binary_files[1], rr=False)
@@ -99,12 +103,14 @@ def continue_breakpoint_code2():
     debugger.set_breakpoint(41)
     result_run = debugger.run()
 
-    assert len(result_run) == 7, f"Se esperaban solo 7 hilos, se encontraron {len(result_run)}"
+    threads_run = result_run["threads"]
+    assert len(threads_run) == 7, f"Se esperaban solo 7 hilos, se encontraron {len(threads_run)}"
 
     result_continue = debugger.continue_execution()
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result_continue["globals"])
 
-    assert len(result_continue) == 7, f"Se esperaban que se mantuvieran los 7 hilos, pero se encontraron {len(result_continue)}"
+    threads_continue = result_continue["threads"]
+    assert len(threads_continue) == 7, f"Se esperaban que se mantuvieran los 7 hilos, pero se encontraron {len(threads_continue)}"
 
 def reversing_breakpoint_code1():
     debugger = Debugger(c_files[0], binary_files[0], rr=True)
@@ -113,7 +119,7 @@ def reversing_breakpoint_code1():
     result_run = debugger.run()
     debugger.continue_execution()
     result_reverse = debugger.reverse_continue()
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result_reverse["globals"])
 
 
     assert result_run == result_reverse, "El resultado de la ejecución al breakpoint 28 y el resultado de la reversión a ese mismo breakpoint no son iguales"
@@ -125,7 +131,7 @@ def reversing_breakpoint_code2():
     result_run = debugger.run()
     debugger.continue_execution()
     result_reverse = debugger.reverse_continue()
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result_reverse["globals"])
 
     
     assert result_run == result_reverse, "El resultado de la ejecución al breakpoint 22 y el resultado de la reversión a ese mismo breakpoint no son iguales"
@@ -136,12 +142,12 @@ def stepping_over_code1():
     debugger.run()
 
     result = debugger.step_over("1")
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
+    threads = result["threads"]
+    assert threads["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
-    assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
-
-    assert result["1"]["line"] == "28", f"El hilo 1 no ha realizado correctamente el step, no encontrandose en la líneea 28. Se encuentra en la línea {result['1']['line']}"
+    assert threads["1"]["line"] == "28", f"El hilo 1 no ha realizado correctamente el step, no encontrandose en la líneea 28. Se encuentra en la línea {threads['1']['line']}"
 
 def stepping_over_code2():
     debugger = Debugger(c_files[1],binary_files[1], rr=False)
@@ -149,59 +155,59 @@ def stepping_over_code2():
     debugger.run()
 
     result = debugger.step_over("1")
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
+    threads = result["threads"]
+    assert threads["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
-    assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
-
-    assert result["1"]["line"] == "45", f"El hilo 1 no ha realizado correctamente el step, no encontrandose en la líneea 45. Se encuentra en la línea {result['1']['line']}"
+    assert threads["1"]["line"] == "45", f"El hilo 1 no ha realizado correctamente el step, no encontrandose en la líneea 45. Se encuentra en la línea {threads['1']['line']}"
 
 def stepping_over_code3():
     debugger = Debugger(c_files[2],binary_files[2], rr=False)
     debugger.set_breakpoint(28)
     debugger.run()
     result = debugger.step_over("1")
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
-
-    assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
-    assert result["1"]["line"] == "30", f"El hilo 1 no ha realizado correctamente el step, no encontrandose en la líneea 30. Se encuentra en la línea {result['1']['line']}"
+    threads = result["threads"]
+    assert threads["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
+    assert threads["1"]["line"] == "30", f"El hilo 1 no ha realizado correctamente el step, no encontrandose en la líneea 30. Se encuentra en la línea {threads['1']['line']}"
     
 def stepping_out_of_a_function_code3():
     debugger = Debugger(c_files[2],binary_files[2], rr=False)
     debugger.set_breakpoint(6)
     debugger.run()
     result = debugger.step_out("1")
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
+    threads = result["threads"]
+    assert threads["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
-    assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
-
-    assert result["1"]["line"] == "31", f"El hilo 1 no ha realizado correctamente el step, no encontrandose en la línea 31. Se encuentra en la línea {result['1']['line']}"
+    assert threads["1"]["line"] == "31", f"El hilo 1 no ha realizado correctamente el step, no encontrandose en la línea 31. Se encuentra en la línea {threads['1']['line']}"
 
 def stepping_out_of_main_code3():
     debugger = Debugger(c_files[2],binary_files[2], rr=False)
     debugger.set_breakpoint(30)
     debugger.run()
     result = debugger.step_out("1")
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
+    threads = result["threads"]
+    assert threads["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
-    assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
-
-    assert result["1"]["line"] == "31", f"El hilo 1 no ha realizado correctamente el step, no encontrandose en la línea 31. Se encuentra en la línea {result['1']['line']}"
+    assert threads["1"]["line"] == "31", f"El hilo 1 no ha realizado correctamente el step, no encontrandose en la línea 31. Se encuentra en la línea {threads['1']['line']}"
 
 def stepping_out_of_other_file_code3():
     debugger = Debugger(c_files[2],binary_files[2], rr=False)
     debugger.set_breakpoint(19)
     debugger.run()
     result = debugger.step_out("2")
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
+    threads = result["threads"]
+    assert threads["2"]["function"] == "hilo_funcion", f"El hilo 2 no se encuentra en la función hilo_funcion, se encuentra en la funcion {threads['2']['function']}"
 
-    assert result["2"]["function"] == "hilo_funcion", f"El hilo 2 no se encuentra en la función hilo_funcion, se encuentra en la funcion {result['2']['function']}"
-
-    assert result["2"]["line"] == "20", f"El hilo 2 no ha realizado correctamente el step, no encontrandose en la línea 20. Se encuentra en la línea {result['2']['line']}"
+    assert threads["2"]["line"] == "20", f"El hilo 2 no ha realizado correctamente el step, no encontrandose en la línea 20. Se encuentra en la línea {threads['2']['line']}"
 
 
 def stepping_into_a_function_code3():
@@ -209,36 +215,36 @@ def stepping_into_a_function_code3():
     debugger.set_breakpoint(30)
     debugger.run()
     result = debugger.step_into("1")
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
+    threads = result["threads"]
+    assert threads["1"]["function"] == "funcion1", f"El hilo 1 no se encuentra en la función funcion1, se encuentra en la función {threads['1']['function']}"
 
-    assert result["1"]["function"] == "funcion1", f"El hilo 1 no se encuentra en la función funcion1, se encuentra en la función {result['1']['function']}"
-
-    assert result["1"]["line"] == "6", f"El hilo 1 no ha realizado correctamente el step, no encontrandose en la línea 6. Se encuentra en la línea {result['1']['line']}"
+    assert threads["1"]["line"] == "6", f"El hilo 1 no ha realizado correctamente el step, no encontrandose en la línea 6. Se encuentra en la línea {threads['1']['line']}"
 
 def stepping_into_a_not_function_code1():
     debugger = Debugger(c_files[0],binary_files[0], rr=False)
     debugger.set_breakpoint(66)
     debugger.run()
     result = debugger.step_into("4")
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
+    threads = result["threads"]
+    assert threads["4"]["function"] == "printArray", f"El hilo 4 no se encuentra en la función printArray, se encuentra en la función {threads['4']['function']}"
 
-    assert result["4"]["function"] == "printArray", f"El hilo 4 no se encuentra en la función printArray, se encuentra en la función {result['4']['function']}"
-
-    assert result["4"]["line"] == "67", f"El hilo 4 no ha realizado correctamente el step, no encontrandose en la línea 67. Se encuentra en la línea {result['4']['line']}"
+    assert threads["4"]["line"] == "67", f"El hilo 4 no ha realizado correctamente el step, no encontrandose en la línea 67. Se encuentra en la línea {threads['4']['line']}"
 
 def stepping_into_a_other_file_code3():
     debugger = Debugger(c_files[2],binary_files[2], rr=False)
     debugger.set_breakpoint(28)
     debugger.run()
     result = debugger.step_into("1")
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
+    threads = result["threads"]
+    assert threads["1"]["function"] == "main", f"El hilo 1 no se encuentra en la función funcion1, se encuentra en la función {threads['1']['function']}"
 
-    assert result["1"]["function"] == "main", f"El hilo 1 no se encuentra en la función funcion1, se encuentra en la función {result['1']['function']}"
-
-    assert result["1"]["line"] == "30", f"El hilo 1 no ha realizado correctamente el step, no encontrandose en la línea 30. Se encuentra en la línea {result['1']['line']}"
+    assert threads["1"]["line"] == "30", f"El hilo 1 no ha realizado correctamente el step, no encontrandose en la línea 30. Se encuentra en la línea {threads['1']['line']}"
 
 def reverse_stepping_over_code1():
     debugger = Debugger(c_files[0],binary_files[0], rr=True)
@@ -246,12 +252,12 @@ def reverse_stepping_over_code1():
     debugger.run()
     debugger.step_over("1")
     result = debugger.reverse_step_over()
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
+    threads = result["threads"]
+    assert threads["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
-    assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
-
-    assert result["1"]["line"] == "27", f"El hilo 1 no ha realizado correctamente el reverse step over, no encontrandose en la línea 27. Se encuentra en la línea {result['1']['line']}"
+    assert threads["1"]["line"] == "27", f"El hilo 1 no ha realizado correctamente el reverse step over, no encontrandose en la línea 27. Se encuentra en la línea {threads['1']['line']}"
 
 def reverse_stepping_over_code2():
     debugger = Debugger(c_files[1],binary_files[1], rr=True)
@@ -259,12 +265,12 @@ def reverse_stepping_over_code2():
     debugger.run()
     debugger.step_over("1")
     result = debugger.reverse_step_over()
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
+    threads = result["threads"]
+    assert threads["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
-    assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
-
-    assert result["1"]["line"] == "44", f"El hilo 1 no ha realizado correctamente el reverse step over, no encontrandose en la línea 44. Se encuentra en la línea {result['1']['line']}"
+    assert threads["1"]["line"] == "44", f"El hilo 1 no ha realizado correctamente el reverse step over, no encontrandose en la línea 44. Se encuentra en la línea {threads['1']['line']}"
 
 def reverse_stepping_over_code3():
     debugger = Debugger(c_files[2],binary_files[2], rr=True)
@@ -272,11 +278,11 @@ def reverse_stepping_over_code3():
     debugger.run()
     debugger.step_over("1")
     result = debugger.reverse_step_over()
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
-
-    assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
-    assert result["1"]["line"] == "28", f"El hilo 1 no ha realizado correctamente el reverse step over, no encontrandose en la línea 28. Se encuentra en la línea {result['1']['line']}"
+    threads = result["threads"]
+    assert threads["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
+    assert threads["1"]["line"] == "28", f"El hilo 1 no ha realizado correctamente el reverse step over, no encontrandose en la línea 28. Se encuentra en la línea {threads['1']['line']}"
 
 def reverse_stepping_out_of_a_function_code3():
     debugger = Debugger(c_files[2],binary_files[2], rr=True)
@@ -284,12 +290,12 @@ def reverse_stepping_out_of_a_function_code3():
     debugger.run()
     debugger.step_out("1")
     result = debugger.reverse_step_out()
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
+    threads = result["threads"]
+    assert threads["1"]["function"] == "funcion1", f"El hilo 1 no se encuentra en la función funcion1, se encuentra en la función {threads['1']['function']}"
 
-    assert result["1"]["function"] == "funcion1", f"El hilo 1 no se encuentra en la función funcion1, se encuentra en la función {result['1']['function']}"
-
-    assert result["1"]["line"] == "6", f"El hilo 1 no ha realizado correctamente el reverse step out, no encontrandose en la línea 6. Se encuentra en la línea {result['1']['line']}"
+    assert threads["1"]["line"] == "6", f"El hilo 1 no ha realizado correctamente el reverse step out, no encontrandose en la línea 6. Se encuentra en la línea {threads['1']['line']}"
 
 def reverse_stepping_out_of_main_code3():
     debugger = Debugger(c_files[2],binary_files[2], rr=True)
@@ -297,12 +303,12 @@ def reverse_stepping_out_of_main_code3():
     debugger.run()
     debugger.step_out("1")
     result = debugger.reverse_step_out()
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
+    threads = result["threads"]
+    assert threads["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
-    assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
-
-    assert result["1"]["line"] == "30", f"El hilo 1 no ha realizado correctamente el reverse step out, no encontrandose en la línea 30. Se encuentra en la línea {result['1']['line']}"
+    assert threads["1"]["line"] == "30", f"El hilo 1 no ha realizado correctamente el reverse step out, no encontrandose en la línea 30. Se encuentra en la línea {threads['1']['line']}"
 
 def reverse_stepping_out_of_other_file_code3():
     debugger = Debugger(c_files[2],binary_files[2], rr=True)
@@ -310,12 +316,12 @@ def reverse_stepping_out_of_other_file_code3():
     debugger.run()
     debugger.step_out("2")
     result = debugger.reverse_step_out()
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
+    threads = result["threads"]
+    assert threads["2"]["function"] == "hilo_funcion", f"El hilo 2 no se encuentra en la función worker_function, se encuentra en la función {threads['2']['function']}"
 
-    assert result["2"]["function"] == "hilo_funcion", f"El hilo 2 no se encuentra en la función worker_function, se encuentra en la función {result['2']['function']}"
-
-    assert result["2"]["line"] == "19", f"El hilo 2 no ha realizado correctamente el reverse step out, no encontrandose en la línea 19. Se encuentra en la línea {result['2']['line']}"
+    assert threads["2"]["line"] == "19", f"El hilo 2 no ha realizado correctamente el reverse step out, no encontrandose en la línea 19. Se encuentra en la línea {threads['2']['line']}"
 
 def reverse_stepping_into_a_function_code3():
     debugger = Debugger(c_files[2],binary_files[2], rr=True)
@@ -323,12 +329,12 @@ def reverse_stepping_into_a_function_code3():
     debugger.run()
     debugger.step_into("1")
     result = debugger.reverse_step_into()
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
+    threads = result["threads"]
+    assert threads["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
-    assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
-
-    assert result["1"]["line"] == "30", f"El hilo 1 no ha realizado correctamente el reverse step into, no encontrandose en la línea 30. Se encuentra en la línea {result['1']['line']}"
+    assert threads["1"]["line"] == "30", f"El hilo 1 no ha realizado correctamente el reverse step into, no encontrandose en la línea 30. Se encuentra en la línea {threads['1']['line']}"
 
 def reverse_stepping_into_a_other_file_code3():
     debugger = Debugger(c_files[2],binary_files[2], rr=True)
@@ -336,12 +342,12 @@ def reverse_stepping_into_a_other_file_code3():
     debugger.run()
     debugger.step_into("1")
     result = debugger.reverse_step_into()
-    pprint(debugger.lamport_manager.global_variables)
+    pprint(result["globals"])
 
+    threads = result["threads"]
+    assert threads["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
-    assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
-
-    assert result["1"]["line"] == "28", f"El hilo 1 no ha realizado correctamente el reverse step into, no encontrandose en la línea 28. Se encuentra en la línea {result['1']['line']}"
+    assert threads["1"]["line"] == "28", f"El hilo 1 no ha realizado correctamente el reverse step into, no encontrandose en la línea 28. Se encuentra en la línea {threads['1']['line']}"
 def test():
     debugger = Debugger(c_files[0], binary_files[0], rr=False)
     debugger.set_breakpoint(50)

@@ -96,7 +96,8 @@ class Debugger:
         if self.enable_rr:
             return self.continue_execution()
         else:
-            return self._update_thread_functions(threads_info)
+            self._update_thread_functions(threads_info)
+            return self.get_current_state()
 
     def _update_thread_functions(self, threads_info=None):
         """Actualiza la información de hilos optimizando consultas a GDB"""
@@ -118,7 +119,7 @@ class Debugger:
 
         self.get_all_thread_local_variables()
 
-        return self.threads
+        # ✅ No retornar nada, solo actualizar self.threads
 
     def _process_thread(self, thread_id, thread_name):
         """Procesa un hilo optimizando el acceso a frames"""
@@ -170,7 +171,8 @@ class Debugger:
         threads_info = self.get_thread_info()
         self.lamport_manager.update_global_variables(threads_info)
 
-        return self._update_thread_functions(threads_info)
+        self._update_thread_functions(threads_info)
+        return self.get_current_state()
     
     def reverse_continue(self):
         """Method to reverse continue the execution of the program"""
@@ -193,7 +195,8 @@ class Debugger:
         threads_info = self.get_thread_info()
         self.lamport_manager.update_global_variables(threads_info)
 
-        return self._update_thread_functions()
+        self._update_thread_functions()
+        return self.get_current_state()
 
     def generic_step(self, step_type, thread_id=None):
         correspondece_step = {
@@ -220,82 +223,82 @@ class Debugger:
         try:
             self._gdb_write(step_command)
         except Exception as e:
-            return self.threads
+            return self.get_current_state()
         
         # Actualizar threads y variables globales
         threads_info = self.get_thread_info()
         self.lamport_manager.update_global_variables(threads_info)
-        result = self._update_thread_functions(threads_info)
+        self._update_thread_functions(threads_info)
         
-        return result
+        return self.get_current_state()
     
-    def _handle_step_stop_transparently(self, step_type, thread_id):
-        """Maneja la parada después de un step, continuando si es por watchpoint"""
+    # def _handle_step_stop_transparently(self, step_type, thread_id):
+    #     """Maneja la parada después de un step, continuando si es por watchpoint"""
         
-        # Verificar si hay manager de Lamport configurado
-        if not hasattr(self, 'lamport_manager'):
-            return self._finalize_step_update(thread_id)
+    #     # Verificar si hay manager de Lamport configurado
+    #     if not hasattr(self, 'lamport_manager'):
+    #         return self._finalize_step_update(thread_id)
         
-        # Loop para manejar múltiples watchpoints en una sola línea
-        max_watchpoint_hits = 10  # Evitar loops infinitos
-        watchpoint_count = 0
+    #     # Loop para manejar múltiples watchpoints en una sola línea
+    #     max_watchpoint_hits = 10  # Evitar loops infinitos
+    #     watchpoint_count = 0
         
-        while watchpoint_count < max_watchpoint_hits:
-            try:
-                # Obtener razón de la parada
-                stop_reason = self._get_current_stop_reason()
-                location_info = self._get_current_location_info()
+    #     while watchpoint_count < max_watchpoint_hits:
+    #         try:
+    #             # Obtener razón de la parada
+    #             stop_reason = self._get_current_stop_reason()
+    #             location_info = self._get_current_location_info()
                 
-                # Verificar si fue nuestro watchpoint
-                if self.lamport_manager._is_lamport_watchpoint_hit(stop_reason):
-                    watchpoint_count += 1
-                    print(f"📊 Step se paró en watchpoint transparente ({watchpoint_count}), continuando...")
+    #             # Verificar si fue nuestro watchpoint
+    #             if self.lamport_manager._is_lamport_watchpoint_hit(stop_reason):
+    #                 watchpoint_count += 1
+    #                 print(f"📊 Step se paró en watchpoint transparente ({watchpoint_count}), continuando...")
                     
-                    # Capturar evento
-                    event = self.lamport_manager._capture_lamport_event(location_info)
-                    self.lamport_manager.lamport_events.append(event)
+    #                 # Capturar evento
+    #                 event = self.lamport_manager._capture_lamport_event(location_info)
+    #                 self.lamport_manager.lamport_events.append(event)
                     
-                    if self.lamport_manager.is_transparent_mode:
-                        # Continuar el step transparentemente
-                        step_command = {
-                            "step_over": "-exec-next",
-                            "step_into": "-exec-step",
-                            "step_out": "-exec-finish"
-                        }[step_type]
+    #                 if self.lamport_manager.is_transparent_mode:
+    #                     # Continuar el step transparentemente
+    #                     step_command = {
+    #                         "step_over": "-exec-next",
+    #                         "step_into": "-exec-step",
+    #                         "step_out": "-exec-finish"
+    #                     }[step_type]
                         
-                        self._gdb_write(step_command)
-                        continue  # Verificar de nuevo si hay más watchpoints
-                    else:
-                        # Modo no transparente - parar aquí
-                        break
-                else:
-                    # No es nuestro watchpoint - parada legítima
-                    break
+    #                     self._gdb_write(step_command)
+    #                     continue  # Verificar de nuevo si hay más watchpoints
+    #                 else:
+    #                     # Modo no transparente - parar aquí
+    #                     break
+    #             else:
+    #                 # No es nuestro watchpoint - parada legítima
+    #                 break
                     
-            except Exception as e:
-                print(f"❌ Error manejando transparencia en step: {e}")
-                break
+    #         except Exception as e:
+    #             print(f"❌ Error manejando transparencia en step: {e}")
+    #             break
     
-        # Finalizar actualización normalmente
-        return self._finalize_step_update(thread_id)
+    #     # Finalizar actualización normalmente
+    #     return self._finalize_step_update(thread_id)
 
-    def _finalize_step_update(self, thread_id):
-        """Finaliza la actualización después de un step"""
-        # Solo procesar hilo específico si se proporciona thread_id
-        if thread_id is not None and not self.enable_rr:
-            # Usar la función optimizada para actualizar un solo hilo
-            success = self._process_single_thread_optimized(thread_id)
-            if success:
-                # Actualizar variables globales después del step
-                self.global_variables = self.get_global_variable_values()
-                return self.threads
+    # def _finalize_step_update(self, thread_id):
+    #     """Finaliza la actualización después de un step"""
+    #     # Solo procesar hilo específico si se proporciona thread_id
+    #     if thread_id is not None and not self.enable_rr:
+    #         # Usar la función optimizada para actualizar un solo hilo
+    #         success = self._process_single_thread_optimized(thread_id)
+    #         if success:
+    #             # Actualizar variables globales después del step
+    #             self.global_variables = self.get_global_variable_values()
+    #             return self.threads
     
-        # Si no se proporciona thread_id específico o estamos en modo RR, actualizar todos los hilos
-        result = self._update_thread_functions()
-        # Actualizar variables globales
-        self.global_variables = self.get_global_variable_values()
+    #     # Si no se proporciona thread_id específico o estamos en modo RR, actualizar todos los hilos
+    #     result = self._update_thread_functions()
+    #     # Actualizar variables globales
+    #     self.global_variables = self.get_global_variable_values()
         
-        return result
+    #     return result
 
     def step_over(self, thread_id=None):
         if thread_id is not None:
@@ -308,7 +311,7 @@ class Debugger:
             # Para modo GDB, usar generic_step que ya maneja transparencia
             return self.generic_step("step_over", thread_id)
         
-        return self.threads
+        return self.get_current_state()
 
     def step_into(self, thread_id=None):
         if thread_id is not None:
@@ -331,7 +334,7 @@ class Debugger:
             
             return result
         
-        return self.threads
+        return self.get_current_state()
 
     def step_out(self, thread_id=None):
         if self.enable_rr:
@@ -354,7 +357,7 @@ class Debugger:
             
             return self.generic_step("step_out", thread_id)
         
-        return self.threads
+        return self.get_current_state()
     
 
     def generic_reverse_step(self, step_type):
@@ -376,7 +379,7 @@ class Debugger:
            
             self.generic_reverse_step("step_over")
 
-        return self.threads
+        return self.get_current_state()
 
     def reverse_step_into(self):
         """Method to reverse step into the current function"""
@@ -398,7 +401,7 @@ class Debugger:
                 if depth >= len(stack):
                     print("Error: No se pudo volver a la función")
         
-        return self.threads
+        return self.get_current_state()
 
         
     def reverse_step_out(self):
@@ -412,7 +415,13 @@ class Debugger:
                 self.generic_reverse_step("step_into")
                 frame_info = self.info_frame()[0]["payload"]
         
-        return self.threads
+        return self.get_current_state()
+    
+    def get_current_state(self):
+        return {
+            "threads": self.threads,
+            "globals": self.lamport_manager.get_lamport_globals_structure()
+        }
 
     def set_breakpoint(self, line):
         try:
