@@ -177,51 +177,58 @@ class Debugger:
 
         if self.enable_rr:
 
-            self._gdb_write("reverse-continue")
+            while True:
+                exec_response = self._gdb_write("reverse-continue")
+                stop_reason = self._extract_stop_reason(exec_response)
+                
+                if hasattr(self, 'lamport_manager') and self.lamport_manager._is_lamport_watchpoint_hit(stop_reason):
+                    # Actualizar variables globales en modo transparente
+                    threads_info = self.get_thread_info()
+                    self.lamport_manager.update_global_variables(threads_info)
+                    continue
+                else:
+                    print(f"Razón de parada: {stop_reason}")
+                    break
+        
+        threads_info = self.get_thread_info()
+        self.lamport_manager.update_global_variables(threads_info)
 
         return self._update_thread_functions()
 
     def generic_step(self, step_type, thread_id=None):
         correspondece_step = {
             "step_over": "-exec-next",
-            "step_into": "-exec-step", 
+            "step_into": "-exec-step",
             "step_out": "-exec-finish"
         }
 
-        # Asegurar consistencia de tipos para thread_id
         if thread_id is not None:
             thread_id = str(thread_id)
 
-        # Configuración inicial del hilo...
         if not self.enable_rr and thread_id is not None:
-            selection_success = self.select_thread(thread_id)
-            try:
-                current_thread_info = self.get_thread_info()
-                current_thread = current_thread_info.get("current-thread-id")
-                if str(current_thread) != str(thread_id):
-                    return self.threads
-            except Exception as e:
-                return self.threads
-        elif thread_id is not None:
-            selection_success = self.select_thread(thread_id)
+            # Asegurar que solo el hilo seleccionado ejecute
+            self.select_thread(thread_id)
 
         if step_type == "step_out":
             frame_depth = self.get_stack_depth()
             if frame_depth == 1:
                 step_type = "step_over"
-    
+        
         # Ejecutar el comando de step
         step_command = correspondece_step[step_type]
         
         try:
-            step_result = self._gdb_write(step_command)
-            
-            # 🚀 NUEVA FUNCIONALIDAD: Manejar watchpoints transparentemente
-            return self._handle_step_stop_transparently(step_type, thread_id)
-            
+            self._gdb_write(step_command)
         except Exception as e:
             return self.threads
-
+        
+        # Actualizar threads y variables globales
+        threads_info = self.get_thread_info()
+        self.lamport_manager.update_global_variables(threads_info)
+        result = self._update_thread_functions(threads_info)
+        
+        return result
+    
     def _handle_step_stop_transparently(self, step_type, thread_id):
         """Maneja la parada después de un step, continuando si es por watchpoint"""
         

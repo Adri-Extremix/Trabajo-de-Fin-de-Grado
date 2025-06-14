@@ -102,6 +102,7 @@ def continue_breakpoint_code2():
     assert len(result_run) == 7, f"Se esperaban solo 7 hilos, se encontraron {len(result_run)}"
 
     result_continue = debugger.continue_execution()
+    pprint(debugger.lamport_manager.global_variables)
 
     assert len(result_continue) == 7, f"Se esperaban que se mantuvieran los 7 hilos, pero se encontraron {len(result_continue)}"
 
@@ -112,6 +113,8 @@ def reversing_breakpoint_code1():
     result_run = debugger.run()
     debugger.continue_execution()
     result_reverse = debugger.reverse_continue()
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result_run == result_reverse, "El resultado de la ejecución al breakpoint 28 y el resultado de la reversión a ese mismo breakpoint no son iguales"
 
@@ -122,6 +125,8 @@ def reversing_breakpoint_code2():
     result_run = debugger.run()
     debugger.continue_execution()
     result_reverse = debugger.reverse_continue()
+    pprint(debugger.lamport_manager.global_variables)
+
     
     assert result_run == result_reverse, "El resultado de la ejecución al breakpoint 22 y el resultado de la reversión a ese mismo breakpoint no son iguales"
 
@@ -131,6 +136,8 @@ def stepping_over_code1():
     debugger.run()
 
     result = debugger.step_over("1")
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
@@ -142,6 +149,8 @@ def stepping_over_code2():
     debugger.run()
 
     result = debugger.step_over("1")
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
@@ -152,6 +161,8 @@ def stepping_over_code3():
     debugger.set_breakpoint(28)
     debugger.run()
     result = debugger.step_over("1")
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
     assert result["1"]["line"] == "30", f"El hilo 1 no ha realizado correctamente el step, no encontrandose en la líneea 30. Se encuentra en la línea {result['1']['line']}"
@@ -161,6 +172,8 @@ def stepping_out_of_a_function_code3():
     debugger.set_breakpoint(6)
     debugger.run()
     result = debugger.step_out("1")
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
@@ -171,6 +184,8 @@ def stepping_out_of_main_code3():
     debugger.set_breakpoint(30)
     debugger.run()
     result = debugger.step_out("1")
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
@@ -181,6 +196,8 @@ def stepping_out_of_other_file_code3():
     debugger.set_breakpoint(19)
     debugger.run()
     result = debugger.step_out("2")
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result["2"]["function"] == "hilo_funcion", f"El hilo 2 no se encuentra en la función hilo_funcion, se encuentra en la funcion {result['2']['function']}"
 
@@ -192,6 +209,8 @@ def stepping_into_a_function_code3():
     debugger.set_breakpoint(30)
     debugger.run()
     result = debugger.step_into("1")
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result["1"]["function"] == "funcion1", f"El hilo 1 no se encuentra en la función funcion1, se encuentra en la función {result['1']['function']}"
 
@@ -202,6 +221,8 @@ def stepping_into_a_not_function_code1():
     debugger.set_breakpoint(66)
     debugger.run()
     result = debugger.step_into("4")
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result["4"]["function"] == "printArray", f"El hilo 4 no se encuentra en la función printArray, se encuentra en la función {result['4']['function']}"
 
@@ -212,6 +233,8 @@ def stepping_into_a_other_file_code3():
     debugger.set_breakpoint(28)
     debugger.run()
     result = debugger.step_into("1")
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result["1"]["function"] == "main", f"El hilo 1 no se encuentra en la función funcion1, se encuentra en la función {result['1']['function']}"
 
@@ -223,6 +246,8 @@ def reverse_stepping_over_code1():
     debugger.run()
     debugger.step_over("1")
     result = debugger.reverse_step_over()
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
@@ -234,6 +259,8 @@ def reverse_stepping_over_code2():
     debugger.run()
     debugger.step_over("1")
     result = debugger.reverse_step_over()
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
@@ -245,6 +272,8 @@ def reverse_stepping_over_code3():
     debugger.run()
     debugger.step_over("1")
     result = debugger.reverse_step_over()
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
     assert result["1"]["line"] == "28", f"El hilo 1 no ha realizado correctamente el reverse step over, no encontrandose en la línea 28. Se encuentra en la línea {result['1']['line']}"
@@ -255,6 +284,8 @@ def reverse_stepping_out_of_a_function_code3():
     debugger.run()
     debugger.step_out("1")
     result = debugger.reverse_step_out()
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result["1"]["function"] == "funcion1", f"El hilo 1 no se encuentra en la función funcion1, se encuentra en la función {result['1']['function']}"
 
@@ -266,6 +297,8 @@ def reverse_stepping_out_of_main_code3():
     debugger.run()
     debugger.step_out("1")
     result = debugger.reverse_step_out()
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
@@ -277,6 +310,8 @@ def reverse_stepping_out_of_other_file_code3():
     debugger.run()
     debugger.step_out("2")
     result = debugger.reverse_step_out()
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result["2"]["function"] == "hilo_funcion", f"El hilo 2 no se encuentra en la función worker_function, se encuentra en la función {result['2']['function']}"
 
@@ -288,6 +323,8 @@ def reverse_stepping_into_a_function_code3():
     debugger.run()
     debugger.step_into("1")
     result = debugger.reverse_step_into()
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
@@ -299,6 +336,8 @@ def reverse_stepping_into_a_other_file_code3():
     debugger.run()
     debugger.step_into("1")
     result = debugger.reverse_step_into()
+    pprint(debugger.lamport_manager.global_variables)
+
 
     assert result["1"]["function"] == "main", "El hilo 1 no se encuentra en la función main"
 
