@@ -37,7 +37,7 @@ WORKDIR /app
 ENV PYTHONUNBUFFERED=1
 
 # Copiar archivos necesarios
-COPY docker/compiler.py docker/debugger.py docker/requirements.txt docker/webSocket.py ./
+COPY docker/compiler.py docker/debugger.py docker/watchpoint.py docker/requirements.txt docker/webSocket.py ./
 COPY ../frontend/dist ./frontend/dist
 
 # Crear entorno virtual con PyPy directamente (sin instalar pip globalmente)

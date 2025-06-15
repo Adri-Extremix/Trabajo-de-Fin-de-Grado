@@ -7,7 +7,7 @@ import re
 import subprocess
 import time
 import os
-from .watchpoint import LamportWatchpointManager
+from watchpoint import LamportWatchpointManager
 
 class Debugger:
     def __init__(self, code_path, compiled_path, rr: bool = False):

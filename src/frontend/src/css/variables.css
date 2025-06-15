@@ -1,5 +1,6 @@
 :root {
     --primary-color-coder: #3885cc;
+    --primary-color-coder-rgb: 56, 133, 204;
     --secondary-color-coder: #3867cc;
     --active-button-color-coder: #2d70ae;
     --hover-button-color-coder: #428fd6;
@@ -12,4 +13,7 @@
     --background-color: #282c34;
     --background-color-focus: #1f2228;
     --text-color: white;
+    --text-color-secondary: #8e9aaf;
+        --border-color: #3e4451;
+        --border-color-rgb: 62, 68, 81;
 }

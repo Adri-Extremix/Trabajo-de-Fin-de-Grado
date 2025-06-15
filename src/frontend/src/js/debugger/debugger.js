@@ -239,10 +239,16 @@ export function handleDebuggerResponse(response) {
         return;
     }
 
-    const threads = response.result;
+    const result = response.result;
+
+    // ✅ NUEVO FORMATO: Extraer threads y globals del resultado
+    const threads = result.threads || {};
+    const globals = result.globals || {};
+
     const threadCount = Object.keys(threads).length;
 
     console.log(`Procesando respuesta de depuración con ${threadCount} hilos`);
+    console.log("Variables globales recibidas:", globals);
 
     // Actualizar el thread activo si hay hilos disponibles
     if (threadCount > 0) {
@@ -261,6 +267,9 @@ export function handleDebuggerResponse(response) {
 
     // Actualizar la visualización del código
     updateCodeShards(threads);
+
+    // ✅ NUEVO: Actualizar visualización de variables globales
+    updateGlobalVariables(globals);
 
     // Inicializar los eventos para los botones de control de hilo
     // Esto garantiza que los botones funcionen después de cada actualización
@@ -439,3 +448,121 @@ export function showDebuggingStatus() {
 
     console.log("Estado de depuración mostrado correctamente");
 }
+
+// ✅ NUEVA FUNCIÓN: Actualizar visualización de variables globales de Lamport
+function updateGlobalVariables(globals) {
+    console.log("Actualizando variables globales:", globals);
+
+    // ✅ CORRECTO: Buscar el Visual que contiene ThreadContent
+    const threadVisualContainer = $(".ThreadContent").closest(".Visual");
+
+    // Buscar el contenedor de variables globales o crearlo si no existe
+    let globalContainer = $("#GlobalVariables");
+
+    if (globalContainer.length === 0) {
+        // ✅ CORRECTO: Crear el contenedor DENTRO del Visual, ANTES de ThreadContent
+        if (threadVisualContainer.length > 0) {
+            // Insertar las variables globales antes de ThreadContent
+            $(".ThreadContent").before(`
+                <div id="GlobalVariables" class="GlobalVariablesContainer">
+                    <div class="GlobalVariablesTitle">Variables Globales (Diagrama Lamport)</div>
+                    <div class="GlobalVariablesList"></div>
+                </div>
+            `);
+            globalContainer = $("#GlobalVariables");
+        } else {
+            console.warn(
+                "No se encontró el Visual que contiene ThreadContent para mostrar variables globales"
+            );
+            return;
+        }
+    }
+
+    const variablesList = globalContainer.find(".GlobalVariablesList");
+    variablesList.empty();
+
+    const variableCount = Object.keys(globals).length;
+
+    if (variableCount === 0) {
+        variablesList.html(`
+            <div class="NoGlobalVariables">
+                <p>No hay variables globales monitoreadas</p>
+            </div>
+        `);
+        return;
+    }
+
+    // Mostrar cada variable global con su historial
+    Object.keys(globals).forEach((varName) => {
+        const variable = globals[varName];
+        const currentValue = variable.current_value || "undefined";
+        const currentType = variable.current_type || "unknown";
+        const history = variable.history || [];
+
+        const variableItem = $(`
+            <div class="GlobalVariableItem" data-variable="${varName}">
+                <div class="GlobalVariableHeader">
+                    <span class="GlobalVariableName">${varName}</span>
+                    <span class="GlobalVariableType">${currentType}</span>
+                    <span class="GlobalVariableValue">${currentValue}</span>
+                </div>
+                <div class="GlobalVariableHistory">
+                    <div class="HistoryTitle">Historial de cambios (Lamport):</div>
+                    <div class="HistoryList"></div>
+                </div>
+            </div>
+        `);
+
+        const historyList = variableItem.find(".HistoryList");
+
+        if (history.length === 0) {
+            historyList.html(
+                '<div class="HistoryEmpty">Sin cambios registrados</div>'
+            );
+        } else {
+            // Mostrar los últimos 5 cambios, más recientes primero
+            const recentHistory = history.slice(-5).reverse();
+
+            recentHistory.forEach((event, index) => {
+                const timestamp = new Date(
+                    event.timestamp
+                ).toLocaleTimeString();
+                const historyItem = $(`
+                    <div class="HistoryItem" data-lamport="${event.lamport_time}">
+                        <span class="HistoryLamport">T${event.lamport_time}</span>
+                        <span class="HistoryThread">Hilo ${event.thread_id}</span>
+                        <span class="HistoryValue">${event.value}</span>
+                        <span class="HistoryTime">${timestamp}</span>
+                    </div>
+                `);
+
+                historyList.append(historyItem);
+            });
+
+            // Si hay más de 5 eventos, mostrar un indicador
+            if (history.length > 5) {
+                historyList.append(`
+                    <div class="HistoryMore">
+                        ... y ${history.length - 5} cambios más
+                    </div>
+                `);
+            }
+        }
+
+        variablesList.append(variableItem);
+    });
+}
+
+// Función para alternar la visualización del historial de una variable
+function toggleVariableHistory(varName) {
+    const variableItem = $(`.GlobalVariableItem[data-variable="${varName}"]`);
+    const historyDiv = variableItem.find(".GlobalVariableHistory");
+
+    historyDiv.slideToggle(200);
+}
+
+// Event listener para el click en variables globales
+$(document).on("click", ".GlobalVariableHeader", function () {
+    const varName = $(this).closest(".GlobalVariableItem").data("variable");
+    toggleVariableHistory(varName);
+});
