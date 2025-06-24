@@ -1,5 +1,4 @@
 \chapter{Diseño}\label{chap:diseno}
-
 En este capítulo se detalla el diseño que tendrá la solución propuesta. Para ello se discutirán sobre las posibles alternativas y cuál de ellas ha sido elegida (\sectionref{estudio-solucion-final}) y posteriormente, se describirá la arquitectura del sistema (\sectionref{arquitectura-sistema}) a partir de la solución final elegida.
 
 \section{Construcción de la solución final}\label{sec:estudio-solucion-final}
@@ -16,27 +15,26 @@ Una \gls{aplicación monolítica} \cite{DistributedSystems} es aquella que se ej
 
 \subsubsection{Distribuido} \label{subsubsec:distribuido}
 
-Una \gls{aplicación distribuida} \cite {DistributedSystems} es aquella que se ejecuta en múltiples \glspl{proceso}. Este tipo de aplicaciones tienen una mayor complejidad de desarrollar, debido a la comunicación entre \glspl{proceso}. Sin embargo, una \gls{aplicación distribuida} que sirva un \gls{servicio web} podría funcionar en cualquier sistema operativo, dado que solo ejecutaría el código del cliente,
+Una \gls{aplicación distribuida} \cite{DistributedSystems} es aquella que se ejecuta en múltiples \glspl{proceso}. Este tipo de aplicaciones tienen una mayor complejidad de desarrollar, debido a la comunicación entre \glspl{proceso}. Sin embargo, una \gls{aplicación distribuida} que sirva un \gls{servicio web} podría funcionar en cualquier sistema operativo, dado que solo ejecutaría el código del cliente.
 
 \subsubsection{Elección de la arquitectura} \label{subsec:eleccion-arquitectura}
 
 Tras exponer las ventajas y desventajas de cada una de las arquitecturas, se ha decidido optar por una arquitectura distribuida. La arquitectura monolítica no es una opción viable, ya que para cumplir con los requisitos \sreqref{NF-abstraccion-so}, \sreqref{NF-abstraccion-arch} y \sreqref{NF-multiplataforma} sería necesario compilar el \gls{código fuente} para cada sistema operativo y arquitectura. Esto supondría un gran esfuerzo de desarrollo y mantenimiento, ya que habría que mantener diferentes versiones del \gls{código fuente} para cada sistema operativo y arquitectura.
 
 En cambio, una arquitectura distribuida permitiría tener un único \gls{código fuente} que se ejecute en cualquier sistema operativo y arquitectura, siempre y cuando el cliente sea una \gls{aplicación web}. Esto facilitaría el desarrollo y mantenimiento del \gls{código fuente}, ya que solo habría que mantener una única versión del \gls{código fuente}. Además, la arquitectura distribuida permitiría escalar el sistema de manera más sencilla, ya que se podrían añadir más servidores para soportar más carga de trabajo.
-Además, la arquitectura distribuida permitiría ejecutar el \gls{código fuente} en un sistema operativo \gls{Unix} que soporte la ejecución de \glspl{hilo} POSIX, lo que facilitaría la implementación de la funcionalidad de depuración.
+Asimismo, la arquitectura distribuida permitiría ejecutar el \gls{código fuente} en un sistema operativo \gls{Unix} que soporte la ejecución de \glspl{hilo} POSIX, lo que facilitaría la implementación de la funcionalidad de depuración.
 
 \subsection{Almacenamiento de estados vs Depuradores Externos} \label{subsec:depuracion}
 
 \subsubsection{Almacenamiento de estados} \label{subsec:almacenamiento-estados}
 
-Para implementar las operaciones básicas de un \gls{depurador} es necesario moverse por la ejecución del \gls{código fuente}. Es por esta razón que se evaluó la posibilidad de \gls{inyectar código} en el programa cuyo propósito sea almacenar el estado de la ejecución en un momento determinado. Con estos estados almacenados el usuario podría moverse entre cada uno de ellos, facilitando el rebobinado de la ejecución.
+Para implementar las operaciones básicas de un \gls{depurador} es necesario moverse por la ejecución del \gls{código fuente}. Es por esta razón que se evaluó la posibilidad de \gls{inyectar código} en el programa cuyo propósito sea almacenar el estado de la ejecución en un momento determinado. Con estos estados almacenados el usuario podría moverse entre cada uno de ellos, facilitando el rebobinado de la ejecución, tal y como se indica en el requisito \sreqref{FN-rebobinar}.
 
 Para almacenar estos estados sería necesario introducir código en el programa tras cada \gls{sentencia} que modifique el estado de la ejecución, es decir, creación de variables, modificación de variables o \glspl{llamada al sistema} que generasen nuevos \glspl{hilo}. Lo que supone crear un \textit{\gls{parser}} para encontrar estas \glspl{sentencia} y añadir a continuación una función que almacene la variable y su valor en la función e \gls{hilo} correspondiente.
 
-
 \subsubsection{Uso de depuradores externos} \label{subsec:depuradores-externos}
 
-También se ha evaluado la opción de utilizar un depurador externo. Durante el \chapterref{estado-del-arte} se analizaron los \glspl{depurador} existentes, dentro de estos \glspl{depurador} tan solo GDB (\subsectionref{gdb}), LLDB (\subsectionref{lldb}) y RR (\subsectionref{rr}) permitían construir una aplicación sobre ellos. Aunque LLDB tenga una \gls{API} en Python que permita la interactividad con la sesión de depuración, carece de la capacidad de rebobinar durante la depuración, tal y como indica el requisito \sreqref {FN-rebobinar}. Por lo tanto, RR es una opción más viable, que aunque no ofrezca una \gls{API} en Python que permita la interactividad, sí que ofrece una interfaz máquina que ofrece una salida formateada.
+También se ha evaluado la opción de utilizar un depurador externo. Durante el \chapterref{estado-del-arte} se analizaron los \glspl{depurador} existentes, dentro de estos \glspl{depurador} tan solo GDB (\subsectionref{gdb}), LLDB (\subsectionref{lldb}) y RR (\subsectionref{rr}) permitían construir una aplicación sobre ellos. Aunque LLDB tenga una \gls{API} en Python que permita la interactividad con la sesión de depuración, carece de la capacidad de rebobinar durante la depuración, tal y como indica el requisito \sreqref{FN-rebobinar}. Por lo tanto, RR es una opción más viable, que aunque no ofrezca una \gls{API} en Python que permita la interactividad, sí que ofrece una interfaz máquina que ofrece una salida formateada.
 
 No obstante, RR registra la ejecución del programa para reproducirla posteriormente, garantizando así una ejecución determinista. Esto limitaría la capacidad del usuario para modificar el flujo de ejecución a su conveniencia. Por ello, se ofrecerá la opción de elegir entre grabar la ejecución, permitiendo el rebobinado, o no grabarla (utilizando solo GDB), permitiendo una ejecución libre de los \glspl{hilo}.
 
@@ -59,21 +57,19 @@ La principal dificultad que supone incorporar \glspl{contenedor} es controlar la
 
 \drawiosvgfigure[0.9]{propuesta1_sandbox}{Primera propuesta de arquitectura del sistema}
 
-
-Es por esta razón que se ha tomado la decisión de quitar responsabilidad al servidor e incorporarla en los \glspl{contenedor}. El servidor se convertirá en un \textit{\gls{proxy}} y se encargará de redirigir la conexión de un cliente a un docker disponible, es decir, solo tendrá información sobre a qué \gls{contenedor} está conectado cada cliente. 
-Cada docker alojará un pequeño servidor que sirva los ficheros estáticos y las funcionalidades de los requisitos.
+Es por esta razón que se ha tomado la decisión de quitar responsabilidad al servidor e incorporarla en los \glspl{contenedor}. El servidor se partirá en dos partes: un \textit{\gls{proxy}} y varios \glspl{contenedor}. El \textit{\gls{proxy}} se encargará de redirigir las peticiones de los clientes a los \glspl{contenedor} correspondientes, y los \glspl{contenedor} se encargarán de servir los ficheros estáticos y de ejecutar las funcionalidades del depurador. De esta manera, el servidor no tendrá que gestionar las comunicaciones entre clientes y \glspl{contenedor}, lo que permitirá una mayor escalabilidad del sistema.
 
 \drawiosvgfigure[0.9]{propuestaFinal_sandbox}{Propuesta final de arquitectura del sistema}
 
-Es importante destacar, que como un \gls{contenedor} puede dejar de estar disponible por un uso malicioso desde el lado cliente, el \gls{proxy} debe de conocer la disponibilidad de cada uno de los \glspl{contenedor}. Para ello cada uno de los \glspl{contenedor} mandará latidos, de manera que el \gls{proxy} pueda conocer qué dockers están disponibles.
+Es importante destacar, que como un \gls{contenedor} puede dejar de estar disponible por un uso malicioso desde el lado cliente, el \textit{\gls{proxy}} debe de conocer la disponibilidad de cada uno de los \glspl{contenedor}. Para ello cada uno de los \glspl{contenedor} mandará latidos, de manera que el \textit{\gls{proxy}} pueda conocer qué dockers están disponibles.
 
-Para conseguir todo esto se creará una \gls{imagen Docker} que contenga el código correspondiente a la comunicación tanto con el cliente como con el \gls{proxy}, el código de las funcionalidades del depurador y los ficheros estáticos a servir. Cada uno de estos \glspl{contenedor} se levantará a través de \textit{Docker Compose}, configurado con un \texttt{docker-compose.yml} en el que se indicarán los puertos que cada docker tiene que mapear y las variables de entorno para las comunicaciones. 
+Para conseguir todo esto se creará una \gls{imagen Docker} que contenga el código correspondiente a la comunicación tanto con el cliente como con el \textit{\gls{proxy}}, el código de las funcionalidades del depurador y los ficheros estáticos a servir. Cada uno de estos \glspl{contenedor} se levantará a través de \textit{Docker Compose}, configurado con un \texttt{docker-compose.yml} en el que se indicarán los puertos que cada docker tiene que mapear y las variables de entorno para las comunicaciones. 
 
 Es por esto que la arquitectura distribuida final constará de uno o varios clientes, un único \textit{proxy}, al que se conectarán los clientes para ser redirigidos, y varios \textit{\glspl{contenedor}} que se encargarán de toda la lógica del sistema.
 
 \subsection{Comunicación entre procesos} \label{subsec:comunicacion-procesos}
 
-Dada la existencia de un cliente, un \gls{proxy} y varios \glspl{contenedor}, es necesario establecer una comunicación entre ellos. Esta comunicación se puede realizar de diferentes maneras, pero se han considerado las dos siguientes opciones: 
+Dada la existencia de un cliente, un \textit{\gls{proxy}} y varios \glspl{contenedor}, es necesario establecer una comunicación entre ellos. Esta comunicación se puede realizar de diferentes maneras, pero se han considerado las dos siguientes opciones: 
 
 \begin{itemize}
     \item \textbf{REST}: Permite la comunicación entre \glspl{proceso} a través de peticiones \gls{HTTP}. Esta comunicación es unidireccional, sin control de estados y se establece una conexión por cada petición. Es ideal para controlar una gran cantidad de comunicaciones y para servir unos recursos.
@@ -84,7 +80,7 @@ Dadas las características de la aplicación, se optará por usar \gls{REST API}
 
 \subsection{Lenguajes de programación} \label{subsec:programacion}
 
-Dada la arquitectura distribuida del sistema, se necesita usar un lenguaje de programación para el lado cliente y otro para el lado servidor, correspondiente al \gls{proxy} y los \glspl{contenedor}.
+Dada la arquitectura distribuida del sistema, se necesita usar un lenguaje de programación para el lado cliente y otro para el lado servidor, correspondiente al \textit{\gls{proxy}} y los \glspl{contenedor}.
 
 \subsubsection{Tecnologías del lado cliente} \label{subsubsec:tecnologias-cliente}
 
@@ -105,7 +101,7 @@ Dentro de las opciones destacan Python, Go, Rust y NodeJS, por lo que vamos a an
 
 Tanto Go como Python son lenguajes adecuados para el proyecto. Aunque Go ofrece un rendimiento superior, la disponibilidad de la biblioteca Python \textit{pygdbmi}, que facilita la gestión de una sesión RR/GDB y la obtención de la salida MI en formato JSON, convierte a Python en la opción más conveniente.
 
-\section{Actualizacion de los requisitos del sistema} \label{sec:actualizacion-requisitos}
+\section{Actualización de los requisitos del sistema} \label{sec:actualizacion-requisitos}
 Tras las decisiones tomadas durante la construcción de la solución final, se han actualizado los requisitos del sistema. Las decisiones tomadas han llevado a generar 3 nuevos requisitos funcionales de software y un nuevo requisito no funcional, que se describen a continuación:
 
 \begin{softwareReq}{FN}{arquitectura-distribuida}
@@ -132,7 +128,7 @@ Tras las decisiones tomadas durante la construcción de la solución final, se h
     El sistema debe ejecutarse en un entorno aislado utilizando contenedores Docker, garantizando la seguridad y el control de recursos durante la ejecución del código del usuario.
 \end{softwareReq}
 
-Tras la actualización de los requisitos, se han actualizado los requisitos de trazabilidad, esto se muestra en las siguientes tablas \tabref{trazabilidad2FN-CA} \tabref{trazabilidad2NF-RE}.
+Tras la actualización de los requisitos, se han actualizado los requisitos de trazabilidad, esto se muestra en las siguientes tablas: \tabref{trazabilidad2FN-CA}, \tabref{trazabilidad2NF-RE}.
 
 
 \begin{table}[htb]
@@ -163,7 +159,7 @@ A continuación se describen los distintos componentes del sistema y sus respons
 
 \begin{itemize}
     \item \textbf{Cliente}: Permite facilitar la interacción del usuario con el depurador, además de visualizar las salidas y cambios ocurridos durante la ejecución. En este componente se podrá escribir código, y comunicará las acciones al servidor para ejecutar las correspondientes funcionalidades. 
-    Dentro de la aplicación web, existen dos componentes principales:
+    Dentro de la aplicación web, existen tres componentes principales:
 
     \begin{itemize}
         \item \textbf{Interfaz Gráfica}: Su responsabilidad es actualizar la información que se muestra por pantalla.
@@ -366,8 +362,14 @@ Tal y como se ha desarrollado en \subsectionref{diagrama-secuencia-depuracion}, 
     \begin{tcolorbox}
         \dirtree{%
         .1 Globales.
-            .2 mutex: 0x12345678.
-            .2 global: 18.
+            .2 global\_var:.
+                .3 current\_type: int.
+                .3 current\_value: 5.
+                .3 history:.
+                    .4 value: 5.
+                    .4 timestamp: "XXXX-YY-ZZTAA:BB:CCZ".
+                    .4 thread\_id: 1.
+                    .4 lamport\_time: 1.
         .1 Hilos. 
             .2 Hilo-1:.
                 .3 function: "main".
@@ -394,6 +396,6 @@ Tal y como se ha desarrollado en \subsectionref{diagrama-secuencia-depuracion}, 
     }
 \end{figure}
 
-Es importante destacar que los \glspl{hilo} se actulizan según el estado de la ejecución, de manera que si un \gls{hilo} no se ha ejecutado o ha finalizado, no se incluirá en el mensaje.
+Es importante destacar que los \glspl{hilo} se actualizan según el estado de la ejecución, de manera que si un \gls{hilo} no se ha ejecutado o ha finalizado, no se incluirá en el mensaje.
 
 De esta manera, el cliente puede visualizar la información de los \glspl{hilo} y las variables de manera clara y estructurada. Además, se pueden añadir nuevas funcionalidades que envíen información adicional al cliente, como la información de los \glspl{breakpoint} o el estado de la ejecución.

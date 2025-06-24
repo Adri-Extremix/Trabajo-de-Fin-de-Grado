@@ -134,7 +134,7 @@ Seer destaca por su ligereza, su \gls{interfaz gráfica}, su rendimiento y la mu
 
 \rasterfigure[0.9]{seer.png}{Muestra del depurador de Seer}
 
-\section{Otras Herramientas}\label{sec:herramientas}
+\section{Otras herramientas}\label{sec:herramientas}
 
 Además de los \glspl{depurador} de \glspl{programa concurrente}, existen otras herramientas que permiten analizar el comportamiento de un \glspl{programa concurrente} y detectar errores debidos al uso incorrecto de la \gls{concurrencia}. A continuación se explorarán algunas de estas herramientas.
 
@@ -202,7 +202,7 @@ WARNING: ThreadSanitizer: data race (pid=26327)
 
 \end{lstlisting}
 
-\section{Comparativa de Depuradores}\label{sec:comparativa-depuradores}
+\section{Comparativa de depuradores}\label{sec:comparativa-depuradores}
 Con el objetivo de encontrar cuál de las herramientas descritas en las secciones anteriores es la que mejor se adapta a las necesidades del proyecto, se ha realizado una comparativa de las características de cada una de ellas. 
 
 Las características que se tendrán en cuenta para la comparación son las siguientes:
@@ -234,7 +234,7 @@ Para el caso de la \textbf{Usabilidad} se han tenido en cuenta el número de bot
 \end{itemize}
 
 
-\subsection{Comparativa de Depuradores de Programas Concurrentes}{\label{subsec:comparativa-depuradores-concurrentes}}
+\subsection{Comparativa de depuradores de programas concurrentes}{\label{subsec:comparativa-depuradores-concurrentes}}
 
 \begin{table}[htb]
     \begin{adjustbox}{max width=\textwidth}  % permite que la tabla se desborde y quede centrada
@@ -259,7 +259,7 @@ Para el caso de la \textbf{Usabilidad} se han tenido en cuenta el número de bot
 
 \drawiosvgfigure[0.7]{grafico_comparacion}{Comparativa de depuradores}
 
-\subsection{Conexión con los Objetivos del Proyecto}{\label{subsec:conexión-objetivos-proyecto}}
+\subsection{Conexión con los objetivos del proyecto}{\label{subsec:conexión-objetivos-proyecto}}
 
 A partir del análisis de las herramientas existentes para la depuración de \glspl{programa concurrente}, se observa que, si bien cada una presenta características distintivas, ninguna satisface completamente el objetivo 2 (\ref{obj:didactico}). La única excepción parcial es CLion (\subsectionref{clion}), que se acerca más a cumplir este objetivo, aunque carece de una versión gratuita, lo que limita su accesibilidad. Por ello se plantea el desarrollo de una herramienta, que no solo abstraiga las funcionalidades de los depuradores actuales, sino que también incorpore mecanismos didácticos que faciliten el aprendizaje de la depuración en entornos concurrentes de manera intuitiva y accesible para principiantes.
 
