@@ -465,7 +465,7 @@ class Debugger:
     def select_frame(self, frame):
         self._gdb_write(f"-stack-select-frame {frame}")
 
-    def _gdb_write(self, command, timeout_sec=5):
+    def _gdb_write(self, command, timeout_sec=10):
         if not self.gdb:
             raise RuntimeError("GDB controller is not initialized")
         return self.gdb.write(command, timeout_sec=timeout_sec)

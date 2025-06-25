@@ -75,10 +75,20 @@ class LamportWatchpointManager:
             
             # Patrones para detectar variables globales
             patterns = [
-                # Variables globales simples: tipo nombre = valor;
-                r'^\s*(?:extern\s+)?(?:static\s+)?(?:const\s+)?(?:volatile\s+)?((?:int|float|double|char|long|short|unsigned)\s*\*?\s*)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=\s*[^;]+)?\s*;',
-                # Arrays globales: tipo nombre[tamaño];
-                r'^\s*(?:extern\s+)?(?:static\s+)?(?:const\s+)?(?:volatile\s+)?((?:int|float|double|char|long|short|unsigned)\s*)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\[[^\]]*\]\s*(?:=\s*[^;]+)?\s*;'
+            # Variables globales simples: tipo nombre = valor;
+                r'^\s*(?:extern\s+)?(?:static\s+)?(?:const\s+)?(?:volatile\s+)?((?:int|float|double|char|long|short|unsigned|struct\s+\w+|enum\s+\w+)\s*\*?\s*)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=\s*[^;]+)?\s*;',
+            
+            # Arrays unidimensionales: tipo nombre[tamaño];
+                r'^\s*(?:extern\s+)?(?:static\s+)?(?:const\s+)?(?:volatile\s+)?((?:int|float|double|char|long|short|unsigned|struct\s+\w+)\s*)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\[[^\]]*\]\s*(?:=\s*[^;]+)?\s*;',
+            
+            # Arrays multidimensionales: tipo nombre[M][N] = {...};
+                r'^\s*(?:extern\s+)?(?:static\s+)?(?:const\s+)?(?:volatile\s+)?((?:int|float|double|char|long|short|unsigned|struct\s+\w+)\s*)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:\[[^\]]*\]){2,}\s*(?:=\s*\{[^}]*(?:\{[^}]*\}[^}]*)*\}\s*)?;',
+            
+            # Variables de tipos struct definidos: struct NombreStruct nombre = {...};
+                r'^\s*(?:extern\s+)?(?:static\s+)?(?:const\s+)?(?:volatile\s+)?struct\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=\s*\{[^}]*\})?\s*;',
+            
+            # Tipos definidos con typedef: MiTipo nombre = valor;
+                r'^\s*(?:extern\s+)?(?:static\s+)?(?:const\s+)?(?:volatile\s+)?([A-Z][a-zA-Z0-9_]*)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:=\s*[^;]+)?\s*;'
             ]
             
             in_function = False
