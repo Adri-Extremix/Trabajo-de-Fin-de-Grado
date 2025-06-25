@@ -29,7 +29,7 @@ class LamportWatchpointManager:
                 print("Símbolos GDB fallaron, usando parsing de código")
                 self._parse_globals_from_source_code()
         
-        print(f"✅ Variables globales detectadas: {list(self.global_variables.keys())}")
+        print(f"Variables globales detectadas: {list(self.global_variables.keys())}")
 
     def _initialize_from_gdb_symbols(self):
         """Método original para GDB normal"""
@@ -159,8 +159,8 @@ class LamportWatchpointManager:
         
         self.global_variables = valid_vars
 
-    def update_global_variables(self, thread_info=None):
-        """Actualizar valores optimizado para RR y GDB"""
+    def update_global_variables(self, thread_info=None, is_reverse_operation=False):
+        """Actualizar valores optimizado para RR y GDB con soporte para reversión"""
         try:
             for var_name in self.global_variables:
                 # Usar comando más simple y compatible con RR
@@ -176,33 +176,119 @@ class LamportWatchpointManager:
                 if new_value is not None:
                     old_value = self.global_variables[var_name]["current_value"]
                     
-                    # Si cambió, agregar al historial
+                    # Si cambió el valor
                     if new_value != old_value:
-                        # Obtener thread actual
-                        if thread_info:
-                            current_thread = thread_info.get("current-thread-id", "1")
-                        else:
-                            thread_response = self.debugger.get_thread_info()
-                            current_thread = thread_response.get("current-thread-id", "1")
+                        # 🔧 OBTENER THREAD ID CONSISTENTE usando correspondence
+                        current_thread = self._get_consistent_thread_id(thread_info)
                         
-                        self.lamport_clocks[current_thread] = self.lamport_clocks.get(current_thread, 0) + 1
-
-                        # Agregar evento al historial
-                        event = {
-                            "value": new_value,
-                            "lamport_time": self.lamport_clocks[current_thread],
-                            "thread_id": str(current_thread),
-                            "timestamp": datetime.datetime.now().isoformat()
-                        }
-                        self.global_variables[var_name]["history"].append(event)
-                        print(f"Historial actualizado: {var_name} = {new_value} (lamport: {self.lamport_clocks[current_thread]})")
-                    
-                    # Actualizar valor actual
-                    self.global_variables[var_name]["current_value"] = new_value
-                    
+                        if is_reverse_operation:
+                            # 🔙 MODO REVERSIÓN: Quitar entradas del historial
+                            self._handle_reverse_variable_change(var_name, new_value, current_thread)
+                        else:
+                            # ➡️ MODO NORMAL: Agregar al historial
+                            self._handle_forward_variable_change(var_name, new_value, current_thread)
+                
+                # Actualizar valor actual
+                self.global_variables[var_name]["current_value"] = new_value
+                
         except Exception as e:
-            print(f" Error actualizando variables: {e}")
+            print(f"Error actualizando variables: {e}")
 
+    def _get_consistent_thread_id(self, thread_info=None):
+        """Obtiene el ID de thread consistente usando el mapeo de correspondence"""
+        try:
+            # Obtener información de hilos si no se proporciona
+            if thread_info is None:
+                thread_info = self.debugger.get_thread_info()
+            
+            # ID del thread actual según GDB
+            gdb_thread_id = str(thread_info.get("current-thread-id", "1"))
+            
+            # Buscar el thread actual en la lista de threads
+            current_thread_name = None
+            for thread in thread_info.get("threads", []):
+                if str(thread["id"]) == gdb_thread_id:
+                    current_thread_name = thread["target-id"]
+                    break
+            
+            if current_thread_name:
+                # 🔧 USAR EL MAPEO CONSISTENTE DE CORRESPONDENCE
+                consistent_id = self.debugger.correspondence.get(current_thread_name, gdb_thread_id)
+                print(f"Thread mapping: GDB-{gdb_thread_id} ({current_thread_name}) → App-{consistent_id}")
+                return str(consistent_id)
+            
+            # Fallback al ID de GDB si no hay mapeo
+            return gdb_thread_id
+            
+        except Exception as e:
+            print(f"Error obteniendo thread ID consistente: {e}")
+            return "1"  # Fallback al thread principal
+
+    def _handle_forward_variable_change(self, var_name, new_value, current_thread):
+        """Maneja cambios de variables en operaciones normales (hacia adelante)"""
+        # 🔧 USAR THREAD ID CONSISTENTE PARA LAMPORT CLOCKS
+        self.lamport_clocks[current_thread] = self.lamport_clocks.get(current_thread, 0) + 1
+
+        # Agregar evento al historial
+        event = {
+            "value": new_value,
+            "lamport_time": self.lamport_clocks[current_thread],
+            "thread_id": str(current_thread),  # Ya es consistente
+            "timestamp": datetime.datetime.now().isoformat(),
+            "operation_type": "forward"
+        }
+        self.global_variables[var_name]["history"].append(event)
+        print(f"Historial agregado: {var_name} = {new_value} (thread: {current_thread}, lamport: {self.lamport_clocks[current_thread]})")
+
+    def _handle_reverse_variable_change(self, var_name, new_value, current_thread):
+        """Maneja cambios de variables en operaciones de reversión"""
+        history = self.global_variables[var_name]["history"]
+        
+        if history:
+            removed_entries = []
+            
+            # 🔧 BUSCAR POR THREAD ID CONSISTENTE
+            for i in range(len(history) - 1, -1, -1):
+                entry = history[i]
+                
+                # Si encontramos una entrada que corresponde al thread consistente
+                if entry["thread_id"] == str(current_thread):
+                    removed_entry = history.pop(i)
+                    removed_entries.append(removed_entry)
+                    print(f"🔙 ⬅️ Historial revertido: {var_name} removió entrada de thread {current_thread}, lamport: {removed_entry['lamport_time']}")
+                    
+                    # Decrementar el reloj de Lamport para este thread
+                    if self.lamport_clocks.get(current_thread, 0) > 0:
+                        self.lamport_clocks[current_thread] -= 1
+                    
+                    break  # Solo remover una entrada por cambio
+            
+            # Si no encontramos entradas del thread actual, remover la más reciente
+            if not removed_entries and history:
+                removed_entry = history.pop()
+                removed_entries.append(removed_entry)
+                print(f"🔙 ⬅️ Historial revertido (general): {var_name} removió entrada de thread {removed_entry['thread_id']}, lamport: {removed_entry['lamport_time']}")
+                
+                # Decrementar el reloj del thread que hizo el cambio
+                thread_of_removed = removed_entry["thread_id"]
+                if self.lamport_clocks.get(thread_of_removed, 0) > 0:
+                    self.lamport_clocks[thread_of_removed] -= 1
+
+    def get_lamport_globals_structure_with_reverse_info(self):
+        """Genera la estructura de globals para el diagrama de Lamport con información de reversión"""
+        result = {}
+        
+        for var_name, var_data in self.global_variables.items():
+            result[var_name] = {
+                "current_type": var_data["current_type"],
+                "current_value": var_data["current_value"],
+                "history": var_data["history"],
+                "total_changes": len(var_data["history"]),
+                "threads_involved": list(set(entry["thread_id"] for entry in var_data["history"])),
+                "last_change_time": var_data["history"][-1]["timestamp"] if var_data["history"] else None
+            }
+        
+        return result
     def _extract_value_from_print_response(self, response):
         """Extrae el valor de una respuesta de 'print' de GDB"""
         try:

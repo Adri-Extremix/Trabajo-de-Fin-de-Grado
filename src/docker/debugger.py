@@ -176,24 +176,22 @@ class Debugger:
     
     def reverse_continue(self):
         """Method to reverse continue the execution of the program"""
-
         if self.enable_rr:
-
             while True:
                 exec_response = self._gdb_write("reverse-continue")
                 stop_reason = self._extract_stop_reason(exec_response)
                 
                 if hasattr(self, 'lamport_manager') and self.lamport_manager._is_lamport_watchpoint_hit(stop_reason):
-                    # Actualizar variables globales en modo transparente
+                    # Actualizar variables globales en modo reversión transparente
                     threads_info = self.get_thread_info()
-                    self.lamport_manager.update_global_variables(threads_info)
+                    self.lamport_manager.update_global_variables(threads_info, is_reverse_operation=True)
                     continue
                 else:
                     print(f"Razón de parada: {stop_reason}")
                     break
         
         threads_info = self.get_thread_info()
-        self.lamport_manager.update_global_variables(threads_info)
+        self.lamport_manager.update_global_variables(threads_info, is_reverse_operation=True)
 
         self._update_thread_functions()
         return self.get_current_state()
