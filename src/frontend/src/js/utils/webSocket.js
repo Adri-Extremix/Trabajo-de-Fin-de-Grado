@@ -87,16 +87,14 @@ export function initializeSocket() {
             updateTerminal("Error: " + response.error);
             compiled = false;
         } else {
-            // Limpiar terminal para mostrar claramente que hay una nueva compilación
-            updateTerminal("Compilación completada con éxito.\n");
-            // Añadir pequeña pausa para mostrar la transición
-            setTimeout(() => {
-                // Esta función continúa después de un breve delay
-            }, 300);
             // Mostrar resultado de la compilación si existe
-            if (response.result && response.result.trim()) {
-                updateTerminal(response.result);
+            if (response.output_hellgrind && response.output_hellgrind.trim()) {
+                updateTerminal("Errores de concurrencia:\n " + response.output_hellgrind);
             }
+            else {
+                updateTerminal("Compilación completada con éxito.\n");
+            }
+
             compiled = true;
             editorChangedSinceCompilation = false; // Resetear el indicador de cambios
 

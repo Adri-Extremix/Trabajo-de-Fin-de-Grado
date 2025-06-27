@@ -19,17 +19,28 @@ class Compiler:
 
         # Compilar el código C
         exe_file_path = self.code_file_path.replace(".c", "")
-        compile_cmd = f"gcc -g -o {exe_file_path} {self.code_file_path} -pthread"
+        compile_cmd = f"gcc -g -O0 -o {exe_file_path} {self.code_file_path} -pthread"
         compile_process = subprocess.run(compile_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
 
         if compile_process.returncode != 0:
             stderr_output = compile_process.stderr.replace(self.code_file_path, "code.c")
-            
             raise Exception(f"Compilation error: {stderr_output}")
+        
+        output_hellgrind = self.run_hellgrind(exe_file_path)
 
         self.compiled_file_path = exe_file_path
-        return "Compilation successful"
-    
+        return {"result":"Compilation successful", "output_hellgrind": output_hellgrind}
+
+    def run_hellgrind(self, exe_file_path) -> str:
+        """Realiza un análisis de memoria con Hellgrind"""
+        hellgrind_cmd = f"valgrind --tool=hellgrind --track-lockorders=yes --read-var-info=yes --history-level=approx {exe_file_path}"
+        hellgrind_process = subprocess.run(hellgrind_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+        hellgrind_output = hellgrind_process.stderr
+        print("Hellgrind output:", hellgrind_output)
+        return hellgrind_output
+
     def run_code(self) -> str:
         if not self.compiled_file_path or not os.path.exists(self.compiled_file_path):
             raise Exception("Error: Executable file not found")

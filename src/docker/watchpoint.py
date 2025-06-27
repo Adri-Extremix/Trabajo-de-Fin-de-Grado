@@ -58,7 +58,6 @@ class LamportWatchpointManager:
                     
                     # Si cambió, agregar al historial
                     if new_value != old_value:
-                        # ✅ Obtener thread actual correctamente
                         if thread_info:
                             current_thread = thread_info.get("current-thread-id", "1")
                         else:
@@ -112,12 +111,11 @@ class LamportWatchpointManager:
                 has_watchpoint = any("watchpoint" in reason.lower() for reason in stop_reason if isinstance(reason, str))
                 has_breakpoint = any("breakpoint" in reason.lower() for reason in stop_reason if isinstance(reason, str))
                 
-                # ✅ Si hay breakpoint del usuario, NO es transparente
+
                 if has_breakpoint and has_watchpoint:
-                    print("🔍 Watchpoint + Breakpoint simultáneos → Priorizar breakpoint del usuario")
+                    print("Watchpoint + Breakpoint simultáneos → Priorizar breakpoint del usuario")
                     return False  # No hacer auto-continue
                 
-                # Solo watchpoint → transparente
                 return has_watchpoint and not has_breakpoint
                 
             elif isinstance(stop_reason, str):

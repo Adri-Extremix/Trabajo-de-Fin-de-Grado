@@ -132,7 +132,8 @@ class WebSocketContainer:
         @self.socketio.on('compile')
         def handle_compile(data): 
             try:
-                result = self.compiler.compile_code(data["code"])
+                result = self.compiler.compile_code(data["code"])["result"]
+                output_hellgrind = self.compiler.compile_code(data["code"])["output_hellgrind"]
                 if self.compiler.compiled_file_path:
                     # Obtener el modo de depuración del objeto data
                     debug_mode = data.get("debugMode", "gdb")
@@ -148,10 +149,9 @@ class WebSocketContainer:
                     breakpoints = data.get("breakpoints", [])
                     for breakpoint in breakpoints:
                         self.debugger.set_breakpoint(breakpoint)
-                    emit('compile_response', {'action': 'compile', 'result': result})
+                    emit('compile_response', {'action': 'compile', 'result': result, 'output_hellgrind': output_hellgrind})
             except Exception as e:
                 print(f"Error: {str(e)}")
-            #TODO: Acordarse de que el error de compilación debe de aparecer como un error en la consola del cliente
                 emit('compile_response', {'action': 'compile', 'error': str(e)})
                 return
 
@@ -163,7 +163,6 @@ class WebSocketContainer:
                 emit('run_response', {'action': 'run', 'result': result})
             except Exception as e:
 
-                #TODO: Acordarse de que el error de ejecución debe de aparecer como un error en la consola del cliente
                 emit('run_response', {'action': 'run', 'error': str(e)})
                 
                 return

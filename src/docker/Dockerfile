@@ -29,6 +29,7 @@ RUN apt-get update && apt-get install -y \
     pypy3 \
     pypy3-dev \
     pypy3-venv \
+    valgrind \
     && apt-get clean \ 
     && rm -rf /var/lib/apt/lists/*
 

@@ -23,12 +23,10 @@ class Debugger:
         with open(self.code_path, "r") as file:
             self.code = file.read()
         
-        # ✅ Simplificar: solo funciones y threads en debugger
         self.functions = self.parse_code()
         self.threads = {}
         self.correspondence = {}
 
-        # ✅ LamportManager gestiona las variables globales
         self.lamport_manager = LamportWatchpointManager(self)
 
     def parse_code(self):
@@ -88,10 +86,10 @@ class Debugger:
         print(f"Razón de parada: {stop_reason}") 
         
         if hasattr(self, 'lamport_manager') and self.lamport_manager._is_lamport_watchpoint_hit(stop_reason):
-            self.lamport_manager.update_global_variables(threads_info)  # ✅ Pasar diccionario
+            self.lamport_manager.update_global_variables(threads_info)  
             return self.continue_execution()
         else:
-            self.lamport_manager.update_global_variables(threads_info)  # ✅ Pasar diccionario
+            self.lamport_manager.update_global_variables(threads_info)  
 
         if self.enable_rr:
             return self.continue_execution()
@@ -102,13 +100,12 @@ class Debugger:
     def _update_thread_functions(self, threads_info=None):
         """Actualiza la información de hilos optimizando consultas a GDB"""
         self.threads.clear()  
-        # Obtenemos toda la información necesaria en una sola consulta
+
         if threads_info is None:
             threads_info = self.get_thread_info()
 
         current_thread_id = str(threads_info.get("current-thread-id"))
 
-        # Procesamiento por lotes de los hilos
         for thread in threads_info["threads"]:
             thread_id = str(thread["id"])
             thread_name = thread["target-id"]
@@ -119,13 +116,10 @@ class Debugger:
 
         self.get_all_thread_local_variables()
 
-        # ✅ No retornar nada, solo actualizar self.threads
-
     def _process_thread(self, thread_id, thread_name):
         """Procesa un hilo optimizando el acceso a frames"""
         self.select_thread(thread_id)
         
-        # Obtenemos todos los frames en una sola consulta
         frames_response = self._gdb_write("-stack-list-frames 0 %d" % (self.get_stack_depth() - 1))
         frames = frames_response[0]["payload"].get("stack", []) if frames_response else []
         for frame in frames:
@@ -154,7 +148,6 @@ class Debugger:
             stop_reason = self._extract_stop_reason(exec_continue)
 
             if hasattr(self, 'lamport_manager') and self.lamport_manager._is_lamport_watchpoint_hit(stop_reason):
-                # ✅ Obtener thread info correctamente
                 threads_info = self.get_thread_info()
                 self.lamport_manager.update_global_variables(threads_info)
                 continue
@@ -167,7 +160,6 @@ class Debugger:
             if response.get("message") == "thread-exited":
                 self.threads.pop(response["payload"]["id"], None)
 
-        # ✅ Actualizar al final
         threads_info = self.get_thread_info()
         self.lamport_manager.update_global_variables(threads_info)
 
@@ -184,7 +176,6 @@ class Debugger:
                 stop_reason = self._extract_stop_reason(exec_response)
                 
                 if hasattr(self, 'lamport_manager') and self.lamport_manager._is_lamport_watchpoint_hit(stop_reason):
-                    # Actualizar variables globales en modo transparente
                     threads_info = self.get_thread_info()
                     self.lamport_manager.update_global_variables(threads_info)
                     continue
@@ -308,7 +299,6 @@ class Debugger:
             # Para modo RR, no necesitamos thread_id específico
             return self.generic_step("step_over", None)
         elif thread_id is not None:
-            # Para modo GDB, usar generic_step que ya maneja transparencia
             return self.generic_step("step_over", thread_id)
         
         return self.get_current_state()
