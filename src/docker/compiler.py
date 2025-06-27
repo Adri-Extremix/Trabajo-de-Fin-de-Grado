@@ -7,7 +7,7 @@ class Compiler:
         self.compiled_file_path = None
         self.code_file_path = None
     
-    def compile_code(self, code) -> str:
+    def compile_code(self, code) -> dict:
         """Método que se encarga de compilar el código C recibido por parámetro"""
         """ data = request.get_json()
         code = data.get("code", "") """
@@ -27,19 +27,19 @@ class Compiler:
             stderr_output = compile_process.stderr.replace(self.code_file_path, "code.c")
             raise Exception(f"Compilation error: {stderr_output}")
         
-        output_hellgrind = self.run_hellgrind(exe_file_path)
+        output_helgrind = self.run_helgrind(exe_file_path)
 
         self.compiled_file_path = exe_file_path
-        return {"result":"Compilation successful", "output_hellgrind": output_hellgrind}
+        return {"result":"Compilation successful", "output_helgrind": output_helgrind}
 
-    def run_hellgrind(self, exe_file_path) -> str:
-        """Realiza un análisis de memoria con Hellgrind"""
-        hellgrind_cmd = f"valgrind --tool=hellgrind --track-lockorders=yes --read-var-info=yes --history-level=approx {exe_file_path}"
-        hellgrind_process = subprocess.run(hellgrind_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    def run_helgrind(self, exe_file_path) -> str:
+        """Realiza un análisis de memoria con helgrind"""
+        helgrind_cmd = f"valgrind --tool=helgrind --track-lockorders=yes --read-var-info=yes --history-level=approx {exe_file_path}"
+        helgrind_process = subprocess.run(helgrind_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-        hellgrind_output = hellgrind_process.stderr
-        print("Hellgrind output:", hellgrind_output)
-        return hellgrind_output
+        helgrind_output = helgrind_process.stderr
+        print("Helgrind output:", helgrind_output)
+        return helgrind_output
 
     def run_code(self) -> str:
         if not self.compiled_file_path or not os.path.exists(self.compiled_file_path):

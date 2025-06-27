@@ -133,7 +133,7 @@ class WebSocketContainer:
         def handle_compile(data): 
             try:
                 result = self.compiler.compile_code(data["code"])["result"]
-                output_hellgrind = self.compiler.compile_code(data["code"])["output_hellgrind"]
+                output_helgrind = self.compiler.compile_code(data["code"])["output_helgrind"]
                 if self.compiler.compiled_file_path:
                     # Obtener el modo de depuración del objeto data
                     debug_mode = data.get("debugMode", "gdb")
@@ -149,7 +149,7 @@ class WebSocketContainer:
                     breakpoints = data.get("breakpoints", [])
                     for breakpoint in breakpoints:
                         self.debugger.set_breakpoint(breakpoint)
-                    emit('compile_response', {'action': 'compile', 'result': result, 'output_hellgrind': output_hellgrind})
+                    emit('compile_response', {'action': 'compile', 'result': result, 'output_hellgrind': output_helgrind})
             except Exception as e:
                 print(f"Error: {str(e)}")
                 emit('compile_response', {'action': 'compile', 'error': str(e)})
