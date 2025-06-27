@@ -350,9 +350,9 @@ class Debugger:
 
     def generic_reverse_step(self, step_type):
         correspondece_step = {
-            "step_over": "-exec-next",
-            "step_into": "-exec-step",
-            "step_out": "-exec-finish"
+            "step_over": "reverse-next",    # ✅ CORRECCIÓN: Usar comandos reverse
+            "step_into": "reverse-step",    # ✅ CORRECCIÓN: Usar comandos reverse  
+            "step_out": "reverse-finish"    # ✅ CORRECCIÓN: Usar comandos reverse
         }
 
         if step_type == "step_out":
@@ -360,7 +360,25 @@ class Debugger:
             if frame_depth == 1:
                 step_type = "step_over"
         
-        self._gdb_write(correspondece_step[step_type])
+        # ✅ NUEVO: Manejar watchpoints transparentemente en reverse
+        while True:
+            step_command = correspondece_step[step_type]
+            exec_response = self._gdb_write(step_command)
+            stop_reason = self._extract_stop_reason(exec_response)
+            
+            if hasattr(self, 'lamport_manager') and self.lamport_manager._is_lamport_watchpoint_hit(stop_reason):
+                threads_info = self.get_thread_info()
+                self.lamport_manager.update_global_variables(threads_info, is_reverse_operation=True)
+                continue  # ✅ Continuar si es watchpoint transparente
+            else:
+                break
+        
+        # ✅ NUEVO: Actualizar estado después del reverse step
+        threads_info = self.get_thread_info()
+        self.lamport_manager.update_global_variables(threads_info, is_reverse_operation=True)
+        self._update_thread_functions(threads_info)
+        
+        return self.get_current_state()
 
     def reverse_step_over(self):
         if self.enable_rr:
