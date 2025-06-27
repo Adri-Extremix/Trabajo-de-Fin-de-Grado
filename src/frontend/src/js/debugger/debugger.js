@@ -37,6 +37,9 @@ function showDebuggerError(
 // Importamos las funciones para crear y configurar los controles de hilo
 import { setupThreadControlEvents } from "./debugControllers.js";
 
+// Importar la función para obtener el modo de debug
+import { getLastCompiledDebugMode } from "../utils/webSocket.js";
+
 // Función para actualizar la visualización de código (CodeShards)
 function updateCodeShards(threads) {
     const codeShardsContainer = $("#CodeShards");
@@ -49,6 +52,9 @@ function updateCodeShards(threads) {
         codeShardsContainer.append(showNoThreadsMessage());
         return;
     }
+
+    // ✅ OBTENER EL MODO DE DEBUG
+    const debugMode = getLastCompiledDebugMode();
 
     // Crear un CodeShard por cada hilo
     Object.keys(threads).forEach((threadId, index) => {
@@ -70,15 +76,10 @@ function updateCodeShards(threads) {
             threadInfo += ` (línea ${thread.line})`;
         }
 
-        // Añadir encabezado con estilo de ThreadItem, con los controles ya incluidos en el HTML
-        codeShard.append(`
-            <div class="ThreadItemHeader">
-                <div class="ThreadInfo">
-                    <div class="ThreadName">${threadTitle}</div>
-                    <div class="ThreadFunction">${
-                        threadInfo || "Sin información disponible"
-                    }</div>
-                </div>
+        // ✅ CONTROLES DE THREAD SOLO EN MODO GDB
+        let threadControlsHtml = "";
+        if (debugMode === "gdb") {
+            threadControlsHtml = `
                 <div class="ThreadControls">
                     <button class="ThreadButton thread-step-over" data-thread-id="${threadId}" title="Step Over">
                         <img src="${stepOverIcon}" alt="Step Over">
@@ -90,6 +91,19 @@ function updateCodeShards(threads) {
                         <img src="${stepIntoIcon}" alt="Step Into">
                     </button>
                 </div>
+            `;
+        }
+
+        // Añadir encabezado con estilo de ThreadItem
+        codeShard.append(`
+            <div class="ThreadItemHeader">
+                <div class="ThreadInfo">
+                    <div class="ThreadName">${threadTitle}</div>
+                    <div class="ThreadFunction">${
+                        threadInfo || "Sin información disponible"
+                    }</div>
+                </div>
+                ${threadControlsHtml}
             </div>
         `);
 
@@ -205,7 +219,7 @@ function updateCodeShards(threads) {
         codeShardsContainer.append(codeShard);
     });
 
-    // Asegurarse de que los eventos de control de hilo se configuran después de cada actualización
+    // ✅ SOLO configurar eventos de thread si estamos en modo GDB
     setupThreadControlEvents();
 
     // Añadir event listener para hacer clic en CodeShards y actualizar el thread activo
