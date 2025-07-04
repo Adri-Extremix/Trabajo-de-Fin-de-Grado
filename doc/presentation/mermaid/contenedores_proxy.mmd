@@ -1,0 +1,14 @@
+---
+config:
+  theme: dark
+  look: classic
+  layout: elk
+---
+flowchart LR
+    Client_1("Cliente 1") -- 1 --> Proxy("Proxy")
+    Proxy -- 2 --> Client_1 & Client_2("Cliente 2")
+    Client_1 -- 3 --> Docker1("Contenedor 1")
+    Client_2 -- 1 --> Proxy
+    Client_2 -- 3 --> Docker2("Contenedor 2")
+    Docker1 -. Latidos .- Proxy
+    Docker2 -. Latidos .- Proxy

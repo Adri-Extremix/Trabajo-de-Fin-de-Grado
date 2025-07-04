@@ -1082,6 +1082,41 @@ header {
     background-color: rgba(var(--primary-color-debugger-rgb), 0.05);
 }
 
+.HistoryMoreLink {
+    color: var(--primary-color-debugger);
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+.HistoryMoreLink:hover {
+    color: var(--secondary-color-debugger);
+    text-decoration: none;
+}
+
+.HistoryCollapse {
+    padding: 8px 15px;
+    text-align: center;
+    background-color: rgba(var(--primary-color-debugger-rgb), 0.1);
+    border-top: 1px solid var(--border-color);
+}
+
+.HistoryCollapseLink {
+    color: var(--primary-color-debugger);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.HistoryCollapseLink:hover {
+    color: var(--secondary-color-debugger);
+    text-decoration: underline;
+}
 /* Responsive para variables globales */
 @media (max-width: 768px) {
     .GlobalVariableHeader {

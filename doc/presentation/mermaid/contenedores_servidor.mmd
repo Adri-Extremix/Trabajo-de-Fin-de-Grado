@@ -1,0 +1,11 @@
+---
+config:
+  theme: dark
+  look: classic
+---
+flowchart TD
+    Client_1("Cliente 1") <--> Server("Servidor")
+    Client_2("Cliente 2") <--> Server
+    Client_3("Cliente 3") <--> Server
+    Server <--> Docker["Contenedores"]
+    Docker@{ shape: procs}

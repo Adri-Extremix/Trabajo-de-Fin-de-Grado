@@ -61,58 +61,96 @@ export function getBreakpoints(view) {
 }
 
 export function crearEditor() {
-    const code = `//Este es un Código de Ejemplo
-
-#include <stdio.h>
+    const code = `#include <stdio.h>
+#include <stdlib.h>
 #include <pthread.h>
+#include <unistd.h>
 
-#define M 6
-#define N 3
+int global_counter = 0;
 
+pthread_mutex_t shared_resource_mutex;
 
-int arr[M][N] = {
-    {1, 2, 3},
-    {4, 5, 6},
-    {7, 8, 9},
-    {10, 11, 12},
-    {13, 14, 15},
-    {16, 17, 18}
-};
+typedef struct {
+    int a;
+    int b;
+    int result;
+} AddArgs;
 
-// Función que será ejecutada por cada hilo
-void* print_row(void* arg) {
-    int row = *(int*)arg; // Índice de la fila a imprimir
-    printf("Row %d: ", row);
-    for (int j = 0; j < N; j++) {
-        printf("%d ", arr[row][j]);
+typedef struct {
+    int* arr;
+    int size;
+} PrintArrayArgs;
+
+void* greet(void* argumento) {
+    pthread_mutex_lock(&shared_resource_mutex);
+    printf("¡Hola, bienvenido al programa!\\n");
+    global_counter++;
+    printf("[Hilo Greet] Contador global: %d\\n", global_counter);
+    pthread_mutex_unlock(&shared_resource_mutex);
+
+    usleep(100000);
+    return NULL;
+}
+
+void* add(void* argumento) {
+    AddArgs* args = (AddArgs*)argumento;
+    args->result = args->a + args->b;
+
+    pthread_mutex_lock(&shared_resource_mutex);
+    printf("[Hilo Add] Realizando suma: %d + %d = %d\\n", args->a, args->b, args->result);
+    global_counter += args->result;
+    printf("[Hilo Add] Contador global: %d\\n", global_counter);
+    pthread_mutex_unlock(&shared_resource_mutex);
+
+    usleep(150000);
+    return NULL;
+}
+
+void* printArray(void* xd) {
+    PrintArrayArgs* args = (PrintArrayArgs*)xd;
+
+    pthread_mutex_lock(&shared_resource_mutex);
+    printf("[Hilo PrintArray] Array: ");
+    for (int i = 0; i < args->size; i++) {
+        printf("%d ", args->arr[i]);
     }
     printf("\\n");
+    for (int i = 0; i < args->size; i++) {
+        global_counter += args->arr[i];
+    }
+    printf("[Hilo PrintArray] Contador global: %d\\n", global_counter);
+    pthread_mutex_unlock(&shared_resource_mutex);
+
+    usleep(200000);
     return NULL;
 }
 
 int main() {
-    pthread_t threads[M]; // Array para almacenar identificadores de los hilos
-    int row_indices[M];   // Array para pasar índices de las filas a los hilos
+    pthread_t thread1, thread2, thread3;
 
-    // Crear un hilo para cada fila
-    for (int i = 0; i < M; i++) {
-        row_indices[i] = i; // Asignar el índice de la fila
-        if (pthread_create(&threads[i], NULL, print_row, &row_indices[i]) != 0) {
-            perror("Error creando hilo");
-            return 1;
-        }
+    if (pthread_mutex_init(&shared_resource_mutex, NULL) != 0) {
+        fprintf(stderr, "Error al inicializar el mutex compartido.\\n");
+        return 1;
     }
 
-    // Esperar a que todos los hilos terminen
-    for (int i = 0; i < M; i++) {
-        if (pthread_join(threads[i], NULL) != 0) {
-            perror("Error esperando hilo");
-            return 1;
-        }
-    }
+    pthread_create(&thread1, NULL, greet, NULL);
+    
+    AddArgs addArgs = { 5, 3, 0 };
+    pthread_create(&thread2, NULL, add, &addArgs);
+    
+    int arr[] = { 10, 20, 30, 40, 50 };
+    PrintArrayArgs printArrayArgs = { arr, 5 };
+    pthread_create(&thread3, NULL, printArray, &printArrayArgs);
 
-    printf("Todos los hilos han terminado.\\n");
-    printf("¿Han términado en orden?");
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+    pthread_join(thread3, NULL);
+
+    pthread_mutex_destroy(&shared_resource_mutex);
+
+    printf("\\nSuma total del hilo 'add': %d\\n", addArgs.result);
+    printf("Valor final del contador global: %d\\n", global_counter);
+
     return 0;
 }
 `;

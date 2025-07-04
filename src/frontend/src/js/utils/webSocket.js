@@ -87,23 +87,32 @@ export function initializeSocket() {
             updateTerminal("Error: " + response.error);
             compiled = false;
         } else {
-            // Mostrar resultado de la compilación si existe
+            // Verificar si hay errores reales en la salida de Helgrind
             if (response.output_hellgrind && response.output_hellgrind.trim()) {
-                updateTerminal("Errores de concurrencia:\n " + response.output_hellgrind);
-            }
-            else {
+                const hasRealErrors = checkForHelgrindErrors(
+                    response.output_hellgrind
+                );
+
+                if (hasRealErrors) {
+                    updateTerminal(
+                        "Errores de concurrencia detectados:\n " +
+                            response.output_hellgrind
+                    );
+                } else {
+                    updateTerminal(
+                        "Compilación completada con éxito. Análisis de concurrencia: sin errores.\n"
+                    );
+                }
+            } else {
                 updateTerminal("Compilación completada con éxito.\n");
             }
 
             compiled = true;
-            editorChangedSinceCompilation = false; // Resetear el indicador de cambios
-
-            // Guardar el modo de depuración actual
+            editorChangedSinceCompilation = false;
             lastCompiledDebugMode = document.getElementById("debugMode").value;
             console.log("Modo de depuración guardado:", lastCompiledDebugMode);
         }
 
-        // Actualizamos botones y slicer
         RunColorManager();
         $("#slicerToggle").prop("disabled", !compiled);
     });
@@ -338,4 +347,28 @@ export function threadStepOutExecution(threadId) {
     // Actualizar el thread activo para futuras operaciones globales
     setActiveThreadId(threadId);
     return true;
+}
+
+/**
+ * Verifica si la salida de Helgrind contiene errores reales
+ * @param {string} output - Salida de Helgrind
+ * @returns {boolean} - true si hay errores reales
+ */
+function checkForHelgrindErrors(output) {
+    // Buscar el ERROR SUMMARY y extraer el número de errores
+    const errorSummaryMatch = output.match(/ERROR SUMMARY: (\d+) errors from (\d+) contexts/);
+    
+    if (errorSummaryMatch) {
+        const errorCount = parseInt(errorSummaryMatch[1]);
+        return errorCount > 0;
+    }
+    
+    // Fallback: buscar palabras clave de errores
+    const errorKeywords = [
+        'Possible data race',
+        'Lock order',
+        'Thread #'
+    ];
+    
+    return errorKeywords.some(keyword => output.includes(keyword));
 }

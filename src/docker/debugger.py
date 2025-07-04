@@ -146,7 +146,8 @@ class Debugger:
         while True:
             exec_continue = self._gdb_write("-exec-continue")
             stop_reason = self._extract_stop_reason(exec_continue)
-
+            print(f"Razón de parada: {stop_reason}")
+            
             if hasattr(self, 'lamport_manager') and self.lamport_manager._is_lamport_watchpoint_hit(stop_reason):
                 threads_info = self.get_thread_info()
                 self.lamport_manager.update_global_variables(threads_info)

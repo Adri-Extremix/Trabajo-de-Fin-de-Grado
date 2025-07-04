@@ -1,0 +1,19 @@
+---
+config:
+  theme: redux-dark
+---
+flowchart TD
+    A --> Usr_Case("Casos de Uso")
+    Usr_Case --> Usr_Req("Requisitos de Usuarios")
+    Usr_Req --> Soft_Req("Requisitos de Software")
+    Soft_Req --> Component("Componentes")
+    Component --> Test_Case("Casos de Prueba")
+    Test_Case --> B
+
+    Usr_Req -. Trazabilidad .-> Usr_Case
+    Soft_Req -. Trazabilidad .-> Usr_Req
+    Component -. Trazabilidad .-> Soft_Req
+    Test_Case -. Trazabilidad .-> Component
+
+    A@{ shape: sm-circ}
+    B@{ shape: framed-circle}

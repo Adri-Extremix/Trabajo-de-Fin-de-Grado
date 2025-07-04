@@ -467,6 +467,9 @@ export function showDebuggingStatus() {
 function updateGlobalVariables(globals) {
     console.log("Actualizando variables globales:", globals);
 
+    // ✅ Guardar los datos globales para uso en event listeners
+    window.currentGlobalVariablesData = globals;
+
     // ✅ CORRECTO: Buscar el Visual que contiene ThreadContent
     const threadVisualContainer = $(".ThreadContent").closest(".Visual");
 
@@ -479,7 +482,7 @@ function updateGlobalVariables(globals) {
             // Insertar las variables globales antes de ThreadContent
             $(".ThreadContent").before(`
                 <div id="GlobalVariables" class="GlobalVariablesContainer">
-                    <div class="GlobalVariablesTitle">Variables Globales (Diagrama Lamport)</div>
+                    <div class="GlobalVariablesTitle">Variables Globales</div>
                     <div class="GlobalVariablesList"></div>
                 </div>
             `);
@@ -553,11 +556,15 @@ function updateGlobalVariables(globals) {
                 historyList.append(historyItem);
             });
 
-            // Si hay más de 5 eventos, mostrar un indicador
+            // Si hay más de 5 eventos, mostrar un indicador clickeable
             if (history.length > 5) {
                 historyList.append(`
-                    <div class="HistoryMore">
-                        ... y ${history.length - 5} cambios más
+                    <div class="HistoryMore" data-variable="${varName}" data-total-events="${
+                    history.length
+                }">
+                        <span class="HistoryMoreLink">... y ${
+                            history.length - 5
+                        } cambios más (click para ver todos)</span>
                     </div>
                 `);
             }
@@ -575,8 +582,120 @@ function toggleVariableHistory(varName) {
     historyDiv.slideToggle(200);
 }
 
+// Función para expandir el historial completo de una variable
+function expandVariableHistory(varName, globals) {
+    const variable = globals[varName];
+    if (!variable || !variable.history) return;
+
+    const variableItem = $(`.GlobalVariableItem[data-variable="${varName}"]`);
+    const historyList = variableItem.find(".HistoryList");
+
+    // Limpiar el historial actual
+    historyList.empty();
+
+    // Mostrar TODOS los eventos, más recientes primero
+    const fullHistory = variable.history.slice().reverse();
+
+    fullHistory.forEach((event, index) => {
+        const timestamp = new Date(event.timestamp).toLocaleTimeString();
+        const historyItem = $(`
+            <div class="HistoryItem" data-lamport="${event.lamport_time}">
+                <span class="HistoryLamport">T${event.lamport_time}</span>
+                <span class="HistoryThread">Hilo ${event.thread_id}</span>
+                <span class="HistoryValue">${event.value}</span>
+                <span class="HistoryTime">${timestamp}</span>
+            </div>
+        `);
+
+        historyList.append(historyItem);
+    });
+
+    // Agregar botón para colapsar de nuevo
+    historyList.append(`
+        <div class="HistoryCollapse" data-variable="${varName}">
+            <span class="HistoryCollapseLink">⬆ Mostrar solo los últimos 5 cambios</span>
+        </div>
+    `);
+}
+
+// Función para colapsar el historial a solo los últimos 5
+function collapseVariableHistory(varName, globals) {
+    const variable = globals[varName];
+    if (!variable || !variable.history) return;
+
+    const variableItem = $(`.GlobalVariableItem[data-variable="${varName}"]`);
+    const historyList = variableItem.find(".HistoryList");
+
+    // Limpiar el historial actual
+    historyList.empty();
+
+    const history = variable.history;
+
+    if (history.length === 0) {
+        historyList.html(
+            '<div class="HistoryEmpty">Sin cambios registrados</div>'
+        );
+        return;
+    }
+
+    // Mostrar solo los últimos 5 cambios, más recientes primero
+    const recentHistory = history.slice(-5).reverse();
+
+    recentHistory.forEach((event, index) => {
+        const timestamp = new Date(event.timestamp).toLocaleTimeString();
+        const historyItem = $(`
+            <div class="HistoryItem" data-lamport="${event.lamport_time}">
+                <span class="HistoryLamport">T${event.lamport_time}</span>
+                <span class="HistoryThread">Hilo ${event.thread_id}</span>
+                <span class="HistoryValue">${event.value}</span>
+                <span class="HistoryTime">${timestamp}</span>
+            </div>
+        `);
+
+        historyList.append(historyItem);
+    });
+
+    // Si hay más de 5 eventos, mostrar el indicador clickeable de nuevo
+    if (history.length > 5) {
+        historyList.append(`
+            <div class="HistoryMore" data-variable="${varName}" data-total-events="${
+            history.length
+        }">
+                <span class="HistoryMoreLink">... y ${
+                    history.length - 5
+                } cambios más (click para ver todos)</span>
+            </div>
+        `);
+    }
+}
+
 // Event listener para el click en variables globales
 $(document).on("click", ".GlobalVariableHeader", function () {
     const varName = $(this).closest(".GlobalVariableItem").data("variable");
     toggleVariableHistory(varName);
+});
+
+// ✅ NUEVO: Event listener para expandir historial completo
+$(document).on("click", ".HistoryMoreLink", function () {
+    const varName = $(this).closest(".HistoryMore").data("variable");
+
+    // Necesitamos acceso a los datos globales actuales
+    // Los guardamos temporalmente cuando se actualiza updateGlobalVariables
+    const currentGlobals = window.currentGlobalVariablesData || {};
+
+    if (currentGlobals[varName]) {
+        expandVariableHistory(varName, currentGlobals);
+    }
+});
+
+// ✅ NUEVO: Event listener para colapsar historial
+$(document).on("click", ".HistoryCollapseLink", function () {
+    const varName = $(this).closest(".HistoryCollapse").data("variable");
+
+    // Usar los datos globales actuales
+    const currentGlobals = window.currentGlobalVariablesData || {};
+
+    if (currentGlobals[varName]) {
+        collapseVariableHistory(varName, currentGlobals);
+    }
 });
