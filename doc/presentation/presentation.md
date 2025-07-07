@@ -136,7 +136,7 @@ style: |
 
 ---
 <!-- _header: "1. Introducción" -->
-![bg right:45% 90%](./images/hilos.svg)
+![bg right:45% 90%](./images/Hilos.svg)
 #### Motivación
 
 - Desarrollo concurrente **frustrante**
@@ -164,15 +164,15 @@ Crear una herramienta que permita:
 <div class="tools-grid">
     <div class="tool-item">
         <div class="tool-name">GDB</div>
-        <img src="./images/gdb.png" alt="GDB" class="tool-image">
+        <img src="./images/GDB.png" alt="GDB" class="tool-image">
     </div>
     <div class="tool-item">
         <div class="tool-name">CLion</div>
-        <img src="./images/clion.png" alt="CLion" class="tool-image">
+        <img src="./images/CLion.png" alt="CLion" class="tool-image">
     </div>
     <div class="tool-item">
         <div class="tool-name">Seer</div>
-        <img src="./images/seer.png" alt="Seer" class="tool-image">
+        <img src="./images/Seer.png" alt="Seer" class="tool-image">
     </div>
 </div>
 

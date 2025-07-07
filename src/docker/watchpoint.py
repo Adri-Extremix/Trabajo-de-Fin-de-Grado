@@ -14,6 +14,9 @@ class LamportWatchpointManager:
         self._initialize_global_variables()
         self.setup_transparent_watchpoints()
         
+        # ✅ NUEVO: Registro de breakpoints activos
+        self.active_breakpoints = {}
+
     def _initialize_global_variables(self):
         """Inicializar variables globales con diferentes estrategias según el modo"""
         print("🔍 Inicializando detección de variables globales...")
@@ -316,8 +319,33 @@ class LamportWatchpointManager:
             pass
         return None
 
+    def register_user_breakpoint(self, breakpoint_number, line, file_path):
+        """Registra un breakpoint de usuario para distinguirlo de watchpoints"""
+        self.active_breakpoints[str(breakpoint_number)] = {
+            "type": "user_breakpoint",
+            "line": line,
+            "file": file_path,
+            "timestamp": datetime.datetime.now().isoformat()
+        }
+        print(f"📍 Breakpoint de usuario registrado: #{breakpoint_number} en {file_path}:{line}")
+
+    def register_watchpoint(self, breakpoint_number, variable_name):
+        """Registra un watchpoint transparente"""
+        self.active_breakpoints[str(breakpoint_number)] = {
+            "type": "transparent_watchpoint",
+            "variable": variable_name,
+            "timestamp": datetime.datetime.now().isoformat()
+        }
+        print(f"👁️ Watchpoint transparente registrado: #{breakpoint_number} para variable '{variable_name}'")
+
+    def unregister_breakpoint(self, breakpoint_number):
+        """Elimina el registro de un breakpoint"""
+        removed = self.active_breakpoints.pop(str(breakpoint_number), None)
+        if removed:
+            print(f"🗑️ Breakpoint #{breakpoint_number} eliminado del registro ({removed['type']})")
+
     def setup_transparent_watchpoints(self, variable_names=None):
-        """Configura watchpoints para variables globales"""
+        """Configura watchpoints para variables globales con registro mejorado"""
         if variable_names is None:
             variable_names = list(self.global_variables.keys())
             
@@ -329,19 +357,67 @@ class LamportWatchpointManager:
                 
                 if response and any(resp.get("message") == "done" for resp in response):
                     self.lamport_watchpoints.add(var_name)
-                    print(f"Watchpoint configurado para '{var_name}'")
+                    
+                    # ✅ NUEVO: Extraer número de breakpoint y registrarlo
+                    bkpt_number = self._extract_breakpoint_number_from_response(response)
+                    if bkpt_number:
+                        self.register_watchpoint(bkpt_number, var_name)
+                    
+                    print(f"Watchpoint configurado para '{var_name}' (#{bkpt_number})")
                     
             except Exception as e:
                 print(f"Error configurando watchpoint para {var_name}: {e}")
 
+    def _extract_breakpoint_number_from_response(self, response):
+        """Extrae el número de breakpoint de la respuesta de GDB"""
+        try:
+            for resp in response:
+                if resp.get("message") == "done" and "payload" in resp:
+                    bkpt_info = resp["payload"].get("bkpt", {})
+                    return bkpt_info.get("number")
+                elif resp.get("type") == "console":
+                    # Para respuestas de consola como "Watchpoint 1: variable"
+                    import re
+                    payload = resp.get("payload", "")
+                    match = re.search(r'Watchpoint (\d+):', payload)
+                    if match:
+                        return match.group(1)
+        except Exception as e:
+            print(f"Error extrayendo número de breakpoint: {e}")
+        return None
+
+    def get_breakpoint_status(self):
+        """Devuelve el estado actual de todos los breakpoints"""
+        return {
+            "user_breakpoints": {k: v for k, v in self.active_breakpoints.items() if v["type"] == "user_breakpoint"},
+            "transparent_watchpoints": {k: v for k, v in self.active_breakpoints.items() if v["type"] == "transparent_watchpoint"},
+            "total_count": len(self.active_breakpoints)
+        }
+
     def _is_lamport_watchpoint_hit(self, stop_reason):
         """Determina si la parada fue SOLO por nuestro watchpoint"""
         try:
-            if isinstance(stop_reason, list):
+            # ✅ NUEVO: Manejar información detallada de breakpoint
+            if isinstance(stop_reason, dict):
+                reason = stop_reason.get("reason", "")
+                breakpoint_info = stop_reason.get("breakpoint", {})
+                
+                # Si hay información de breakpoint específica
+                if breakpoint_info:
+                    bkpt_number = breakpoint_info.get("number")
+                    print(f"🔍 Breakpoint #{bkpt_number} detectado")
+                    
+                    # Verificar si es uno de nuestros watchpoints transparentes
+                    return self._is_transparent_watchpoint(bkpt_number)
+                
+                # Solo watchpoint sin breakpoint de usuario
+                return "watchpoint" in reason.lower() and "breakpoint" not in reason.lower()
+                
+            elif isinstance(stop_reason, list):
                 has_watchpoint = any("watchpoint" in reason.lower() for reason in stop_reason if isinstance(reason, str))
                 has_breakpoint = any("breakpoint" in reason.lower() for reason in stop_reason if isinstance(reason, str))
                 
-                #  Si hay breakpoint del usuario, NO es transparente
+                # Si hay breakpoint del usuario, NO es transparente
                 if has_breakpoint and has_watchpoint:
                     return False  # No hacer auto-continue
                 
@@ -353,6 +429,38 @@ class LamportWatchpointManager:
                 
             return False
         except:
+            return False
+
+    def _is_transparent_watchpoint(self, breakpoint_number):
+        """Verifica si un breakpoint específico es uno de nuestros watchpoints transparentes"""
+        try:
+            if not breakpoint_number:
+                return False
+                
+            # Obtener información del breakpoint
+            bkpt_info = self.debugger.get_breakpoint_info(breakpoint_number)
+            
+            if bkpt_info and "BreakpointTable" in bkpt_info:
+                breakpoints = bkpt_info["BreakpointTable"].get("body", [])
+                
+                for bkpt in breakpoints:
+                    bkpt_data = bkpt.get("bkpt", {})
+                    if bkpt_data.get("number") == str(breakpoint_number):
+                        bkpt_type = bkpt_data.get("type", "")
+                        what = bkpt_data.get("what", "")
+                        
+                        # Es nuestro watchpoint si es tipo "watchpoint" y vigila una de nuestras variables
+                        if bkpt_type == "watchpoint" and any(var_name in what for var_name in self.global_variables):
+                            print(f"✅ Watchpoint transparente confirmado: #{breakpoint_number} para '{what}'")
+                            return True
+                        
+                        print(f"🔴 Breakpoint de usuario: #{breakpoint_number} (tipo: {bkpt_type})")
+                        return False
+            
+            return False
+            
+        except Exception as e:
+            print(f"Error verificando watchpoint transparente: {e}")
             return False
 
     def get_lamport_globals_structure(self):
